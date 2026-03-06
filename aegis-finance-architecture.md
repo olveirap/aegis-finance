@@ -34,7 +34,7 @@ The original PRD described a Local SLM + Cloud LLM split. With Qwen 3.5 running 
 ```
 
 **Cloud LLM provider rationale:**  
-DeepSeek-R1 was originally considered but is Chinese-hosted. For a privacy-first product targeting a "Sovereign Investor" persona, routing anonymized data through a Chinese cloud provider is a trust and marketing problem regardless of technical safeguards. The cloud provider is now **configurable**: OpenAI, Anthropic, or Google Gemini — all offering zero-data-retention API agreements. A local fallback (Qwen 3.5) is available when no cloud API key is configured.
+For a privacy-first product targeting a "Sovereign Investor" persona, routing data through a cloud provider is a trust and marketing problem regardless of technical safeguards. The cloud provider is now **configurable**: OpenAI, Anthropic, or Google Gemini. A local fallback (Qwen 3.5) is available when no cloud API key is configured.
 
 ---
 
