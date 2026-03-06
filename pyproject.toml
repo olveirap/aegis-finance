@@ -1,0 +1,31 @@
+[project]
+name = "aegis-finance"
+version = "0.1.0"
+description = "Privacy-first personal finance advisor powered by hybrid local/cloud LLM architecture."
+authors = [
+    {name = "olveirap"}
+]
+readme = "README.md"
+requires-python = "^3.11"
+dependencies = [
+    "pydantic (>=2.0,<3.0)",
+    "pyyaml (>=6.0,<7.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+pytest-asyncio = "^0.24"
+ruff = "^0.9"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
