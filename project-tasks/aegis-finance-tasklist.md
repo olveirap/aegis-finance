@@ -22,15 +22,15 @@ Each phase follows the Orchestrator workflow:
 
 ## Phase 0: Knowledge Base Data Gathering (Milestone 0, parallel to M1)
 
-> **Focus:** Scrape, curate, and structure financial knowledge for RAG.
-> **Exit Criteria:** pgvector contains quality-gated, deduplicated, ontology-tagged embeddings from ≥ 5 source types. RAG benchmarks pass.
+> **Focus:** Scrape, curate, and structure financial knowledge for RAG. Note: Initial focus is on pgvector, but laying groundwork for a Hybrid RAG with a Graph Database.
+> **Exit Criteria:** pgvector contains quality-gated, deduplicated, ontology-tagged embeddings from >= 5 source types, plus extracted entities/relations. RAG benchmarks pass.
 > **Specialist Roles:** Data Engineers, RAG Specialists, Ontology Experts.
 
 ### [ ] Task 0.1 — Ontology & Taxonomy Design
 **Agent:** AI Engineer (Ontology Expert role)  
-**Description:** Define the topic taxonomy and metadata schema for the knowledge base.  
+**Description:** Define the topic taxonomy, entity relationships (for future Graph DB), and metadata schema for the knowledge base.  
 **Deliverables:**
-- `src/aegis/kb/ontology.py` — Topic taxonomy as structured enum/dataclass
+- `src/aegis/kb/ontology.py` — Topic taxonomy and Graph node/edge definitions
   - Personal Finance: budgeting, saving, emergency fund, debt management
   - Investing: stocks, bonds, CEDEARs, FCIs, ETFs, crypto
   - Argentine-specific: ganancias, bienes personales, MEP/CCL, inflación, plazo fijo
@@ -62,7 +62,7 @@ Each phase follows the Orchestrator workflow:
 
 ### [ ] Task 0.3 — Deduplication & Quality Pipeline
 **Agent:** AI Engineer (RAG Specialist role)  
-**Description:** Quality filtering and deduplication of scraped content.  
+**Description:** Quality filtering, deduplication, and entity extraction.  
 **Deliverables:**
 - `src/aegis/kb/pipeline.py` — End-to-end KB processing pipeline
   - Content hash deduplication (SHA-256)
@@ -72,15 +72,16 @@ Each phase follows the Orchestrator workflow:
   - Relevance scoring against ontology taxonomy
 - `src/aegis/kb/chunker.py` — Configurable chunking (512 tokens, 64 overlap)
 - `src/aegis/kb/tagger.py` — Automatic ontology tagging using Qwen 3.5 (via llama.cpp)
+- `src/aegis/kb/extractor.py` — Entity and relationship extraction (prep for Graph DB)
 - Source attribution preserved in every chunk's metadata
 
-**QA:** Duplicate content is rejected. Low-quality content is filtered. Tags match expected ontology categories for test documents.
+**QA:** Duplicate content is rejected. Low-quality content is filtered. Tags and extracted entities match expected ontology for test documents.
 
 ---
 
 ### [ ] Task 0.4 — KB Embedding & Storage
 **Agent:** AI Engineer (RAG Specialist role)  
-**Description:** Embed curated chunks and store in pgvector.  
+**Description:** Embed curated chunks and store in pgvector (with optional relational fallback for Graph DB entities).  
 **Deliverables:**
 - `src/aegis/kb/embedder.py` — Batch embedding via Qwen3-embedding (llama.cpp)
   - Qwen3-VL-Embedding fallback for content with images/OCR
@@ -266,14 +267,14 @@ Each phase follows the Orchestrator workflow:
 
 ---
 
-### [ ] Task 2.4 — RAG Pipeline
+### [ ] Task 2.4 — Hybrid RAG Pipeline
 **Agent:** AI Engineer  
-**Description:** Knowledge base ingestion and retrieval pipeline.  
+**Description:** Hybrid knowledge base ingestion and retrieval pipeline (Vector + Graph traversal).  
 **Deliverables:**
 - `src/aegis/rag/ingestion.py` — Document chunking (512 tokens, 64 overlap) + Qwen3-embedding via llama.cpp
-- `src/aegis/rag/retriever.py` — pgvector similarity search with metadata filtering
+- `src/aegis/rag/retriever.py` — Hybrid retrieval: pgvector similarity + Graph knowledge traversal
 - `src/aegis/rag/reranker.py` — Cross-encoder reranking (local model)
-- `src/aegis/graph/rag_flow.py` — LangGraph node for RAG retrieval
+- `src/aegis/graph/rag_flow.py` — LangGraph node for Hybrid RAG retrieval
 - `data/knowledge/` — Seed with 5–10 curated Argentine finance documents
 
 **QA:** Ingests sample documents, embeds correctly, retrieves relevant chunks for test queries, reranker improves ordering.

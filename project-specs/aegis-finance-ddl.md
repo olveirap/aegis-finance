@@ -155,6 +155,37 @@ CREATE INDEX idx_kb_chunks_tags ON kb_chunks USING gin(topic_tags);
 CREATE INDEX idx_kb_chunks_argentina ON kb_chunks(argentina_specific) WHERE argentina_specific = TRUE;
 ```
 
+### `kb_entities` (Graph Database Preparation)
+```sql
+CREATE TABLE kb_entities (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name            VARCHAR(255) NOT NULL,
+    entity_type     VARCHAR(50) NOT NULL,           -- e.g., 'Concept', 'Regulation', 'Asset'
+    description     TEXT,
+    created_at      TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(name, entity_type)
+);
+
+CREATE INDEX idx_kb_entities_name ON kb_entities(name);
+CREATE INDEX idx_kb_entities_type ON kb_entities(entity_type);
+```
+
+### `kb_relations` (Graph Database Preparation)
+```sql
+CREATE TABLE kb_relations (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    head_entity_id  UUID NOT NULL REFERENCES kb_entities(id) ON DELETE CASCADE,
+    tail_entity_id  UUID NOT NULL REFERENCES kb_entities(id) ON DELETE CASCADE,
+    relation_type   VARCHAR(100) NOT NULL,          -- e.g., 'REGULATES', 'PART_OF', 'DEPENDS_ON'
+    chunk_id        UUID REFERENCES kb_chunks(id) ON DELETE SET NULL,  -- Knowledge provenance
+    created_at      TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(head_entity_id, tail_entity_id, relation_type)
+);
+
+CREATE INDEX idx_kb_relations_head ON kb_relations(head_entity_id);
+CREATE INDEX idx_kb_relations_tail ON kb_relations(tail_entity_id);
+```
+
 ---
 
 ## Curated Semantic Views
