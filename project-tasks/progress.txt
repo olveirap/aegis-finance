@@ -1,0 +1,21 @@
+Aegis Finance - Task Progress Log
+=================================
+
+2026-03-06: Task 0.1 — Ontology & Taxonomy Design [COMPLETED]
+--------------------------------------------------------------
+- Implemented faceted taxonomy system for Knowledge Base.
+- Created `src/aegis/kb/ontology.py` with 4 topic categories and 21 subtopics.
+- Implemented `ChunkMetadata` in `src/aegis/kb/metadata.py` with orthogonal jurisdiction facet (ISO 3166-1).
+- Exported taxonomy configuration to `data/knowledge/taxonomy.yaml`.
+- Transitioned project to Poetry with local `.venv` creation (`virtualenvs.in-project true`).
+- Created and passed extensive `pytest` suite for the ontology and metadata schemas.
+
+2026-03-06: Task 0.2 — Source Scrapers [COMPLETED]
+--------------------------------------------------------------
+- Implemented `RawDocument` model in `src/aegis/kb/scrapers/models.py`.
+- Implemented `BaseScraper` in `src/aegis/kb/scrapers/base.py` with retry/rate-limiting logic using `tenacity` and `asyncio.Semaphore`.
+- Added specific scraper implementations for Blog, YouTube, Reddit, Regulation, and Book Summaries.
+- Added dependency requirements (`httpx`, `beautifulsoup4`, `trafilatura`, `asyncpraw`, `youtube-transcript-api`, `pypdf`, `tenacity`) and fixed compatibility limits.
+- Validated scrapers through manual requests. Raw text correctly outputs to `data/knowledge/raw/` in Markdown with YAML frontmatter.
+- Implemented and passed exhaustive unit tests (`tests/unit/test_scrapers.py`) using mocked networks.
+- Created project `.gitignore` excluding Python cache, IDE artifacts, and the raw knowledge directory.

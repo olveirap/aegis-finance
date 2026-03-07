@@ -43,7 +43,7 @@ Each phase follows the Orchestrator workflow:
 
 ---
 
-### [ ] Task 0.2 — Source Scrapers
+### [x] Task 0.2 — Source Scrapers
 **Agent:** Backend Architect (Data Engineer role)  
 **Description:** Per-source adapters to fetch raw content from web sources.  
 **Deliverables:**
