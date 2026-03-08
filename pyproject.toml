@@ -16,7 +16,11 @@ dependencies = [
     "asyncpraw (>=7.8.1,<8.0.0)",
     "youtube-transcript-api (>=1.2.4,<2.0.0)",
     "pypdf (>=6.7.5,<7.0.0)",
-    "tenacity (>=9.1.4,<10.0.0)"
+    "tenacity (>=9.1.4,<10.0.0)",
+    "langdetect (>=1.0.9)",
+    "tiktoken (>=0.9.0)",
+    "spacy (>=3.8.0)",
+    "scikit-learn (>=1.6.0)"
 ]
 
 

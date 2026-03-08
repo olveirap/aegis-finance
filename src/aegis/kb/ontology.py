@@ -118,6 +118,10 @@ class SourceType(StrEnum):
     REGULATION = "regulation"
     BOOK_SUMMARY = "book_summary"
     USER_NOTE = "user_note"
+    # New additions
+    API_TIMESERIES = "api_timeseries"
+    RSS_FEED = "rss_feed"
+    VIDEO_WEBINAR = "video_webinar"
 
 
 # ── Graph-prep types ─────────────────────────────────────────────────────────
@@ -132,6 +136,18 @@ class GraphNodeType(StrEnum):
     ASSET = "asset"
     INSTITUTION = "institution"
     TAX_RULE = "tax_rule"
+    # FIBO-aligned
+    LEGAL_PERSON = "legal_person"
+    SECURITY = "security"
+    DEBT_INSTRUMENT = "debt_instrument"
+    ACCOUNT = "account"
+    CEDEAR = "cedear"
+    BOPREAL = "bopreal"
+    BONO_CER = "bono_cer"
+    PLAZO_FIJO = "plazo_fijo"
+    CURRENCY_NODE = "currency_node"
+    REGULATORY_EVENT = "regulatory_event"
+    ACTION_NODE = "action_node"
 
 
 @unique
@@ -143,3 +159,12 @@ class GraphEdgeType(StrEnum):
     DEPENDS_ON = "depends_on"
     TAXED_BY = "taxed_by"
     ISSUED_BY = "issued_by"
+    # FIBO-aligned
+    IS_ISSUED_BY = "is_issued_by"
+    REPRESENTS = "represents"
+    IS_HEDGED_BY = "is_hedged_by"
+    AMENDS = "amends"
+    SUPERSEDES = "supersedes"
+    TRIGGERS = "triggers"
+    HAS_CONVERSION_RATIO = "has_conversion_ratio"
+    VALID_DURING = "valid_during"

@@ -52,7 +52,17 @@ class TestTopicHierarchy:
 class TestSourceType:
     """SourceType enum covers expected sources."""
 
-    EXPECTED = {"blog", "reddit", "youtube", "regulation", "book_summary", "user_note"}
+    EXPECTED = {
+        "blog",
+        "reddit",
+        "youtube",
+        "regulation",
+        "book_summary",
+        "user_note",
+        "api_timeseries",
+        "rss_feed",
+        "video_webinar",
+    }
 
     def test_all_expected_present(self) -> None:
         actual = {s.value for s in SourceType}

@@ -17,6 +17,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, field_validator
 
 from aegis.kb.ontology import SourceType, SubTopic
+from aegis.kb.temporal import TemporalInterval
 
 # Allowed jurisdiction codes.  GLOBAL is a sentinel, not a real ISO code.
 _VALID_JURISDICTIONS = frozenset(
@@ -85,6 +86,20 @@ class ChunkMetadata(BaseModel):
     entity_ids: list[UUID] = Field(
         default_factory=list,
         description="Links to kb_entities rows for graph prep.",
+    )
+
+    # ── Temporal model ───────────────────────────────────────────────────
+    temporal_validity: TemporalInterval | None = Field(
+        default=None,
+        description="Time interval during which the chunk is valid.",
+    )
+    superseded_by: str | None = Field(
+        default=None,
+        description="ID of the chunk/regulation that supersedes this one.",
+    )
+    causal_chain: list[str] = Field(
+        default_factory=list,
+        description="List of IDs forming the causal chain (e.g., amends X, amends Y).",
     )
 
     # ── Validators ───────────────────────────────────────────────────────

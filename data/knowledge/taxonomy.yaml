@@ -81,6 +81,15 @@ graph_edge_types:
   - depends_on
   - taxed_by
   - issued_by
+  # FIBO relationships
+  - is_issued_by
+  - represents
+  - is_hedged_by
+  - amends
+  - supersedes
+  - triggers
+  - has_conversion_ratio
+  - valid_during
 
 # ── Graph node types ───────────────────────────────────────────────────────
 graph_node_types:
@@ -89,3 +98,15 @@ graph_node_types:
   - asset
   - institution
   - tax_rule
+  # FIBO entities
+  - legal_person
+  - security
+  - debt_instrument
+  - account
+  - cedear
+  - bopreal
+  - bono_cer
+  - plazo_fijo
+  - currency_node
+  - regulatory_event
+  - action_node

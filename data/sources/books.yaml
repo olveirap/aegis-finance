@@ -1,0 +1,7 @@
+sources:
+  - name: intelligent_investor_summary
+    ontology_tags: ["stocks", "saving"]
+    jurisdiction: ["GLOBAL"]
+    connector: "http_polling"
+    extractor: ["pdf", "llm_summarizer"]
+    base_url: "https://example.com/books/intelligent_investor.pdf" # Placeholder URL
