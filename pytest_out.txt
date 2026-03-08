@@ -1,0 +1,157 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-8.4.2, pluggy-1.6.0 -- G:\Programas\My Projects\aegis-finance\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: G:\Programas\My Projects\aegis-finance
+configfile: pyproject.toml
+plugins: anyio-4.12.1, asyncio-0.24.0
+asyncio: mode=Mode.STRICT, default_loop_scope=None
+collecting ... collected 4 items
+
+tests/unit/test_embedder.py::test_embedder_vision_skipping PASSED        [ 25%]
+tests/unit/test_embedder.py::test_embedder_batching_logic PASSED         [ 50%]
+tests/integration/test_storage.py::test_pg_vector_store_initialization FAILED [ 75%]
+tests/integration/test_storage.py::test_pg_vector_store_store_batch FAILED [100%]
+
+================================== FAILURES ===================================
+_____________________ test_pg_vector_store_initialization _____________________
+
+    @pytest.mark.asyncio
+    async def test_pg_vector_store_initialization():
+        store = PgVectorStore("postgresql://test:test@localhost:5432/test")
+    
+        mock_conn = AsyncMock()
+        mock_cursor = AsyncMock()
+    
+        mock_conn.__aenter__.return_value = mock_conn
+        mock_cursor.__aenter__.return_value = mock_cursor
+        mock_conn.cursor.return_value = mock_cursor
+    
+        with patch("psycopg.AsyncConnection.connect", new_callable=AsyncMock) as mock_connect:
+            mock_connect.return_value = mock_conn
+    
+>           await store.initialize()
+
+tests\integration\test_storage.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <aegis.kb.storage.PgVectorStore object at 0x0000029077B5C1A0>
+
+    async def initialize(self) -> None:
+        """Verify the database connectivity."""
+        # Simple health check
+        async with await psycopg.AsyncConnection.connect(self.conn_string) as conn:
+>           async with conn.cursor() as cur:
+                       ^^^^^^^^^^^^^
+E           TypeError: 'coroutine' object does not support the asynchronous context manager protocol
+
+src\aegis\kb\storage.py:54: TypeError
+______________________ test_pg_vector_store_store_batch _______________________
+
+mock_embedded_chunks = [EmbeddedChunk(chunk=DocumentChunk(chunk_id='test_doc_0', text='Test text content', n_tokens=4, source_url='http://tes...], topic_tags=[], relevance_score=0.9, language='en', entities={}, temporal_metadata=None), embedding=[0.1, 0.2, 0.3])]
+
+    @pytest.mark.asyncio
+    async def test_pg_vector_store_store_batch(mock_embedded_chunks):
+        store = PgVectorStore("postgresql://test:test@localhost:5432/test")
+    
+        mock_conn = AsyncMock()
+        mock_cursor = AsyncMock()
+    
+        mock_conn.__aenter__.return_value = mock_conn
+        mock_cursor.__aenter__.return_value = mock_cursor
+        mock_conn.cursor.return_value = mock_cursor
+    
+        with patch("psycopg.AsyncConnection.connect", new_callable=AsyncMock) as mock_connect:
+            mock_connect.return_value = mock_conn
+    
+>           await store.store_batch(mock_embedded_chunks)
+
+tests\integration\test_storage.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <aegis.kb.storage.PgVectorStore object at 0x0000029077AB2850>
+chunks = [EmbeddedChunk(chunk=DocumentChunk(chunk_id='test_doc_0', text='Test text content', n_tokens=4, source_url='http://tes...], topic_tags=[], relevance_score=0.9, language='en', entities={}, temporal_metadata=None), embedding=[0.1, 0.2, 0.3])]
+
+    async def store_batch(self, chunks: list[EmbeddedChunk]) -> None:
+        """Store a batch of embedded chunks using bulk execute_values or executemany.
+    
+        Uses an upsert logic on `id` (which defaults to a UUID generation via DB)
+        but since we pass no explicit `id`, they will just be inserted.
+        Wait, we want to ensure idempotency. The schema specifies UUID PRIMARY KEY DEFAULT gen_random_uuid()
+        and doesn't have a unique constraint on chunk_index or source_url.
+        Because deduplication is handled by pipeline (Task 0.3) semantic dedup or hash dedup,
+        we rely on pipeline to avoid duplicates at ingest time.
+        """
+        if not chunks:
+            return
+    
+        # Prepare parameters
+        # id is auto-generated, we specify the rest
+        # Columns: content, embedding, source, source_title, source_type, topic_tags, argentina_specific, chunk_index, created_at
+    
+        query = """
+            INSERT INTO kb_chunks (
+                content,
+                embedding,
+                source,
+                source_title,
+                source_type,
+                topic_tags,
+                argentina_specific,
+                chunk_index
+            ) VALUES (
+                %s, %s::vector, %s, %s, %s, %s, %s, %s
+            )
+        """
+    
+        params_list = []
+        for ec in chunks:
+            c = ec.chunk
+    
+            # Extract basic chunk index if present in chunk_id like document_123_chunk_0
+            try:
+                # Assuming chunker creates ids like "docID_0"
+                chunk_index = int(c.chunk_id.split("_")[-1])
+            except (ValueError, IndexError):
+                chunk_index = 0
+    
+            # determine argentina specific logic - a simple heuristic based on jurisdiction
+            is_ar = "AR" in c.jurisdiction or "ARGENTINA" in [j.upper() for j in c.jurisdiction]
+    
+            # format tags list
+            tags_array = [t.value for t in c.topic_tags]
+    
+            params_list.append((
+                c.text,                        # content
+                "[" + ",".join(map(str, ec.embedding)) + "]",  # format as standard vector literal
+                c.source_url,                  # source
+                c.source_title,                # source_title
+                c.source_type.value,           # source_type
+                tags_array,                    # topic_tags
+                is_ar,                         # argentina_specific
+                chunk_index                    # chunk_index
+            ))
+    
+        async with await psycopg.AsyncConnection.connect(self.conn_string) as conn:
+>           async with conn.cursor() as cur:
+                       ^^^^^^^^^^^^^
+E           TypeError: 'coroutine' object does not support the asynchronous context manager protocol
+
+src\aegis\kb\storage.py:118: TypeError
+============================== warnings summary ===============================
+tests/integration/test_storage.py::test_pg_vector_store_initialization
+  G:\Programas\My Projects\aegis-finance\src\aegis\kb\storage.py:54: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    async with conn.cursor() as cur:
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_storage.py::test_pg_vector_store_store_batch
+  G:\Programas\My Projects\aegis-finance\src\aegis\kb\storage.py:118: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    async with conn.cursor() as cur:
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_storage.py::test_pg_vector_store_initialization
+FAILED tests/integration/test_storage.py::test_pg_vector_store_store_batch - ...
+================== 2 failed, 2 passed, 2 warnings in 12.99s ===================

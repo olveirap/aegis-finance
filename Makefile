@@ -11,3 +11,6 @@ test:
 
 lint:
 	poetry run ruff check src/
+
+kb-ingest:
+	poetry run python -m aegis.kb.cli ingest --sources data/sources/*.yaml

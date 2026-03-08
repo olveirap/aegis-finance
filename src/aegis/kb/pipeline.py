@@ -89,6 +89,7 @@ class DocumentChunk(BaseModel):
     text: str
     n_tokens: int
     source_url: str
+    source_title: str | None = None
     source_type: SourceType
     jurisdiction: list[str]
     topic_tags: list[SubTopic]
@@ -218,6 +219,7 @@ class KBPipeline:
             text=text,
             n_tokens=n_tokens,
             source_url=doc.source_url,
+            source_title=doc.source_title,
             source_type=doc.source_type,
             jurisdiction=doc.jurisdiction,
             topic_tags=topic_tags,

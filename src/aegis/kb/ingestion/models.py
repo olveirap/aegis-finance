@@ -13,6 +13,7 @@ class SourceMeta(BaseModel):
     """Metadata emitted by a connector along with the raw bytes."""
     
     source_url: str
+    source_title: str | None = None
     source_type: SourceType
     jurisdiction: list[str] = Field(default_factory=lambda: ["GLOBAL"])
     topic_tags: list[SubTopic] = Field(default_factory=list)
@@ -39,6 +40,7 @@ class RawDocument(BaseModel):
     content_format: Literal["markdown", "json", "raw_text", "table_json", "timeseries"]
     
     source_url: str
+    source_title: str | None = None
     source_type: SourceType
     jurisdiction: list[str]
     topic_tags: list[SubTopic]

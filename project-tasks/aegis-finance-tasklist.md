@@ -149,7 +149,7 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 
 ---
 
-### [ ] Task 0.4 — KB Embedding & Storage
+### [x] Task 0.4 — KB Embedding & Storage
 **Agent:** AI Engineer (RAG Specialist role)  
 **Description:** Embed curated chunks and store in pgvector.  
 **Deliverables:**
