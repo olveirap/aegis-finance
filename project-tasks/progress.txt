@@ -19,3 +19,24 @@ Aegis Finance - Task Progress Log
 - Validated scrapers through manual requests. Raw text correctly outputs to `data/knowledge/raw/` in Markdown with YAML frontmatter.
 - Implemented and passed exhaustive unit tests (`tests/unit/test_scrapers.py`) using mocked networks.
 - Created project `.gitignore` excluding Python cache, IDE artifacts, and the raw knowledge directory.
+
+2026-03-07: Task 0.1, 0.2, 0.2b — Ingestion Framework v2 [COMPLETED]
+--------------------------------------------------------------
+- Extended Ontology & Taxonomy (0.1) with temporal logic (`CausalActionNode`, `TemporalInterval`) and explicit mappings to FIBO standards (`fibo_mapping.py`), plus updated `taxonomy.yaml`.
+- Constructed the Connector layer (`http_polling`, `rest_api`, `rss_feed`, `video`, `reddit`).
+- Constructed the Extractor layer (`html`, `pdf` via Unstructured, `timeseries`, and the locally-driven `llm_summarizer`).
+- Implemented resilience into `ResilientHTTPClient` and persistent progress in `StateManager` (using PostgreSQL tables).
+- Built the centralized pipeline `IngestionRunner` to tie configurations, connectors, extractors, and the `Normalizer` together.
+- Cleared out the legacy scraper codebase entirely, replacing it with the new v2 Connector/Extractor architecture.
+- Designed the initial layout mapping for global, Argentine, and book sources via declarative YAML configurations in `data/sources/*.yaml` (Task 0.2b).
+- Unit tests (`test_ontology.py`, `test_temporal.py`, `test_fibo_mapping.py`, `test_ingestion.py`) created and passed successfully.
+
+2026-03-08: Task 0.3 — Deduplication & Quality Pipeline [COMPLETED]
+--------------------------------------------------------------
+- Implemented `Chunker` using `tiktoken` (cl100k_base) for overlapping token windows. Added token-position indexing (`hasher.update(str(i).encode())`) to physically prevent pgvector hash collisions with identical repeated text.
+- Defined `BaseTagger` interface and implemented `HeuristicTagger` via keyword matching against ontology tags. Added a stub for future `LLMTagger` that strictly raises a `NotImplementedError` contract.
+- Built `HeuristicExtractor` to run regex for regulatory identifiers (CUIT, CBU) and spaCy NER (`es_core_news_sm`) for institutions and assets.
+- Created `KBPipeline` to orchestrate quality filtering: content hash dedup (SHA-256), min-length checks, language-detection (ES/EN), semantic dedup using TF-IDF cosine similarity > 0.95. Added explicit explicit `TODO(Task 0.4)` detailing the deferral of cross-batch semantic dedup to pgvector ANN.
+- Setup `make setup-models` target to streamline the spaCy model bootstrapping.
+- Wrote extensive TDD `pytest` coverage for chunker, tagger, extractor and pipeline passing (41/41).
+- Pushed changes to the dedicated `feature/task-0.3-dedup-quality` worktree.
