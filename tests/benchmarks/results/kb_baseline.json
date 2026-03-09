@@ -1,0 +1,125 @@
+{
+  "benchmark_config": {
+    "k_retrieval": 5,
+    "k_stuffed": 20,
+    "temperature": 0,
+    "seed": 42,
+    "dry_run": true
+  },
+  "aggregate_metrics": {
+    "by_query_type": {
+      "situational": {
+        "count": 5,
+        "base_recall_at_5": 0.0,
+        "base_mrr": 0.0,
+        "ca_recall_at_5": 0.0,
+        "ca_mrr": 0.0,
+        "layer_coverage_at_5": 0.0,
+        "avg_answer_quality_rag": 0.0,
+        "hallucination_rate": 0.0
+      }
+    },
+    "overall": {
+      "count": 5,
+      "base_recall_at_5": 0.0,
+      "base_mrr": 0.0,
+      "ca_recall_at_5": 0.0,
+      "ca_mrr": 0.0,
+      "layer_coverage_at_5": 0.0,
+      "avg_answer_quality_rag": 0.0,
+      "hallucination_rate": 0.0
+    }
+  },
+  "items": [
+    {
+      "query": "With 5M ARS in cash, a 3-month horizon before a major purchase, and low risk tolerance, where should I park my liquidity given current inflation?",
+      "query_type": "situational",
+      "status": "skipped_unprovisioned",
+      "metrics": {
+        "base_recall_at_5": 0.0,
+        "base_mrr": 0.0,
+        "ca_recall_at_5": 0.0,
+        "ca_mrr": 0.0,
+        "layer_coverage_all": false,
+        "rag_score": 0,
+        "stuffed_score": 0,
+        "rag_hallucinated": false
+      },
+      "rag_answer": "Error generating answer: Request timed out.",
+      "stuffed_answer": "Error generating answer: Request timed out.",
+      "judge_reasoning": "Judge failed."
+    },
+    {
+      "query": "Should I rotate my FCI peso position into CEDEARs to protect against a potential devaluation next month?",
+      "query_type": "situational",
+      "status": "skipped_unprovisioned",
+      "metrics": {
+        "base_recall_at_5": 0.0,
+        "base_mrr": 0.0,
+        "ca_recall_at_5": 0.0,
+        "ca_mrr": 0.0,
+        "layer_coverage_all": false,
+        "rag_score": 0,
+        "stuffed_score": 0,
+        "rag_hallucinated": false
+      },
+      "rag_answer": "Error generating answer: Request timed out.",
+      "stuffed_answer": "Error generating answer: Request timed out.",
+      "judge_reasoning": "Judge failed."
+    },
+    {
+      "query": "Given I am registered as a Monotributista and want to save $500 USD per month, what is the most tax-efficient way to acquire them legally?",
+      "query_type": "situational",
+      "status": "skipped_unprovisioned",
+      "metrics": {
+        "base_recall_at_5": 0.0,
+        "base_mrr": 0.0,
+        "ca_recall_at_5": 0.0,
+        "ca_mrr": 0.0,
+        "layer_coverage_all": false,
+        "rag_score": 0,
+        "stuffed_score": 0,
+        "rag_hallucinated": false
+      },
+      "rag_answer": "Error generating answer: Request timed out.",
+      "stuffed_answer": "Error generating answer: Request timed out.",
+      "judge_reasoning": "Judge failed."
+    },
+    {
+      "query": "I just received an inheritance of 20M ARS. I don't need the money for 5 years. Should I put it in a Plazo Fijo UVA or buy SPY CEDEARs?",
+      "query_type": "situational",
+      "status": "skipped_unprovisioned",
+      "metrics": {
+        "base_recall_at_5": 0.0,
+        "base_mrr": 0.0,
+        "ca_recall_at_5": 0.0,
+        "ca_mrr": 0.0,
+        "layer_coverage_all": false,
+        "rag_score": 0,
+        "stuffed_score": 0,
+        "rag_hallucinated": false
+      },
+      "rag_answer": "Error generating answer: Request timed out.",
+      "stuffed_answer": "Error generating answer: Request timed out.",
+      "judge_reasoning": "Judge failed."
+    },
+    {
+      "query": "My business requires importing goods in 6 months using CCL. How can I hedge my ARS working capital until then?",
+      "query_type": "situational",
+      "status": "skipped_unprovisioned",
+      "metrics": {
+        "base_recall_at_5": 0.0,
+        "base_mrr": 0.0,
+        "ca_recall_at_5": 0.0,
+        "ca_mrr": 0.0,
+        "layer_coverage_all": false,
+        "rag_score": 0,
+        "stuffed_score": 0,
+        "rag_hallucinated": false
+      },
+      "rag_answer": "Error generating answer: Request timed out.",
+      "stuffed_answer": "Error generating answer: Request timed out.",
+      "judge_reasoning": "Judge failed."
+    }
+  ]
+}

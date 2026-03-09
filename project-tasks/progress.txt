@@ -40,3 +40,12 @@ Aegis Finance - Task Progress Log
 - Setup `make setup-models` target to streamline the spaCy model bootstrapping.
 - Wrote extensive TDD `pytest` coverage for chunker, tagger, extractor and pipeline passing (41/41).
 - Pushed changes to the dedicated `feature/task-0.3-dedup-quality` worktree.
+
+2026-03-09: Task 0.5 — RAG Knowledge Benchmarks [PARTIALLY COMPLETED]
+--------------------------------------------------------------
+- Created `tests/benchmarks/kb_quality.json`, defining 55 QA pairs tailored to Argentine finance advisory scenarios (Situational, Comparative, Regulatory, Definitional, Procedural, Timing).
+- Defined complex evaluation schema covering `user_context`, `key_claims`, `required_layers` (macro, instrument, advisory), `difficulty` tiers, and `regulatory_caveat` flags.
+- Enhanced benchmark runner (`rag_benchmark.py`) to systematically compare RAG against Context-Stuffing via blinded LLM-as-judge scoring.
+- Implemented `LayerCoverage@5` and `ca_recall` (Context-Aware Recall) metrics tracking, alongside strict hallucination pre-checks.
+- Validated offline robustness running `--dry-run` successfully yielding `skipped_unprovisioned` states to bypass missing local DB/LLM connection loops safely.
+- *Status:* Toolchain completed. Final baseline extraction blocked pending local KB provisioning in Task 0.4.

@@ -1,0 +1,1575 @@
+[
+    {
+        "query": "With 5M ARS in cash, a 3-month horizon before a major purchase, and low risk tolerance, where should I park my liquidity given current inflation?",
+        "query_type": "situational",
+        "user_context": "3-month horizon, low risk tolerance, 5M ARS liquidity",
+        "expected_answer": "Given the short horizon and low risk tolerance, an FCI Money Market or Plazo Fijo are the safest options. FCI MM offers immediate liquidity, while Plazo Fijo locks funds for 30+ days but historically yields slightly more. You should split them depending on exact cash flow needs within those 3 months.",
+        "key_claims": [
+            "FCI Money Market provides immediate liquidity for short-term needs",
+            "Plazo Fijo requires locking funds for at least 30 days",
+            "FCI MM and Plazo Fijo are low risk ARS instruments"
+        ],
+        "required_layers": {
+            "macro": [
+                "bcra_rates",
+                "indec_inflation"
+            ],
+            "instrument": [
+                "fci_mm",
+                "plazo_fijo"
+            ],
+            "advisory": [
+                "liquidity_management_heuristics"
+            ]
+        },
+        "relevant_chunks": [
+            "mock_chunk_1",
+            "mock_chunk_2"
+        ],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Should I rotate my FCI peso position into CEDEARs to protect against a potential devaluation next month?",
+        "query_type": "situational",
+        "user_context": "Current portfolio is 100% FCI money market, concerned about FX risk in the short term",
+        "expected_answer": "Rotating into CEDEARs hedges against the CCL exchange rate risk, but introduces equity market risk from the underlying US stocks. If your concern is strictly FX risk over a 1-month horizon, dollar-linked bonds or Hard Dollar accumulation might be safer, as CEDEARs can lose value if the US market drops, even if the CCL rises.",
+        "key_claims": [
+            "CEDEARs hedge against CCL devaluation",
+            "CEDEARs carry underlying equity market risk",
+            "Short-term horizons with CEDEARs can be volatile"
+        ],
+        "required_layers": {
+            "macro": [
+                "fx_devaluation_expectations"
+            ],
+            "instrument": [
+                "byma_cedears",
+                "fci_pesos"
+            ],
+            "advisory": [
+                "fx_hedging_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Given I am registered as a Monotributista and want to save $500 USD per month, what is the most tax-efficient way to acquire them legally?",
+        "query_type": "situational",
+        "user_context": "Monotributista, savings capacity $500/month, looking to dollarize legally",
+        "expected_answer": "As a Monotributista, the most efficient and legal way without strict quotas is buying Dolar MEP. You must ensure you haven't received subsidized credits that block MEP access. Dolar Ahorro is limited to $200 and often restricted. MEP has no legal limit as long as the funds are justified by your Monotributo billing.",
+        "key_claims": [
+            "Dolar MEP is legal and without limits for justified income",
+            "Dolar Ahorro is limited to $200 and highly restricted",
+            "Monotributo billing must justify the ARS used for the purchase"
+        ],
+        "required_layers": {
+            "macro": [
+                "mep_vs_ahorro_spread"
+            ],
+            "instrument": [
+                "mep_operations"
+            ],
+            "advisory": [
+                "monotributo_savings_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "I just received an inheritance of 20M ARS. I don't need the money for 5 years. Should I put it in a Plazo Fijo UVA or buy SPY CEDEARs?",
+        "query_type": "situational",
+        "user_context": "20M ARS capital, 5-year investment horizon, moderate risk tolerance",
+        "expected_answer": "For a 5-year horizon, SPY CEDEARs are generally superior as they provide exposure to global equities and protect against peso devaluation via the CCL rate. Plazo Fijo UVA protects against local inflation but locks you into ARS and carries local sovereign risk. Over 5 years, global equities offer better compounding potential.",
+        "key_claims": [
+            "SPY CEDEARs provide global equity exposure and CCL hedging",
+            "Plazo Fijo UVA hedges ARS inflation but assumes local risk",
+            "5-year horizons favor equities over short-term inflation instruments"
+        ],
+        "required_layers": {
+            "macro": [
+                "inflation_vs_ccl_expectations"
+            ],
+            "instrument": [
+                "spy_cedear",
+                "plazo_fijo_uva"
+            ],
+            "advisory": [
+                "long_term_investing_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "My business requires importing goods in 6 months using CCL. How can I hedge my ARS working capital until then?",
+        "query_type": "situational",
+        "user_context": "Business owner, 6-month ARS working capital, needs CCL for imports",
+        "expected_answer": "To hedge working capital against CCL for imports, consider subscribing to a Dollar-Linked FCI or buying short-term corporate Obligaciones Negociables (ONs) denominated in Hard Dollar or Dollar-Linked. CEDEARs are too volatile for working capital. Ensure the instruments are highly liquid.",
+        "key_claims": [
+            "Dollar-Linked FCIs and ONs hedge FX risk.",
+            "CEDEARs carry too much equity risk for working capital needs",
+            "Liquidity is crucial for working capital operations"
+        ],
+        "required_layers": {
+            "macro": [
+                "ccl_import_regulations"
+            ],
+            "instrument": [
+                "dollar_linked_bonds",
+                "ons"
+            ],
+            "advisory": [
+                "corporate_hedging_heuristics",
+                "import_liquidity_management",
+                "ccl_timing_risk"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "high",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "I have an emergency fund in ARS. Should I keep it in MercadoPago or move it to a traditional 30-day Plazo Fijo?",
+        "query_type": "situational",
+        "user_context": "Needs emergency fund setup, values liquidity over high yield",
+        "expected_answer": "An emergency fund must prioritize liquidity. Keep it in MercadoPago (or similar FCI Money Market) which allows immediate withdrawal. A 30-day Plazo Fijo locks your funds, defeating the purpose of an emergency fund, even if it offers a slightly higher yield.",
+        "key_claims": [
+            "Emergency funds require immediate liquidity",
+            "FCI Money Markets (like MercadoPago) offer T+0 liquidity",
+            "Plazo Fijo locks funds and is unsuitable for emergencies"
+        ],
+        "required_layers": {
+            "macro": [
+                "short_term_rates"
+            ],
+            "instrument": [
+                "fci_mm",
+                "plazo_fijo"
+            ],
+            "advisory": [
+                "emergency_fund_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "With 1M ARS, I want to invest for my retirement (20 years away). Given the current Argentine context, what is the best approach?",
+        "query_type": "situational",
+        "user_context": "1M ARS, 20-year horizon, retirement goal",
+        "expected_answer": "For a 20-year horizon, avoid local ARS instruments like Plazo Fijo. Focus on broad-market CEDEARs (like SPY or QQQ) or accumulating Hard Dollar to invest in offshore ETFs. Global equities historically outperform local inflation instruments over multi-decade periods.",
+        "key_claims": [
+            "20-year horizons require equity exposure for growth",
+            "Broad-market CEDEARs (SPY, QQQ) are suitable for retirement",
+            "Avoid locking long-term capital in short-term ARS instruments"
+        ],
+        "required_layers": {
+            "macro": [
+                "arg_long_term_risk"
+            ],
+            "instrument": [
+                "broad_market_cedears"
+            ],
+            "advisory": [
+                "retirement_planning_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "I am traveling to Europe in 3 months and saving in ARS. Should I buy Euro MEP directly or buy USD MEP and convert there?",
+        "query_type": "situational",
+        "user_context": "Saving for trip to Europe in 3 months, earning in ARS",
+        "expected_answer": "It is generally more efficient and liquid to buy Dolar MEP. The market for Euro MEP in Argentina is very illiquid and often has a worse spread. Buy Dolar MEP, withdraw the cash, and exchange it for Euros in Europe, or use credit cards paying the balance with USD from your bank account.",
+        "key_claims": [
+            "Euro MEP is highly illiquid in local markets",
+            "Dolar MEP has tight spreads and high liquidity",
+            "Using USD to pay credit card balances avoids previous exchange rate distortions"
+        ],
+        "required_layers": {
+            "macro": [
+                "mep_liquidity"
+            ],
+            "instrument": [
+                "dolar_mep",
+                "euro_mep"
+            ],
+            "advisory": [
+                "travel_savings_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "I want to start investing but I'm afraid of losing my initial capital. My horizon is 1 year. What should I do?",
+        "query_type": "situational",
+        "user_context": "Beginner, zero risk tolerance, 1-year horizon",
+        "expected_answer": "With absolutely zero risk tolerance and a 1-year horizon, your goal is capital preservation. You can use Plazo Fijo UVA for ARS inflation protection or buy Dolar MEP to protect against devaluation. Avoid CEDEARs, bonds, and crypto, as they can fluctuate below your initial capital.",
+        "key_claims": [
+            "Capital preservation is the goal for zero risk tolerance",
+            "Plazo Fijo UVA offers inflation protection with capital guarantee",
+            "Dolar MEP offers devaluation protection",
+            "Avoid equities (CEDEARs) due to volatility"
+        ],
+        "required_layers": {
+            "macro": [
+                "inflation_vs_fx"
+            ],
+            "instrument": [
+                "plazo_fijo_uva",
+                "dolar_mep"
+            ],
+            "advisory": [
+                "capital_preservation_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "I have surplus pesos in my company's account for 15 days before paying salaries. What is the best instrument?",
+        "query_type": "situational",
+        "user_context": "Corporate account, 15-day horizon, zero risk tolerance for principal",
+        "expected_answer": "For corporate liquidity of 15 days, you should use an FCI Money Market or Caución Bursátil (Colocador). Both offer capital preservation and predictable short-term yields. Caución allows you to lock the rate for exactly 15 days, while FCI MM offers T+0 liquidity if needed sooner.",
+        "key_claims": [
+            "Caución Bursátil allows locking a rate for a specific term (e.g., 15 days)",
+            "FCI Money Market provides T+0 liquidity",
+            "Both are low-risk instruments suitable for payroll funds"
+        ],
+        "required_layers": {
+            "macro": [
+                "short_term_corporate_rates"
+            ],
+            "instrument": [
+                "caucion_bursatil",
+                "fci_mm"
+            ],
+            "advisory": [
+                "corporate_treasury_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "I earn in USD abroad but need ARS to pay my rent. Should I sell via MEP or on the informal (blue) market?",
+        "query_type": "situational",
+        "user_context": "Earning USD abroad, needs ARS for local living expenses",
+        "expected_answer": "Selling via MEP is the legal route to obtain formal ARS, essential for avoiding AFIP issues when paying rent. The blue market leaves you with unjustified cash. Note that BCRA regulations regarding export of services (like the $12k USD/year Monotributo Tech quota) are highly time-sensitive and subject to frequent updates. Always check current BCRA Com. A.",
+        "key_claims": [
+            "MEP provides formal, justified ARS for bank transfers",
+            "Blue market leaves you with informal cash, difficult to justify to AFIP",
+            "Export of services has specific BCRA settlement rules (e.g., historical $12k limit) which are highly time-sensitive"
+        ],
+        "required_layers": {
+            "macro": [
+                "bcra_export_rules",
+                "mep_vs_blue_spread"
+            ],
+            "instrument": [
+                "dolar_mep"
+            ],
+            "advisory": [
+                "freelancer_compliance_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ],
+        "regulatory_caveat": true
+    },
+    {
+        "query": "I am trying to save for a house deposit in 2 years. Should I use Plazo Fijo UVA or accumulate Hard Dollar?",
+        "query_type": "situational",
+        "user_context": "2-year horizon, goal: real estate purchase, needs capital preservation",
+        "expected_answer": "Real estate in Argentina is priced in Hard USD. Therefore, your best choice is accumulating Hard Dollar (e.g., via MEP). Plazo Fijo UVA protects against local consumer inflation, but if there is a sudden jump in the real exchange rate (devaluation without immediate inflation), you lose purchasing power in USD terms.",
+        "key_claims": [
+            "Real estate is priced in USD",
+            "Accumulating Hard Dollar matches the currency of the final liability",
+            "UVA carries FX risk if devaluation outpaces inflation (real exchange rate jump)"
+        ],
+        "required_layers": {
+            "macro": [
+                "real_estate_market_currency",
+                "uva_vs_usd"
+            ],
+            "instrument": [
+                "dolar_mep",
+                "plazo_fijo_uva"
+            ],
+            "advisory": [
+                "goal_based_savings_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "I have 500k ARS left over this month. If I want to speculate on a rapid drop in inflation, what should I buy?",
+        "query_type": "situational",
+        "user_context": "High risk tolerance, speculative view: inflation will drop sharply",
+        "expected_answer": "If you expect inflation to drop sharply faster than the market expects, short-term capitalization notes like LECAPs or fixed-rate bonds like BONCUPs are the best instruments. As inflation and expected rates fall, the price of existing fixed-rate instruments rises. Avoid CER/UVA instruments, as their yield will drop with inflation.",
+        "key_claims": [
+            "Fixed rate instruments (LECAPs, BONCUPs) gain price when market interest rates/inflation expectations fall",
+            "CER/UVA instruments perform poorly during rapid disinflation compared to fixed rate"
+        ],
+        "required_layers": {
+            "macro": [
+                "inflation_expectations",
+                "fixed_income_mechanics"
+            ],
+            "instrument": [
+                "lecaps",
+                "boncups",
+                "cer_bonds"
+            ],
+            "advisory": [
+                "duration_speculation_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "high",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "I'm 60 and retiring in 5 years. Is an aggressive CEDEAR portfolio consisting of TSLA, NVDA, and COIN appropriate?",
+        "query_type": "situational",
+        "user_context": "5-year horizon, nearing retirement, currently holding highly volatile, concentrated tech CEDEARs",
+        "expected_answer": "No. A concentrated portfolio of highly volatile tech/crypto CEDEARs (NVDA, TSLA, COIN) exposes you to severe drawdown risk. Nearing retirement, you should de-risk into broader index ETFs (SPY, DIA) or high-quality corporate bonds (Obligaciones Negociables) to preserve capital and generate steady income.",
+        "key_claims": [
+            "Concentrated single-stock CEDEARs are highly volatile",
+            "Portfolios nearing retirement require capital preservation and income",
+            "Broad indexes or Corporate Bonds (ONs) are more suitable"
+        ],
+        "required_layers": {
+            "macro": [
+                "equity_volatility"
+            ],
+            "instrument": [
+                "single_stock_cedears",
+                "ons",
+                "spy_cedear"
+            ],
+            "advisory": [
+                "retirement_portfolio_heuristics",
+                "sequence_of_returns_risk",
+                "asset_allocation_glide_path"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "high",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "My investment capacity is very small, just 20,000 ARS a month. Should I even bother with a broker or stick to MercadoPago?",
+        "query_type": "situational",
+        "user_context": "Very low fractional investment capacity, beginner",
+        "expected_answer": "With 20,000 ARS per month, MercadoPago (or similar FCI Money Market) is perfectly fine while you build a small emergency fund. However, many brokers now allow opening accounts for free and investing in FCIs from 1,000 ARS. Moving to a broker gives you access to CER FCIs or Dollar-Linked FCIs, expanding your options beyond just Money Market.",
+        "key_claims": [
+            "MercadoPago is suitable for low-capital beginners",
+            "Brokers have zero or very low minimums (e.g., 1,000 ARS for FCIs)",
+            "Brokers offer better diversification (CER, Dollar-Linked) than wallets"
+        ],
+        "required_layers": {
+            "macro": [
+                "retail_investment_access"
+            ],
+            "instrument": [
+                "fci_mm",
+                "broker_accounts"
+            ],
+            "advisory": [
+                "micro_investing_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "How does an FCI Money Market compare to a Plazo Fijo under current BCRA rates?",
+        "query_type": "comparative",
+        "user_context": "Comparing short-term ARS yield instruments",
+        "expected_answer": "Under current BCRA rates, a Plazo Fijo historically offers a slightly higher Annual Nominal Rate (TNA) because it locks your money for 30+ days. FCI Money Markets invest in Caución and accounts with remuneration, offering T+0 liquidity but typically yielding 5-10% less TNA than a Plazo Fijo. Choose FCI for liquidity, Plazo Fijo for yield.",
+        "key_claims": [
+            "Plazo Fijo yields higher TNA due to 30-day lock",
+            "FCI Money Market offers T+0 liquidity at a slightly lower yield",
+            "FCI MM yield depends on current Caución and repo rates"
+        ],
+        "required_layers": {
+            "macro": [
+                "bcra_benchmark_rates"
+            ],
+            "instrument": [
+                "fci_mm",
+                "plazo_fijo"
+            ],
+            "advisory": [
+                "yield_vs_liquidity_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Which is a better inflation hedge right now: Plazo Fijo UVA or Bonos CER (e.g. TX26)?",
+        "query_type": "comparative",
+        "user_context": "Comparing ARS inflation hedging instruments",
+        "expected_answer": "Plazo Fijo UVA guarantees the inflation adjustment plus ~1%, but locks your capital (usually 90 or 180 days minimum). Bonos CER offer daily liquidity in the secondary market, but you take on price execution risk (mark-to-market). If you might need the money before 90 days, use CER FCIs or Bonos CER. If you are certain you can lock it, UVA is less volatile.",
+        "key_claims": [
+            "Plazo Fijo UVA guarantees capital and inflation but locks liquidity",
+            "Bonos CER offer liquidity but carry mark-to-market price risk",
+            "Both track the CER index derived from INDEC IPC"
+        ],
+        "required_layers": {
+            "macro": [
+                "indec_ipc_cer"
+            ],
+            "instrument": [
+                "plazo_fijo_uva",
+                "cer_bonds"
+            ],
+            "advisory": [
+                "liquidity_vs_volatility_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "What are the pros and cons of Dolar MEP vs Dolar Cripto (USDT)?",
+        "query_type": "comparative",
+        "user_context": "Comparing methods to legally dollarize wealth",
+        "expected_answer": "Dolar MEP is heavily regulated, formal, and allows you to hold physical USD in a local bank account or buy dollar-denominated assets. Dolar Cripto (USDT) operates 24/7, has low transfer friction, but carries regulatory ambiguity regarding 'Bienes Personales' and counterparty risk from the stablecoin issuer (Tether). Currently, MEP spreads are typically tighter during market hours.",
+        "key_claims": [
+            "Dolar MEP is highly formal, regulatory compliant, and banked",
+            "Dolar Cripto provides 24/7 liquidity and portability but carries issuer risk",
+            "MEP is preferred for formal banking; Cripto for DeFi or off-hours"
+        ],
+        "required_layers": {
+            "macro": [
+                "bcra_fx_regulations"
+            ],
+            "instrument": [
+                "dolar_mep",
+                "usdt_crypto"
+            ],
+            "advisory": [
+                "formal_vs_informal_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Should I buy SPY CEDEAR or AAPL CEDEAR for long term growth?",
+        "query_type": "comparative",
+        "user_context": "Comparing index ETF versus single-stock for long-term equity growth",
+        "expected_answer": "SPY CEDEAR provides diversification across the top 500 US companies, lowering single-company risk. AAPL CEDEAR concentrates all risk in one company. For long-term core holdings (5+ years), SPY is vastly superior. Note, however, that the SPY CEDEAR has a high conversion ratio, making the minimum investment in ARS substantially larger than AAPL.",
+        "key_claims": [
+            "SPY provides broad diversification across 500 companies",
+            "AAPL is subject to single-stock volatility and business risk",
+            "Diversification is superior for long-term growth with lower risk",
+            "SPY CEDEAR has a high conversion ratio requiring a larger minimum ARS investment"
+        ],
+        "required_layers": {
+            "macro": [
+                "equity_market_mechanics"
+            ],
+            "instrument": [
+                "spy_cedear",
+                "single_stock_cedears"
+            ],
+            "advisory": [
+                "diversification_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Comparing Obligaciones Negociables (ONs) vs Bonos Soberanos (AL30), which is safer for USD yield?",
+        "query_type": "comparative",
+        "user_context": "Comparing fixed-income USD yield alternatives",
+        "expected_answer": "Obligaciones Negociables (Corporate Bonds) from blue-chip companies (e.g., Pampa Energía, YPF) are generally much safer than Argentine Sovereign Bonds (AL30, GD30). Sovereign bonds suffer from chronic restructuring risk and historically have brutal defaults. ONs have a better track record of paying USD coupons, though their yield (TIR) is lower to reflect that lower risk.",
+        "key_claims": [
+            "Sovereign Bonds (AL30) carry high default/restructuring risk",
+            "Corporate ONs generally have a better historical payment record",
+            "Higher risk in Sovereign bonds translates to higher expected yields (TIR)"
+        ],
+        "required_layers": {
+            "macro": [
+                "argentine_sovereign_risk"
+            ],
+            "instrument": [
+                "ons",
+                "sovereign_bonds"
+            ],
+            "advisory": [
+                "credit_risk_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Caución Bursátil vs Plazo Fijo: which one gives a better effective rate if I reinvest every 7 days?",
+        "query_type": "comparative",
+        "user_context": "Comparing compound interest frequency between Caución and Plazo Fijo",
+        "expected_answer": "Caución Bursátil allows for 7-day reinvestment (compound interest), maximizing the TEA (Annual Effective Rate). A typical Plazo Fijo locks for 30 days. Even if Caución has a lower nominal rate (TNA), compounding it 4 times a month can sometimes beat a 30-day Plazo Fijo TEA, while giving you weekly liquidity windows.",
+        "key_claims": [
+            "Caución allows high-frequency compounding (e.g., 7 days)",
+            "Plazo Fijo has a minimum 30-day compound frequency",
+            "Frequent compounding increases the TEA relative to the TNA"
+        ],
+        "required_layers": {
+            "macro": [
+                "short_term_rates"
+            ],
+            "instrument": [
+                "caucion_bursatil",
+                "plazo_fijo"
+            ],
+            "advisory": [
+                "compound_interest_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Is it better to hold physical USD bills (under the mattress) or an FCI en dólares in my broker?",
+        "query_type": "comparative",
+        "user_context": "Comparing physical cash holding vs yielding broker funds",
+        "expected_answer": "Physical USD loses purchasing power to US inflation (~3% annually) and carries theft risk. An FCI en dólares (investing in ONs or LatAm debt) generates yield (e.g., 3-6% annually) to offset inflation. However, the FCI exposes you to Argentine broker/regulatory risk. Both are valid depending on your trust in the local financial system.",
+        "key_claims": [
+            "Physical USD loses real value to US inflation",
+            "USD FCIs yield interest but carry local regulatory/broker risk",
+            "Holding physical cash carries physical security risks"
+        ],
+        "required_layers": {
+            "macro": [
+                "us_inflation",
+                "arg_regulatory_risk"
+            ],
+            "instrument": [
+                "physical_usd",
+                "usd_fci"
+            ],
+            "advisory": [
+                "risk_vs_yield_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "What is the difference between AL30 and GD30?",
+        "query_type": "comparative",
+        "user_context": "Comparing local vs foreign law sovereign bonds",
+        "expected_answer": "AL30 is issued under Argentine local law, while GD30 is issued under New York (foreign) law. NY law bonds historically offer better legal protection to bondholders in the event of a default and restructuring, which is why GD30 usually trades at a slight premium (lower yield) compared to AL30.",
+        "key_claims": [
+            "AL30 is under Argentine law",
+            "GD30 is under NY law",
+            "NY law provides stronger legal protection during restructurings"
+        ],
+        "required_layers": {
+            "macro": [
+                "sovereign_debt_law"
+            ],
+            "instrument": [
+                "al30",
+                "gd30"
+            ],
+            "advisory": [
+                "jurisdiction_risk_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "FCI Acciones (Merval) vs CEDEAR SPY: which is better for an aggressive portfolio?",
+        "query_type": "comparative",
+        "user_context": "Comparing local equity vs global equity",
+        "expected_answer": "FCI Acciones gives exposure to the Argentine Merval index, which is highly volatile and dependent on local macroeconomic and political outcomes. CEDEAR SPY gives exposure to the S&P 500, offering global diversification and hedging against the CCL rate. For balanced aggressive growth, a mix is best, but SPY is fundamentally less risky and more globally robust.",
+        "key_claims": [
+            "Merval FCIs carry high local political and macroeconomic risk",
+            "CEDEAR SPY carries global macro risk and hedges local FX via CCL",
+            "Both are aggressive equity investments"
+        ],
+        "required_layers": {
+            "macro": [
+                "arg_vs_global_macro"
+            ],
+            "instrument": [
+                "merval_fci",
+                "spy_cedear"
+            ],
+            "advisory": [
+                "portfolio_allocation_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "BOPREAL vs Obligaciones Negociables: which is better for corporate USD liquidity?",
+        "query_type": "comparative",
+        "user_context": "Comparing corporate USD debt instruments",
+        "expected_answer": "BOPREALs are BCRA bonds specifically designed for importers to clear commercial debt, offering certain tax and CCL access perks depending on the series. ONs are private corporate debt. If you are an importer clearing debt, BOPREAL often has regulatory advantages. For pure investment, ONs from top exporters (e.g., Energy sector) are generally considered to have lower credit risk than the BCRA.",
+        "key_claims": [
+            "BOPREAL is BCRA debt with specific regulatory perks for importers",
+            "ONs are corporate debt carrying specific company credit risk",
+            "BOPREAL is heavily tied to import debt clearance mechanics"
+        ],
+        "required_layers": {
+            "macro": [
+                "bcra_importer_rules"
+            ],
+            "instrument": [
+                "bopreal",
+                "ons"
+            ],
+            "advisory": [
+                "corporate_usd_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Directly buying AAPL on a US Broker vs AAPL CEDEAR on a local broker?",
+        "query_type": "comparative",
+        "user_context": "Comparing offshore vs local custody for US stocks",
+        "expected_answer": "Buying explicitly via a US Broker removes Argentine jurisdiction risk entirely (funds are outside the local system). AAPL CEDEAR keeps the custody local (Comafi) so you remain exposed to local regulatory changes, though it is easier to fund with pesos. Tax treatment also differs sharply (Bienes Personales and Ganancias).",
+        "key_claims": [
+            "US Brokers remove Argentine jurisdiction risk",
+            "CEDEARs remain within the local regulatory perimeter",
+            "Tax treatments (Bienes Personales, Ganancias) vary by jurisdiction"
+        ],
+        "required_layers": {
+            "macro": [
+                "jurisdiction_risk",
+                "tax_residency_rules"
+            ],
+            "instrument": [
+                "offshore_broker",
+                "cedears"
+            ],
+            "advisory": [
+                "offshore_custody_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "What is the tax treatment for CEDEAR dividends in Argentina regarding Impuesto a las Ganancias?",
+        "query_type": "regulatory",
+        "user_context": "Inquiring about dividend taxation",
+        "expected_answer": "CEDEAR dividends are heavily taxed. When a US company pays a dividend, the US IRS withholds 30% automatically unless the investor has filed a W-8BEN form (which most local retail investors cannot do via AR brokers). Then, the remaining amount is subject to the Impuesto a las Ganancias scale in Argentina (up to 35%). This double taxation makes high-dividend CEDEARs highly inefficient.",
+        "key_claims": [
+            "US IRS withholds 30% at source on dividends (unless W-8BEN is filed)",
+            "Argentina taxes the remainder under the sliding scale of Ganancias",
+            "High-dividend CEDEARs are tax-inefficient for AR residents"
+        ],
+        "required_layers": {
+            "macro": [
+                "us_irs_withholding",
+                "afip_ganancias"
+            ],
+            "instrument": [
+                "cedear_dividends"
+            ],
+            "advisory": [
+                "tax_efficiency_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ],
+        "regulatory_caveat": true
+    },
+    {
+        "query": "Are Plazo Fijos currently subject to Impuesto Cedular or Ganancias?",
+        "query_type": "regulatory",
+        "user_context": "Inquiring about taxes on Plazo Fijos",
+        "expected_answer": "For retail investors (natural persons) resident in Argentina, interest earned on standard Plazo Fijos in ARS at local banks is generally exempt from Impuesto a las Ganancias. The Impuesto Cedular was restructured/repealed by previous reforms including the Ley Bases 2024 context, reaffirming the exemption for basic bank deposits.",
+        "key_claims": [
+            "ARS Plazo Fijo interest for retail investors is generally exempt from Ganancias",
+            "Impuesto Cedular on these instruments was definitively restructured/repealed (e.g., via Ley Bases)"
+        ],
+        "required_layers": {
+            "macro": [
+                "afip_ganancias_exemptions"
+            ],
+            "instrument": [
+                "plazo_fijo_taxes"
+            ],
+            "advisory": [
+                "retail_tax_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ],
+        "regulatory_caveat": true
+    },
+    {
+        "query": "If I buy Dolar MEP, am I excluded from buying Dolar Ahorro (Oficial) in the bank?",
+        "query_type": "regulatory",
+        "user_context": "Inquiring about BCRA FX exclusions",
+        "expected_answer": "Yes. According to BCRA regulations, if you buy Dolar MEP (using bonds like AL30), you are blocked from accessing the official FX market (MULC/Dolar Ahorro) for 90 days. Conversely, if you bought Dolar Ahorro, you must wait 90 days before you can buy Dolar MEP.",
+        "key_claims": [
+            "Buying MEP blocks Dolar Ahorro for 90 days",
+            "Buying Dolar Ahorro blocks MEP for 90 days",
+            "This is a strict BCRA regulation (Comunicación A)"
+        ],
+        "required_layers": {
+            "macro": [
+                "bcra_90_day_rule"
+            ],
+            "instrument": [
+                "dolar_mep",
+                "dolar_ahorro"
+            ],
+            "advisory": [
+                "fx_compliance_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Do Corporate Bonds (ONs) held in a local broker pay Bienes Personales?",
+        "query_type": "regulatory",
+        "user_context": "Inquiring about wealth tax on corporate debt",
+        "expected_answer": "Historically, ONs issued via public offering (CNV) are exempt from Bienes Personales, while private placements are not. Additionally, the 2024 REIBP (Régimen Especial de Ingreso del Impuesto sobre los Bienes Personales) regularization allowed taxpayers to pre-pay 5 years of the tax, altering the landscape significantly. Always verify the emission prospectus and your REIBP status.",
+        "key_claims": [
+            "Publicly offered CNV-regulated ONs are generally exempt from Bienes Personales",
+            "Private placement debt is not exempt",
+            "The 2024 REIBP regularization significantly alters individual Bienes Personales obligations"
+        ],
+        "required_layers": {
+            "macro": [
+                "afip_bienes_personales_exemptions"
+            ],
+            "instrument": [
+                "ons_tax"
+            ],
+            "advisory": [
+                "wealth_tax_planning_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ],
+        "regulatory_caveat": true
+    },
+    {
+        "query": "Can I transfer CEDEARs to a US broker via 'Contado Con Liquidación' (Cable)?",
+        "query_type": "regulatory",
+        "user_context": "Inquiring about cross-border transfer mechanics",
+        "expected_answer": "Yes. This is called a conversion and transfer. You can buy the local CEDEAR, wait the required 'parking' period, ask your broker to convert it to the underlying US stock (at the specific conversion ratio), and then execute an 'Especie 7000' (Cable) transfer to a US broker account under your name.",
+        "key_claims": [
+            "CEDEARs can be converted to the underlying US stock",
+            "Shares can be transferred abroad via a Cable (Especie 7000) transaction",
+            "The destination account must generally be in the same name"
+        ],
+        "required_layers": {
+            "macro": [
+                "cnv_cable_regulations"
+            ],
+            "instrument": [
+                "cedear_conversion_ratio",
+                "cable_transfer"
+            ],
+            "advisory": [
+                "capital_flight_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "What happens if my broker goes bankrupt in Argentina? What protects my CEDEARs?",
+        "query_type": "regulatory",
+        "user_context": "Inquiring about institutional risk",
+        "expected_answer": "In Argentina, brokers (ALYCs) do not custody the assets. Your CEDEARs, bonds, and local stocks are custodied at Caja de Valores under a sub-account in your name. If the ALYC goes bankrupt, your assets remain safe at Caja de Valores and can be transferred to a new ALYC. Uninvested liquid cash in the broker, however, is at risk.",
+        "key_claims": [
+            "Caja de Valores holds the actual custody of securities, not the broker",
+            "Assets are safe if the broker fails",
+            "Uninvested liquid ARS/USD at the broker carries bankruptcy risk"
+        ],
+        "required_layers": {
+            "macro": [
+                "alyc_regulation"
+            ],
+            "instrument": [
+                "caja_de_valores_custody"
+            ],
+            "advisory": [
+                "broker_risk_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Is holding USDT on Binance subject to Bienes Personales?",
+        "query_type": "regulatory",
+        "user_context": "Inquiring about crypto taxation",
+        "expected_answer": "AFIP's legal interpretation considers cryptocurrencies (like USDT) as taxable assets under Bienes Personales. Binance requires KYC and shares data with regulators. Note that if you adhered to the 2024 REIBP, your broader portfolio tax obligations might be covered under that regime. You must declare global assets if exceeding thresholds.",
+        "key_claims": [
+            "AFIP considers crypto as taxable under Bienes Personales",
+            "Binance operates with KYC and may share data with regulators",
+            "Global wealth must be declared if it exceeds the minimum threshold",
+            "The 2024 REIBP impacts how these assets are taxed during the covered period"
+        ],
+        "required_layers": {
+            "macro": [
+                "afip_crypto_regulations"
+            ],
+            "instrument": [
+                "usdt_crypto"
+            ],
+            "advisory": [
+                "crypto_tax_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ],
+        "regulatory_caveat": true
+    },
+    {
+        "query": "Are capital gains on CEDEARs subject to Impuesto a las Ganancias?",
+        "query_type": "regulatory",
+        "user_context": "Inquiring about capital gains tax",
+        "expected_answer": "For retail investors (natural persons), capital gains resulting from the buying and selling of CEDEARs on authorized local platforms (BYMA) are currently exempt from Impuesto a las Ganancias. This makes the capital growth tax-efficient, unlike the dividends.",
+        "key_claims": [
+            "Capital gains on CEDEAR trades for individuals are exempt from Ganancias",
+            "This exemption requires trading on authorized local markets"
+        ],
+        "required_layers": {
+            "macro": [
+                "afip_capital_gains_exemptions"
+            ],
+            "instrument": [
+                "cedear_trading"
+            ],
+            "advisory": [
+                "tax_efficiency_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "My company wants to distribute dividends. Can it buy Dolar MEP?",
+        "query_type": "regulatory",
+        "user_context": "Inquiring about corporate FX rules",
+        "expected_answer": "A company can buy Dolar MEP to distribute dividends, PROVIDED it has not accessed the official FX market (MULC) for imports within the restricted period (typically 90 or 180 days prior), and commits not to access it for the same period after. Buying MEP effectively locks the company out of the MULC.",
+        "key_claims": [
+            "Companies can buy MEP",
+            "Buying MEP blocks MULC access for 90-180 days based on current rules",
+            "Violating this can result in heavy penal exchange fines"
+        ],
+        "required_layers": {
+            "macro": [
+                "bcra_mulc_regulations"
+            ],
+            "instrument": [
+                "corporate_dolar_mep"
+            ],
+            "advisory": [
+                "corporate_finance_compliance_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "I am receiving USD wires from freelance work via an LLC. Should I bring it in via CCL or use the $12,000 yearly Monotributo quota?",
+        "query_type": "regulatory",
+        "user_context": "Freelancer comparing repatriation methods",
+        "expected_answer": "If you perform services directly, utilizing the $12,000 USD yearly limit (Com. A 7518) allows you to bring USD directly into your local bank account without liquidating at the official rate. If you exceed this quota or bill via an LLC structure rather than directly, you may need to bring funds via CCL using local bonds, though LLC tax structuring requires careful AFIP compliance.",
+        "key_claims": [
+            "Freelancers can bring up to $12k USD/year directly without official liquidation",
+            "Exceeding this requires official liquidation or CCL mechanisms",
+            "LLC structures carry separate CFC (Controlled Foreign Corp) AFIP implications"
+        ],
+        "required_layers": {
+            "macro": [
+                "bcra_freelance_quota",
+                "afip_cfc_rules"
+            ],
+            "instrument": [
+                "ccl_transfer"
+            ],
+            "advisory": [
+                "freelancer_compliance_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Is now a good time to lock in a Plazo Fijo or are rates expected to rise?",
+        "query_type": "timing",
+        "user_context": "Evaluating short-term rate trends",
+        "expected_answer": "Currently, if the BCRA strategy is to reduce inflation, they are actively pushing nominal rates down. Therefore, rates are more likely to fall than rise in the short term. Locking in a longer-term Plazo Fijo or Fixed Rate bond now secures the current rate before potential further cuts.",
+        "key_claims": [
+            "BCRA policy in disinflationary phases aims to cut nominal rates",
+            "Locking in fixed rates early secures higher yield before cuts",
+            "Floating rates will drop quickly"
+        ],
+        "required_layers": {
+            "macro": [
+                "bcra_rate_policy_trend"
+            ],
+            "instrument": [
+                "plazo_fijo",
+                "fixed_rate_bonds"
+            ],
+            "advisory": [
+                "interest_rate_timing_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "The CCL dropped 10% this week. Is this a buying opportunity for CEDEARs?",
+        "query_type": "timing",
+        "user_context": "Evaluating buy-the-dip on FX",
+        "expected_answer": "A drop in the CCL lowers the peso price of CEDEARs, assuming the underlying US stock remains flat. If you believe the equilibrium exchange rate is higher and this is an artificial short-term dip (e.g., due to BCRA intervention or tax payments), it is an excellent buying opportunity. However, you must also be bullish on the US market itself.",
+        "key_claims": [
+            "CEDEAR prices drop when CCL drops",
+            "Buying the dip is valid if the CCL drop is perceived as temporary",
+            "Underlying stock risk must still be analyzed"
+        ],
+        "required_layers": {
+            "macro": [
+                "ccl_volatility_drivers"
+            ],
+            "instrument": [
+                "byma_cedears"
+            ],
+            "advisory": [
+                "fx_timing_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "US Markets are at all time highs. Should I wait for a crash before entering SPY?",
+        "query_type": "timing",
+        "user_context": "Evaluating market entry timing",
+        "expected_answer": "Historical data shows that 'time in the market beats timing the market.' Markets spend most of their time at or near all-time highs. Waiting for a crash often leads to missing out on significant gains. A better approach is Dollar-Cost Averaging (DCA)—investing smaller portions regularly regardless of the level.",
+        "key_claims": [
+            "Markets frequently hit all-time highs",
+            "Timing the market is historically inferior to time in the market",
+            "Dollar-Cost Averaging (DCA) mitigates entry timing risk"
+        ],
+        "required_layers": {
+            "macro": [
+                "global_equity_cycles"
+            ],
+            "instrument": [
+                "spy_cedear"
+            ],
+            "advisory": [
+                "dca_timing_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Is it a good time to buy AL30 anticipating a sovereign upgrade?",
+        "query_type": "timing",
+        "user_context": "Speculating on Argentine sovereign debt",
+        "expected_answer": "Buying AL30 now implies you believe the government will maintain fiscal surplus and accumulate reserves to pay upcoming maturities without restructuring. If price/parities are already at say 50-60%, much of the good news is priced in. It is a high-risk, high-reward timing play heavily dependent on current domestic politics.",
+        "key_claims": [
+            "AL30 upside depends heavily on fiscal surplus and reserve accumulation",
+            "If parities are high, upside is limited and restructuring risk remains",
+            "Sovereign bond timing is extremely speculative"
+        ],
+        "required_layers": {
+            "macro": [
+                "arg_fiscal_policy",
+                "sovereign_parities"
+            ],
+            "instrument": [
+                "al30"
+            ],
+            "advisory": [
+                "distressed_debt_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "There is a rumor of a rapid devaluation next week. How do I protect my weekend liquidity?",
+        "query_type": "timing",
+        "user_context": "Urgent, weekend horizon, acute devaluation fear",
+        "expected_answer": "During a weekend, traditional broker markets are closed (no MEP, no CEDEARs). To protect weekend liquidity against a Monday devaluation, use 24/7 Dolar Cripto (USDT/USDC) via exchanges like Binance or Lemon. Alternatively, buy items you need (stocking up effectively hedges inflation/devaluation).",
+        "key_claims": [
+            "Traditional markets (BYMA/Banks) are closed on weekends",
+            "Crypto markets are 24/7 and offer real-time FX hedging",
+            "Purchasing goods is a valid weekend inflation hedge"
+        ],
+        "required_layers": {
+            "macro": [
+                "market_hours",
+                "devaluation_shocks"
+            ],
+            "instrument": [
+                "usdt_crypto"
+            ],
+            "advisory": [
+                "emergency_hedging_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Should I sell my Dolar MEP before the end of the year to avoid Bienes Personales?",
+        "query_type": "timing",
+        "user_context": "Evaluating year-end tax evasion/avoidance strategies",
+        "expected_answer": "Many investors attempt to move funds to exempt assets (like cajas de ahorro or sovereign bonds) near December 31st to lower their Bienes Personales base. However, AFIP tracks these 'wash sales' (moving funds just for the picture day and moving back). It is advisable to maintain a consistently tax-efficient portfolio rather than doing abrupt year-end maneuvers.",
+        "key_claims": [
+            "Bienes Personales is calculated based on December 31 holdings",
+            "AFIP monitors abrupt year-end transfers to exempt accounts",
+            "Structural tax efficiency is safer than timing the December 31 date"
+        ],
+        "required_layers": {
+            "macro": [
+                "afip_bienes_personales_rules"
+            ],
+            "instrument": [
+                "exempt_assets"
+            ],
+            "advisory": [
+                "tax_timing_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "Should I wait for the 'canje' (bond swap) to finish before buying CER bonds?",
+        "query_type": "timing",
+        "user_context": "Evaluating bond market entry around debt swaps",
+        "expected_answer": "During a debt swap (canje), market liquidity is often fragmented and prices can be distorted as institutions reposition. Waiting until the new yield curve settles after the canje provides clearer visibility into real market rates. Buying during the canje adds significant execution risk.",
+        "key_claims": [
+            "Debt swaps distort secondary market prices and liquidity",
+            "Post-swap yield curves accurately reflect market expectations",
+            "Execution risk is high during institutional repositioning"
+        ],
+        "required_layers": {
+            "macro": [
+                "treasury_debt_swaps"
+            ],
+            "instrument": [
+                "cer_bonds_yield_curve"
+            ],
+            "advisory": [
+                "market_liquidity_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "How do I calculate the actual implicit exchange rate (CCL) when buying a CEDEAR?",
+        "query_type": "procedural",
+        "user_context": "Inquiring about mathematical calculations for trading",
+        "expected_answer": "To calculate the implicit CCL rate of a CEDEAR: take the peso price of the CEDEAR on the local market, multiply it by the CEDEAR Conversion Ratio, and divide that result by the US Dollar price of the underlying stock on the US market. Formula: (ARS Price * Ratio) / USD Price = CCL Rate.",
+        "key_claims": [
+            "Formula is: (ARS Price * Conversion Ratio) / USD Price",
+            "The conversion ratio is specific to each CEDEAR (e.g., 10:1 for AAPL)"
+        ],
+        "required_layers": {
+            "macro": [
+                "ccl_mechanics"
+            ],
+            "instrument": [
+                "cedear_conversion_ratio"
+            ],
+            "advisory": [
+                "trading_math_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "What are the exact steps to buy Dolar MEP in a local broker?",
+        "query_type": "procedural",
+        "user_context": "Beginner needing a step-by-step guide",
+        "expected_answer": "1. Transfer ARS from your bank to your broker. 2. Buy a bond (usually AL30) in Contado Inmediato (CI) using ARS. 3. Wait the regulatory parking period (currently 1 business day). 4. Sell the exact same bond in USD (AL30D) in CI. 5. Transfer the resulting USD to your bank account.",
+        "key_claims": [
+            "Buy bond (AL30) in ARS in CI",
+            "Wait regulatory parking (1 business day)",
+            "Sell bond (AL30D) in USD in CI and withdraw to bank"
+        ],
+        "required_layers": {
+            "macro": [
+                "bcra_parking_rules"
+            ],
+            "instrument": [
+                "al30",
+                "al30d"
+            ],
+            "advisory": [
+                "mep_execution_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "How do I read the yield (TIR) on a bond on BYMA?",
+        "query_type": "procedural",
+        "user_context": "Inquiring about bond analysis",
+        "expected_answer": "TIR (Tasa Interna de Retorno) represents the annualized yield if you hold the bond to maturity and reinvest coupons at the same rate. You look for the TIR column on your broker's platform or IAMC reports. Ensure you are looking at the TIR in the correct currency (e.g., AL30 TIR is in USD, TX26 TIR is in real terms + inflation).",
+        "key_claims": [
+            "TIR assumes holding to maturity and reinvesting coupons",
+            "TIR must be analyzed in the context of the bond's currency (USD, ARS, CER)",
+            "Brokers and IAMC reports provide calculated TIRs"
+        ],
+        "required_layers": {
+            "macro": [
+                "fixed_income_math"
+            ],
+            "instrument": [
+                "bond_tir_reports"
+            ],
+            "advisory": [
+                "yield_analysis_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "How do I transfer my CEDEAR portfolio from Bull Market to InvertirOnline?",
+        "query_type": "procedural",
+        "user_context": "Inquiring about asset transfers between brokers",
+        "expected_answer": "You must initiate an 'Especie Transfer' (Transferencia de Títulos) request with your current broker (Bull Market). You provide them your new Caja de Valores account number at the destination broker (InvertirOnline). This bypasses selling and buying, avoiding commissions and taxes. It usually takes 48-72 hours.",
+        "key_claims": [
+            "Securities transfer is done via Caja de Valores without selling the assets",
+            "Requires destination account number at the new broker",
+            "Avoids triggering trading commissions or capital gains events"
+        ],
+        "required_layers": {
+            "macro": [
+                "alyc_transfers_caja_de_valores"
+            ],
+            "instrument": [
+                "broker_accounts"
+            ],
+            "advisory": [
+                "portfolio_transfer_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "How do I set a stop-loss order on BYMA for a CEDEAR?",
+        "query_type": "procedural",
+        "user_context": "Inquiring about advanced trading order types",
+        "expected_answer": "To set a stop-loss, you place a 'Stop' or 'Stop Limit' order on your broker's platform. You set an Activation Price (Precio de Disparo). Once the market hits that price, it triggers a Market order (or Limit order, if Stop Limit) to sell your CEDEAR, preventing further losses. Note: Not all local ALYCs support automated stop-loss orders natively.",
+        "key_claims": [
+            "Stop orders trigger sales when the market falls below an activation price",
+            "Stop Limit sets a specific minimum execution price",
+            "Supported order types depend on the specific ALYC platform"
+        ],
+        "required_layers": {
+            "macro": [
+                "byma_order_book_mechanics"
+            ],
+            "instrument": [
+                "stop_loss_orders"
+            ],
+            "advisory": [
+                "risk_management_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "I am opening a brokerage account. What documentation do I need to justify my funds to the ALYC?",
+        "query_type": "procedural",
+        "user_context": "Inquiring about KYC/AML requirements",
+        "expected_answer": "To comply with UIF (Unidad de Información Financiera) regulations, you need to provide origin of funds. Accepted documents include: Recibos de sueldo (pay stubs) from the last 3-6 months, Constancia de Monotributo and facturas, Declaración Jurada de Ganancias/Bienes Personales, or a Certificación de Ingresos signed by an accountant (CPN).",
+        "key_claims": [
+            "UIF requires proof of origin of funds for AML compliance",
+            "Pay stubs, Monotributo invoices, and tax returns are standard proof",
+            "Accountant certifications are accepted for irregular income"
+        ],
+        "required_layers": {
+            "macro": [
+                "uif_aml_compliance"
+            ],
+            "instrument": [
+                "broker_kyc"
+            ],
+            "advisory": [
+                "account_opening_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "How do I participate in a 'Licitación Primaria' (Primary Auction) for a new Treasury Bond?",
+        "query_type": "procedural",
+        "user_context": "Inquiring about primary market access",
+        "expected_answer": "When the Treasury announces a new bond auction, your broker will open a 'Licitaciones' section. You enter the amount you want to invest and select the segment (Competitive or Non-Competitive). Retail investors usually choose Non-Competitive to accept whatever cut-off rate the market clearing establishes. Your funds are locked until the auction settles.",
+        "key_claims": [
+            "Auctions are accessed through the broker's platform during specific windows",
+            "Retail investors generally use the Non-Competitive segment",
+            "Funds are temporarily locked pending auction allocation results"
+        ],
+        "required_layers": {
+            "macro": [
+                "treasury_primary_auctions"
+            ],
+            "instrument": [
+                "primary_market_bonds"
+            ],
+            "advisory": [
+                "auction_bidding_heuristics"
+            ]
+        },
+        "relevant_chunks": [],
+        "difficulty": "medium",
+        "expected_source_documents": [
+            "placeholder_doc_1",
+            "placeholder_doc_2"
+        ]
+    },
+    {
+        "query": "What is the CER index and how is it updated?",
+        "query_type": "definitional",
+        "difficulty": "low",
+        "user_context": "",
+        "expected_answer": "The CER (Coeficiente de Estabilización de Referencia) is an index published by the Central Bank (BCRA) that reflects retail inflation. It is updated daily based on the previous month's Consumer Price Index (IPC) published by INDEC. Instruments tied to the CER automatically adjust their principal based on this index.",
+        "key_claims": [
+            "CER tracks retail inflation",
+            "CER is updated daily by the BCRA based on INDEC's IPC",
+            "CER instruments adjust principal according to inflation"
+        ],
+        "required_layers": {
+            "macro": [
+                "indec_ipc_cer",
+                "bcra_data"
+            ],
+            "instrument": [],
+            "advisory": []
+        },
+        "relevant_chunks": [],
+        "expected_source_documents": [
+            "bcra_glossary",
+            "indec_reports"
+        ]
+    },
+    {
+        "query": "What is a CEDEAR and what is a conversion ratio?",
+        "query_type": "definitional",
+        "difficulty": "low",
+        "user_context": "",
+        "expected_answer": "A CEDEAR (Certificado de Depósito Argentino) is a local certificate trading in ARS or USD that represents underlying shares of a foreign company (like Apple or Tesla). The conversion ratio (ratio de conversión) indicates how many CEDEARs equal one original foreign share. For example, a ratio of 10:1 means 10 CEDEARs equal 1 underlying share.",
+        "key_claims": [
+            "CEDEARs represent foreign shares traded locally in Argentina",
+            "The conversion ratio defines how many CEDEARs equal one underlying share"
+        ],
+        "required_layers": {
+            "macro": [],
+            "instrument": [
+                "byma_cedears",
+                "comafi_ratios"
+            ],
+            "advisory": []
+        },
+        "relevant_chunks": [],
+        "expected_source_documents": [
+            "byma_educational",
+            "broker_faqs"
+        ]
+    },
+    {
+        "query": "What is the difference between TNA and TEA?",
+        "query_type": "definitional",
+        "difficulty": "low",
+        "user_context": "",
+        "expected_answer": "TNA (Tasa Nominal Anual) is the simple annual interest rate without compounding. TEA (Tasa Efectiva Anual) is the effective annual rate that includes the effect of reinvesting the interest (compounding) over the year. TEA will always be higher than TNA if the compounding frequency is more than once a year.",
+        "key_claims": [
+            "TNA is the simple annual interest rate without compounding",
+            "TEA is the effective rate including compound interest",
+            "TEA > TNA when compounding occurs multiple times a year"
+        ],
+        "required_layers": {
+            "macro": [
+                "interest_rate_math"
+            ],
+            "instrument": [],
+            "advisory": []
+        },
+        "relevant_chunks": [],
+        "expected_source_documents": [
+            "financial_math_basics"
+        ]
+    },
+    {
+        "query": "What is Caja de Valores and why does it matter for my investments?",
+        "query_type": "definitional",
+        "difficulty": "low",
+        "user_context": "",
+        "expected_answer": "Caja de Valores is the central securities depository in Argentina. It actually custodies the stocks, bonds, and CEDEARs you buy. It matters because it ensures that if your broker (ALYC) goes bankrupt, your assets remain safe under your name at Caja de Valores, separate from the broker's balance sheet.",
+        "key_claims": [
+            "Caja de Valores is the central depository custodying securities",
+            "It protects investor assets in the event of broker bankruptcy"
+        ],
+        "required_layers": {
+            "macro": [
+                "alyc_regulation"
+            ],
+            "instrument": [
+                "caja_de_valores_custody"
+            ],
+            "advisory": []
+        },
+        "relevant_chunks": [],
+        "expected_source_documents": [
+            "cnv_regulations",
+            "caja_valores_institucional"
+        ]
+    },
+    {
+        "query": "How does CCL differ from MEP exchange rate?",
+        "query_type": "definitional",
+        "difficulty": "low",
+        "user_context": "",
+        "expected_answer": "Both are financial exchange rates obtained by trading bonds or stocks. Dolar MEP (Mercado Electrónico de Pagos) results in dollars deposited in a local Argentine bank account. Dolar CCL (Contado Con Liquidación) involves trading an asset here to receive dollars in a foreign bank account (offshore). CCL is typically slightly more expensive due to the cost of moving money abroad.",
+        "key_claims": [
+            "MEP deposits dollars in a local Argentine bank",
+            "CCL deposits dollars in an offshore foreign bank account",
+            "Both involve buying assets in ARS and selling in USD"
+        ],
+        "required_layers": {
+            "macro": [
+                "fx_mechanics"
+            ],
+            "instrument": [
+                "mep_operations",
+                "ccl_operations"
+            ],
+            "advisory": []
+        },
+        "relevant_chunks": [],
+        "expected_source_documents": [
+            "bcra_fx_rules"
+        ]
+    }
+]
