@@ -164,18 +164,18 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 
 ---
 
-### [ ] Task 0.5 — RAG Knowledge Benchmarks
+### [/] Task 0.5 — RAG Knowledge Benchmarks
 **Agent:** AI Engineer (RAG Specialist role)  
 **Description:** Benchmark suite to measure RAG quality over the curated KB.  
 **Deliverables:**
-- `tests/benchmarks/kb_quality.json` — 50+ question/answer pairs
-- `tests/benchmarks/rag_benchmark.py` — Automated RAG quality benchmarks
-  - Retrieval metrics: Recall@5, NDCG@5, MRR
-  - Answer quality: human-eval format + LLM-as-judge scoring
+- [x] `tests/benchmarks/kb_quality.json` — 50+ question/answer pairs tailored to Argentine finance advisory scenarios
+- [x] `tests/benchmarks/rag_benchmark.py` — Automated RAG quality benchmarks
+  - Retrieval metrics: Recall@5, NDCG@5, MRR, LayerCoverage@5
+  - Answer quality: human-eval format + blinded LLM-as-judge scoring (with strict hallucination detection)
   - RAG vs. context-stuffing comparison
-- Results output to `tests/benchmarks/results/kb_baseline.json`
+- [ ] Results output to `tests/benchmarks/results/kb_baseline.json` (Blocked pending local KB provisioning in Task 0.4)
 
-**QA:** Benchmark runner completes without errors. Baseline metrics established.
+**QA:** Benchmark runner completes without errors ([x] Dry-run validated). Baseline metrics established ([ ] Pending).
 
 ---
 
