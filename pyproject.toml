@@ -22,13 +22,18 @@ dependencies = [
     "spacy (>=3.8.0)",
     "scikit-learn (>=1.6.0)",
     "psycopg[binary] (>=3.3.3,<4.0.0)",
-    "tqdm (>=4.67.3,<5.0.0)"
+    "tqdm (>=4.67.3,<5.0.0)",
+    "feedparser (>=6.0.12,<7.0.0)",
+    "openai (>=2.26.0,<3.0.0)"
 ]
 
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [{include = "aegis", from = "src"}]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"
