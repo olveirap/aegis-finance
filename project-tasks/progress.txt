@@ -49,3 +49,11 @@ Aegis Finance - Task Progress Log
 - Implemented `LayerCoverage@5` and `ca_recall` (Context-Aware Recall) metrics tracking, alongside strict hallucination pre-checks.
 - Validated offline robustness running `--dry-run` successfully yielding `skipped_unprovisioned` states to bypass missing local DB/LLM connection loops safely.
 - *Status:* Toolchain completed. Final baseline extraction blocked pending local KB provisioning in Task 0.4.
+
+2026-03-11: Task 0.5 — RAG Knowledge Benchmarks [COMPLETED]
+--------------------------------------------------------------
+- Configured local LLaMA-based embedding capabilities using `nomic-embed-text-v1.5` over local server endpoints on port 8080.
+- Executed integration via `llama-server.exe` bridging the generation LLM (Qwen 3.5 35B) concurrently on port 8081.
+- Updated core project configurations in `pyproject.toml` to support the required dependencies (`crawl4ai`, `feedparser`, `openai`).
+- Modified `rag_benchmark.py` for resilience around missing database architectures for phase 0.
+- Concluded execution of `--dry-run` producing valid base results in `tests/benchmarks/results/kb_baseline.json`. Phase 0 officially concluded.
