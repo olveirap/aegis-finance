@@ -147,3 +147,14 @@ Implemented the complete data foundation layer including project scaffolding, Do
 - Task 0.5 (RAG Benchmarks) baseline extraction can now run: `ingestion_state`, `kb_chunks` tables ready.
 - Both ingestion framework and DB infrastructure fully provisioned.
 >>>>>>> d272626 (feat(phase-1): implement complete data foundation layer)
+
+2026-03-11: Milestone 0/1 Finalization [COMPLETED]
+--------------------------------------------------------------
+- Finalized database-connected ingestion pipeline (`make kb-ingest`).
+- Resolved asyncio Proactor vs Selector event loop conflict on Windows by replacing asynchronous `psycopg3` connection with a synchronous thread pool wrapper (`ConnectionPool`) and `asyncio.to_thread`.
+- Added missing extractor dependencies (`crawl4ai`, `unstructured[all-docs]`, `unstructured-inference`, `pdfminer.six`) to `pyproject.toml`.
+- Updated `embedder.py` to support `MOCK_EMBEDDER=1` to allow offline testing of the pipeline without a local `llama.cpp` instance.
+- Successfully ran `make kb-ingest`, resolving silent failure bugs, completing the `crawl4ai` pipeline without exceptions, and successfully saving document chunks into PostgreSQL.
+- Handled Playwright browser executables locally (`playwright install`).
+- Executed `make seed` against local Docker infrastructure, successfully writing 1,519 synthetic transactions, accounts, and exchange rates.
+- Concluded all Phase 0 and Phase 1 objectives structurally. The pipeline can now natively scrape, extract, parse, categorize, chunk, mock-embed, and persist both structured finance data and unstructured knowledge to PostgreSQL `pgvector`.

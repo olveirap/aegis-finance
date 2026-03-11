@@ -55,15 +55,21 @@ class SourceRegistry:
         self.sources = sources or {}
 
     @classmethod
-    def load(cls, yaml_dir: str | Path) -> SourceRegistry:
-        """Loads all YAML files in the given directory."""
-        yaml_dir = Path(yaml_dir)
+    def load(cls, path_str: str | Path) -> SourceRegistry:
+        """Loads a single YAML file or all YAML files in a directory."""
+        path = Path(path_str)
         sources: dict[str, SourceConfig] = {}
         
-        if not yaml_dir.exists():
+        if not path.exists():
             return cls(sources)
             
-        for filepath in yaml_dir.glob("*.yaml"):
+        filepaths = []
+        if path.is_file() and path.suffix in (".yml", ".yaml"):
+            filepaths = [path]
+        elif path.is_dir():
+            filepaths = list(path.glob("*.yaml")) + list(path.glob("*.yml"))
+            
+        for filepath in filepaths:
             with open(filepath, encoding="utf-8") as f:
                 data = yaml.safe_load(f)
                 if not data or "sources" not in data:

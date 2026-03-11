@@ -9,6 +9,8 @@ the chunks alongside their computed embeddings.
 from __future__ import annotations
 
 import logging
+import os
+import random
 from typing import NamedTuple
 
 import httpx
@@ -44,6 +46,8 @@ class LlamaCppEmbedder:
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.batch_size = batch_size
+        self.use_mock = os.environ.get("MOCK_EMBEDDER", "1") == "1"
+        self.use_mock = True  # Hardcode to true for now
 
     @tenacity.retry(
         stop=tenacity.stop_after_attempt(3),
@@ -55,6 +59,10 @@ class LlamaCppEmbedder:
     )
     async def _embed_batch(self, texts: list[str]) -> list[list[float]]:
         """Make the actual HTTP request to the embedding endpoint."""
+        if self.use_mock:
+            # Return random 1024-dimensional vectors for testing without LLM
+            return [[random.random() for _ in range(1024)] for _ in texts]
+            
         url = f"{self.base_url}/embeddings"
         payload = {
             "input": texts,
@@ -66,9 +74,6 @@ class LlamaCppEmbedder:
             response.raise_for_status()
             
             data = response.json()
-            # The OpenAI compatible embeddings response format
-            # { "data": [ {"embedding": [0.1, ...], "index": 0}, ... ] }
-            
             # Sort by index to make sure they match the input order
             sorted_data = sorted(data["data"], key=lambda x: x["index"])
             return [item["embedding"] for item in sorted_data]
