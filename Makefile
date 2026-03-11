@@ -1,4 +1,4 @@
-.PHONY: setup setup-models test lint kb-ingest
+.PHONY: setup setup-models test lint kb-ingest db-up db-down db-reset seed
 
 setup:
 	poetry install
@@ -14,3 +14,17 @@ lint:
 
 kb-ingest:
 	poetry run python -m aegis.kb.cli ingest --sources data/sources/*.yaml
+
+db-up:
+	docker compose up -d
+
+db-down:
+	docker compose down
+
+db-reset:
+	docker compose down -v && docker compose up -d
+	@echo "Waiting for PostgreSQL to start…"
+	sleep 3
+
+seed:
+	poetry run python data/synthetic/generate.py
