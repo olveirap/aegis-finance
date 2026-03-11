@@ -25,7 +25,11 @@ dependencies = [
     "psycopg-pool (>=3.2,<4.0)",
     "tqdm (>=4.67.3,<5.0.0)",
     "feedparser (>=6.0.12,<7.0.0)",
-    "openai (>=2.26.0,<3.0.0)"
+    "openai (>=2.26.0,<3.0.0)",
+    "crawl4ai (>=0.4.0)",
+    "unstructured[all-docs] (>=0.16.0)",
+    "unstructured-inference (>=0.8.0)",
+    "pdfminer.six (>=20240706)"
 ]
 
 

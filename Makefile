@@ -13,7 +13,7 @@ lint:
 	poetry run ruff check src/
 
 kb-ingest:
-	poetry run python -m aegis.kb.cli ingest --sources data/sources/*.yaml
+	poetry run python -m aegis.kb.cli ingest --sources data/sources
 
 db-up:
 	docker compose up -d
@@ -24,7 +24,7 @@ db-down:
 db-reset:
 	docker compose down -v && docker compose up -d
 	@echo "Waiting for PostgreSQL to start…"
-	sleep 3
+	python -c "import time; time.sleep(3)"
 
 seed:
 	poetry run python data/synthetic/generate.py

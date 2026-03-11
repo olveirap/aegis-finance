@@ -29,8 +29,7 @@ class PDFExtractor(BaseExtractor):
             # We use Unstructured's layout-aware parsing
             elements = partition_pdf(
                 filename=tmp_path,
-                strategy="hi_res",
-                infer_table_structure=True
+                strategy="fast"
             )
             
             text_blocks = []
