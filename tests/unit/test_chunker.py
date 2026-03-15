@@ -117,3 +117,13 @@ def test_text_chunk_fields() -> None:
     assert ch.text
     assert ch.n_tokens > 0
     assert ch.chunk_id
+    assert ch.chunk_index == 0
+
+
+def test_chunk_indices_are_sequential() -> None:
+    c = Chunker(chunk_size=32, overlap=8)
+    text = _make_long_text(100)
+    chunks = c.chunk(text)
+    assert len(chunks) > 1
+    for expected, ch in enumerate(chunks):
+        assert ch.chunk_index == expected

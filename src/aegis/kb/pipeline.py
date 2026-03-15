@@ -86,6 +86,7 @@ class DocumentChunk(BaseModel):
     """A quality-filtered, tagged chunk ready for embedding."""
 
     chunk_id: str
+    chunk_index: int
     text: str
     n_tokens: int
     source_url: str
@@ -174,7 +175,7 @@ class KBPipeline:
 
         # ── Stages 5 / 7 / 8: score + tag + extract per chunk ────────────────
         return [
-            self._build_chunk(tc.text, tc.n_tokens, tc.chunk_id, doc, lang)
+            self._build_chunk(tc.text, tc.n_tokens, tc.chunk_id, tc.chunk_index, doc, lang)
             for tc in text_chunks
         ]
 
@@ -206,6 +207,7 @@ class KBPipeline:
         text: str,
         n_tokens: int,
         chunk_id: str,
+        chunk_index: int,
         doc: RawDocument,
         lang: str,
     ) -> DocumentChunk:
@@ -216,6 +218,7 @@ class KBPipeline:
 
         return DocumentChunk(
             chunk_id=chunk_id,
+            chunk_index=chunk_index,
             text=text,
             n_tokens=n_tokens,
             source_url=doc.source_url,

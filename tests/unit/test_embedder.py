@@ -15,6 +15,7 @@ def mock_chunks():
     return [
         DocumentChunk(
             chunk_id="doc_0",
+            chunk_index=0,
             text="This is valid text to embed.",
             n_tokens=6,
             source_url="http://test.com",
@@ -28,6 +29,7 @@ def mock_chunks():
         ),
         DocumentChunk(
             chunk_id="doc_1",
+            chunk_index=1,
             text="   \n   ",  # Structural stub empty chunk
             n_tokens=0,
             source_url="http://test.com",
@@ -67,6 +69,7 @@ async def test_embedder_batching_logic(monkeypatch):
     chunks = [
         DocumentChunk(
             chunk_id=f"doc_{i}",
+            chunk_index=i,
             text=f"Text {i}",
             n_tokens=2,
             source_url="",

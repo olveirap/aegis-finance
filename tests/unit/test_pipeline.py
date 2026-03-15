@@ -152,6 +152,7 @@ def test_document_chunk_fields() -> None:
     ch = chunks[0]
     assert isinstance(ch, DocumentChunk)
     assert ch.chunk_id
+    assert ch.chunk_index >= 0
     assert ch.text
     assert ch.n_tokens > 0
     assert ch.source_url
