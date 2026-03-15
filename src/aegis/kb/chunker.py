@@ -19,6 +19,7 @@ class TextChunk:
     chunk_id: str
     text: str
     n_tokens: int
+    chunk_index: int
 
 
 class Chunker:
@@ -72,7 +73,7 @@ class Chunker:
             hasher.update(str(i).encode())
             chunk_id = hasher.hexdigest()
             
-            chunks.append(TextChunk(chunk_id=chunk_id, text=chunk_text, n_tokens=len(window)))
+            chunks.append(TextChunk(chunk_id=chunk_id, text=chunk_text, n_tokens=len(window), chunk_index=i))
             if end == len(token_ids):
                 break
             start += step

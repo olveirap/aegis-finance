@@ -14,6 +14,7 @@ def mock_embedded_chunks():
         EmbeddedChunk(
             chunk=DocumentChunk(
                 chunk_id="test_doc_0",
+                chunk_index=0,
                 text="Test text content",
                 n_tokens=4,
                 source_url="http://test.com",

@@ -90,13 +90,8 @@ class PgVectorStore(StorageBackend):
         for ec in chunks:
             c = ec.chunk
             
-            # Extract basic chunk index if present in chunk_id like document_123_chunk_0
-            try:
-                # Assuming chunker creates ids like "docID_0"
-                chunk_index = int(c.chunk_id.split("_")[-1])
-            except (ValueError, IndexError):
-                chunk_index = 0
-                
+            chunk_index = c.chunk_index
+
             # determine argentina specific logic - a simple heuristic based on jurisdiction
             is_ar = "AR" in c.jurisdiction or "ARGENTINA" in [j.upper() for j in c.jurisdiction]
             
