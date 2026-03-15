@@ -45,10 +45,15 @@ class HTTPPollingConnector(BaseConnector):
 
             raw_bytes = response.content
             bytes_hash = hashlib.sha256(raw_bytes).hexdigest()
-            
+
+            # Determine source_type deterministically from config, with a safe default.
+            source_type = getattr(config, "source_type", None)
+            if source_type is None:
+                source_type = SourceType.BLOG
+
             meta = SourceMeta(
                 source_url=str(response.url),
-                source_type=SourceType.REGULATION if "regulation" in [t.value for t in config.ontology_tags] else SourceType.BLOG,
+                source_type=source_type,
                 jurisdiction=config.jurisdiction,
                 topic_tags=config.ontology_tags,
                 raw_bytes_hash=bytes_hash,

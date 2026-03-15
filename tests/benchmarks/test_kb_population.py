@@ -1,3 +1,14 @@
+import os
+
+import pytest
+
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.skipif(
+        not os.getenv("AEGIS_DB_URL"),
+        reason="Requires live Postgres/pgvector; set AEGIS_DB_URL to enable.",
+    ),
+]
 """QA tests to verify the KB population process.
 
 These tests assert against a live PostgreSQL pgvector database to ensure 

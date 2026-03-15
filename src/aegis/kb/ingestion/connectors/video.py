@@ -54,7 +54,7 @@ class VideoConnector(BaseConnector):
                 yield raw_bytes, meta
                 
             except Exception as e:
-                print(f"Failed to fetch transcript for {vid}: {e}")
+                logger.warning(f"Failed to fetch transcript for {vid}: {e}")
 
 
 class WhisperVideoConnector(BaseConnector):

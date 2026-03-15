@@ -30,9 +30,6 @@ class BaseConnector(ABC):
         Yields:
             Tuples containing the raw bytes and the initial SourceMeta.
         """
-        # This is async generator abstract method. Yield statements should be used in implementations.
-        yield b"", SourceMeta(
-            source_url="placeholder",
-            source_type="blog", # type: ignore
-            raw_bytes_hash="placeholder"
-        )
+        # This is an abstract async generator method; implementations must yield
+        # (bytes, SourceMeta) tuples. Subclasses must override this method.
+        raise NotImplementedError("BaseConnector.fetch must be implemented by subclasses.")

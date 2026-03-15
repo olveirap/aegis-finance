@@ -72,7 +72,7 @@ class ResilientHTTPClient:
             retryer = AsyncRetrying(
                 stop=stop_after_attempt(self.max_retries),
                 wait=wait_exponential(multiplier=1, min=2, max=10),
-                retry=retry_if_exception_type((httpx.RequestError, httpx.HTTPStatusError)),
+                retry=retry_if_exception_type((httpx.RequestError, httpx.TimeoutException)) | retry_if_exception(lambda e: isinstance(e, httpx.HTTPStatusError) and e.response.status_code >= 500),
                 reraise=True,
             )
             
