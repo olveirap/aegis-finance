@@ -19,7 +19,7 @@ def mock_embedded_chunks():
                 source_url="http://test.com",
                 source_title="Test Title",
                 source_type=SourceType.BLOG,
-                jurisdiction=["ARGENTINA"],
+                jurisdiction=["AR"],
                 topic_tags=[],
                 relevance_score=0.9,
                 language="en",
@@ -81,7 +81,7 @@ async def test_pg_vector_store_store_batch(mock_embedded_chunks):
         assert param_tuple[3] == "Test Title"
         assert param_tuple[4] == "blog" # Assuming SourceType.BLOG.value is "blog"
         assert param_tuple[5] == [] # Tags
-        assert param_tuple[6] is True # Argentina specific is True since jurisdiction has ARGENTINA
+        assert param_tuple[6] is True # Argentina specific is True since jurisdiction has AR
         assert param_tuple[7] == 0 # Chunk index parsed from test_doc_0
         
         mock_conn.commit.assert_called_once()
