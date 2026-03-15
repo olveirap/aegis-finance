@@ -8,6 +8,8 @@ and causal relationships (e.g. regulations superseding each other).
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Any
+
 from pydantic import BaseModel, Field, model_validator
 
 
@@ -36,7 +38,7 @@ class CausalActionNode(BaseModel):
     description: str = Field(default="", description="Description of the causal action.")
 
 
-def point_in_time_filter(t: datetime | None = None) -> dict[str, dict]:
+def point_in_time_filter(t: datetime | None = None) -> dict[str, Any]:
     """Generates a query filter for valid chunks at a given point in time.
     
     Args:
