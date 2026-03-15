@@ -113,7 +113,7 @@ class RagBenchmarkRunner:
         conn = None
         try:
             logger.info("Attempting DB connection...")
-            conn = await psycopg.AsyncConnection.connect(self.db_url)
+            conn = await asyncio.wait_for(psycopg.AsyncConnection.connect(self.db_url), timeout=5.0)
             logger.info("DB connection established.")
         except Exception as e:
             logger.warning(f"Database connection failed: {e}. Proceeding with mock retrieval.")
