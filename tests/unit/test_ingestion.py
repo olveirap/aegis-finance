@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from aegis.kb.ingestion.connectors.http_polling import infer_http_source_type
 from aegis.kb.ingestion.models import SourceMeta, ExtractedContent, RawDocument
 from aegis.kb.ingestion.registry import SourceConfig, StageConfig
 from aegis.kb.ontology import SourceType, SubTopic
@@ -78,6 +79,31 @@ def test_registry_config_multi_stage() -> None:
     )
     assert len(config.stages) == 2
     assert config.stages[1].extractor == ["pdf", "llm_summarizer"]
+
+
+def test_http_polling_infers_regulation_source_type_from_taxonomy() -> None:
+    config = SourceConfig(
+        name="bcra_comunicaciones",
+        ontology_tags=[SubTopic.REGULATORY_BODIES, SubTopic.CURRENCY_CONTROLS],
+        jurisdiction=["AR"],
+        connector="http_polling",
+        base_url="https://www.bcra.gob.ar/Pdfs/comytexord/A7879.pdf",
+    )
+
+    assert infer_http_source_type(config) == SourceType.REGULATION
+
+
+def test_http_polling_prefers_explicit_source_type() -> None:
+    config = SourceConfig(
+        name="example_blog",
+        ontology_tags=[SubTopic.REGULATORY_BODIES],
+        jurisdiction=["AR"],
+        connector="http_polling",
+        base_url="https://example.com/post",
+        source_type=SourceType.BLOG,
+    )
+
+    assert infer_http_source_type(config) == SourceType.BLOG
 
 
 def test_registry_config_validation_fail() -> None:

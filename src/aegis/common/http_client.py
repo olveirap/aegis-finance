@@ -13,6 +13,7 @@ from typing import Any
 
 from tenacity import (
     AsyncRetrying,
+    retry_if_exception,
     retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
@@ -68,26 +69,35 @@ class ResilientHTTPClient:
     async def request(self, method: str, url: str, **kwargs: Any) -> httpx.Response:
         """Generic request execution with the configured resilience."""
         async with self.semaphore:
+            def should_retry(exc: BaseException) -> bool:
+                return isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code in {
+                    408,
+                    429,
+                } | set(range(500, 600))
+
             # Using tenacity for automatic retries
             retryer = AsyncRetrying(
                 stop=stop_after_attempt(self.max_retries),
                 wait=wait_exponential(multiplier=1, min=2, max=10),
-                retry=retry_if_exception_type((httpx.RequestError, httpx.TimeoutException)) | retry_if_exception(lambda e: isinstance(e, httpx.HTTPStatusError) and e.response.status_code >= 500),
+                retry=retry_if_exception_type((httpx.RequestError, httpx.TimeoutException))
+                | retry_if_exception(should_retry),
                 reraise=True,
             )
-            
+
             async for attempt in retryer:
                 with attempt:
-                    logger.debug(f"Requesting {method} {url} (attempt {attempt.retry_state.attempt_number})")
+                    logger.debug(
+                        "Requesting %s %s (attempt %s)",
+                        method,
+                        url,
+                        attempt.retry_state.attempt_number,
+                    )
                     response = await self.client.request(method, url, **kwargs)
-                    
-                    # Raise for 4xx and 5xx. If we get a 404, we usually don't want to retry, 
-                    # but tenacity will retry on HTTPStatusError unless we configure it.
-                    # As a default wrapper, we raise; callers can catch if 404 is expected.
-                    if response.status_code >= 500 or response.status_code == 429:
+
+                    if response.status_code >= 400:
                         response.raise_for_status()
                     return response
-            
+
             # This should not be hit due to reraise=True in generic cases
             raise RuntimeError(f"Failed to complete {method} {url}")
 

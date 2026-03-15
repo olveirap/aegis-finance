@@ -1,4 +1,4 @@
-.PHONY: setup setup-models test lint
+.PHONY: setup setup-models test lint kb-ingest
 
 setup:
 	poetry install

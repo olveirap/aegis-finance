@@ -29,6 +29,7 @@ class SourceConfig(BaseModel):
     schedule: str | None = None
     ontology_tags: list[SubTopic]
     jurisdiction: list[str]
+    source_type: SourceType | None = None
     
     # Single-stage options
     connector: str | None = None
