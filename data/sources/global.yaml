@@ -1,0 +1,27 @@
+sources:
+  - name: sec_edgar_rules
+    schedule: "0 0 * * *"
+    ontology_tags: ["regulatory_bodies", "stocks"]
+    jurisdiction: ["US"]
+    stages:
+      - connector: "rss_feed"
+      - connector: "http_polling"
+        extractor: ["pdf"]
+    base_url: "https://www.sec.gov/rules/final.rss"
+    params:
+      max_concurrent: 3
+
+  - name: fred_base_rate
+    schedule: "0 10 * * 1-5"
+    ontology_tags: ["inflation", "budgeting"]
+    jurisdiction: ["US"]
+    connector: "rest_api"
+    extractor: ["timeseries"]
+    base_url: "https://api.stlouisfed.org/fred/series/observations"
+    auth:
+      type: "api_key"
+      env: "FRED_API_KEY"
+    params:
+      series_id: "DFEDTARU"
+      file_type: "json"
+      auth_param_name: "api_key"

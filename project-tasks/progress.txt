@@ -1,0 +1,59 @@
+Aegis Finance - Task Progress Log
+=================================
+
+2026-03-06: Task 0.1 — Ontology & Taxonomy Design [COMPLETED]
+--------------------------------------------------------------
+- Implemented faceted taxonomy system for Knowledge Base.
+- Created `src/aegis/kb/ontology.py` with 4 topic categories and 21 subtopics.
+- Implemented `ChunkMetadata` in `src/aegis/kb/metadata.py` with orthogonal jurisdiction facet (ISO 3166-1).
+- Exported taxonomy configuration to `data/knowledge/taxonomy.yaml`.
+- Transitioned project to Poetry with local `.venv` creation (`virtualenvs.in-project true`).
+- Created and passed extensive `pytest` suite for the ontology and metadata schemas.
+
+2026-03-06: Task 0.2 — Source Scrapers [COMPLETED]
+--------------------------------------------------------------
+- Implemented `RawDocument` model in `src/aegis/kb/scrapers/models.py`.
+- Implemented `BaseScraper` in `src/aegis/kb/scrapers/base.py` with retry/rate-limiting logic using `tenacity` and `asyncio.Semaphore`.
+- Added specific scraper implementations for Blog, YouTube, Reddit, Regulation, and Book Summaries.
+- Added dependency requirements (`httpx`, `beautifulsoup4`, `trafilatura`, `asyncpraw`, `youtube-transcript-api`, `pypdf`, `tenacity`) and fixed compatibility limits.
+- Validated scrapers through manual requests. Raw text correctly outputs to `data/knowledge/raw/` in Markdown with YAML frontmatter.
+- Implemented and passed exhaustive unit tests (`tests/unit/test_scrapers.py`) using mocked networks.
+- Created project `.gitignore` excluding Python cache, IDE artifacts, and the raw knowledge directory.
+
+2026-03-07: Task 0.1, 0.2, 0.2b — Ingestion Framework v2 [COMPLETED]
+--------------------------------------------------------------
+- Extended Ontology & Taxonomy (0.1) with temporal logic (`CausalActionNode`, `TemporalInterval`) and explicit mappings to FIBO standards (`fibo_mapping.py`), plus updated `taxonomy.yaml`.
+- Constructed the Connector layer (`http_polling`, `rest_api`, `rss_feed`, `video`, `reddit`).
+- Constructed the Extractor layer (`html`, `pdf` via Unstructured, `timeseries`, and the locally-driven `llm_summarizer`).
+- Implemented resilience into `ResilientHTTPClient` and persistent progress in `StateManager` (using PostgreSQL tables).
+- Built the centralized pipeline `IngestionRunner` to tie configurations, connectors, extractors, and the `Normalizer` together.
+- Cleared out the legacy scraper codebase entirely, replacing it with the new v2 Connector/Extractor architecture.
+- Designed the initial layout mapping for global, Argentine, and book sources via declarative YAML configurations in `data/sources/*.yaml` (Task 0.2b).
+- Unit tests (`test_ontology.py`, `test_temporal.py`, `test_fibo_mapping.py`, `test_ingestion.py`) created and passed successfully.
+
+2026-03-08: Task 0.3 — Deduplication & Quality Pipeline [COMPLETED]
+--------------------------------------------------------------
+- Implemented `Chunker` using `tiktoken` (cl100k_base) for overlapping token windows. Added token-position indexing (`hasher.update(str(i).encode())`) to physically prevent pgvector hash collisions with identical repeated text.
+- Defined `BaseTagger` interface and implemented `HeuristicTagger` via keyword matching against ontology tags. Added a stub for future `LLMTagger` that strictly raises a `NotImplementedError` contract.
+- Built `HeuristicExtractor` to run regex for regulatory identifiers (CUIT, CBU) and spaCy NER (`es_core_news_sm`) for institutions and assets.
+- Created `KBPipeline` to orchestrate quality filtering: content hash dedup (SHA-256), min-length checks, language-detection (ES/EN), semantic dedup using TF-IDF cosine similarity > 0.95. Added explicit explicit `TODO(Task 0.4)` detailing the deferral of cross-batch semantic dedup to pgvector ANN.
+- Setup `make setup-models` target to streamline the spaCy model bootstrapping.
+- Wrote extensive TDD `pytest` coverage for chunker, tagger, extractor and pipeline passing (41/41).
+- Pushed changes to the dedicated `feature/task-0.3-dedup-quality` worktree.
+
+2026-03-09: Task 0.5 — RAG Knowledge Benchmarks [PARTIALLY COMPLETED]
+--------------------------------------------------------------
+- Created `tests/benchmarks/kb_quality.json`, defining 55 QA pairs tailored to Argentine finance advisory scenarios (Situational, Comparative, Regulatory, Definitional, Procedural, Timing).
+- Defined complex evaluation schema covering `user_context`, `key_claims`, `required_layers` (macro, instrument, advisory), `difficulty` tiers, and `regulatory_caveat` flags.
+- Enhanced benchmark runner (`rag_benchmark.py`) to systematically compare RAG against Context-Stuffing via blinded LLM-as-judge scoring.
+- Implemented `LayerCoverage@5` and `ca_recall` (Context-Aware Recall) metrics tracking, alongside strict hallucination pre-checks.
+- Validated offline robustness running `--dry-run` successfully yielding `skipped_unprovisioned` states to bypass missing local DB/LLM connection loops safely.
+- *Status:* Toolchain completed. Final baseline extraction blocked pending local KB provisioning in Task 0.4.
+
+2026-03-11: Task 0.5 — RAG Knowledge Benchmarks [COMPLETED]
+--------------------------------------------------------------
+- Configured local LLaMA-based embedding capabilities using `nomic-embed-text-v1.5` over local server endpoints on port 8080.
+- Executed integration via `llama-server.exe` bridging the generation LLM (Qwen 3.5 35B) concurrently on port 8081.
+- Updated core project configurations in `pyproject.toml` to support the required dependencies (`crawl4ai`, `feedparser`, `openai`).
+- Modified `rag_benchmark.py` for resilience around missing database architectures for phase 0.
+- Concluded execution of `--dry-run` producing valid base results in `tests/benchmarks/results/kb_baseline.json`. Phase 0 officially concluded.

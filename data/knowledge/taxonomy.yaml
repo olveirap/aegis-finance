@@ -1,0 +1,112 @@
+# Aegis Finance — Knowledge Base Topic Taxonomy
+#
+# Three orthogonal facets:
+#   Topic        → what the content is about
+#   Jurisdiction → where it applies (ISO 3166-1 α-2 or GLOBAL)
+#   SourceType   → how it was acquired (see ontology.py SourceType enum)
+#
+# Jurisdiction is metadata on any topic — it is NOT a category.
+# MVP focuses on Argentina (AR) but the schema supports any country.
+
+topics:
+  personal_finance:
+    label: Personal Finance
+    subtopics:
+      - name: budgeting
+        label: Budgeting
+      - name: saving
+        label: Saving
+        notes: "Includes plazo fijo (jurisdiction: AR)"
+      - name: emergency_fund
+        label: Emergency Fund
+      - name: debt_management
+        label: Debt Management
+      - name: insurance
+        label: Insurance
+
+  investing:
+    label: Investing
+    subtopics:
+      - name: stocks
+        label: Stocks
+      - name: bonds
+        label: Bonds
+      - name: cedears
+        label: CEDEARs
+        default_jurisdiction: ["AR"]
+      - name: fcis
+        label: FCIs
+        default_jurisdiction: ["AR"]
+      - name: etfs
+        label: ETFs
+      - name: crypto
+        label: Crypto
+      - name: mutual_funds
+        label: Mutual Funds
+
+  tax_and_regulation:
+    label: Tax & Regulation
+    subtopics:
+      - name: income_tax
+        label: Income Tax
+        notes: "Impuesto a las Ganancias (jurisdiction: AR)"
+      - name: wealth_tax
+        label: Wealth Tax
+        notes: "Bienes Personales (jurisdiction: AR)"
+      - name: currency_controls
+        label: Currency Controls
+        notes: "MEP / CCL (jurisdiction: AR)"
+      - name: inflation
+        label: Inflation
+      - name: regulatory_bodies
+        label: Regulatory Bodies
+        notes: "AFIP, BCRA, CNV, UIF (jurisdiction: AR)"
+      - name: tax_planning
+        label: Tax Planning
+
+  real_estate:
+    label: Real Estate
+    subtopics:
+      - name: mortgage
+        label: Mortgage
+      - name: rental
+        label: Rental
+      - name: property_tax
+        label: Property Tax
+
+# ── Graph edge types (for future knowledge graph) ──────────────────────────
+graph_edge_types:
+  - relates_to
+  - regulates
+  - depends_on
+  - taxed_by
+  - issued_by
+  # FIBO relationships
+  - is_issued_by
+  - represents
+  - is_hedged_by
+  - amends
+  - supersedes
+  - triggers
+  - has_conversion_ratio
+  - valid_during
+
+# ── Graph node types ───────────────────────────────────────────────────────
+graph_node_types:
+  - concept
+  - regulation
+  - asset
+  - institution
+  - tax_rule
+  # FIBO entities
+  - legal_person
+  - security
+  - debt_instrument
+  - account
+  - cedear
+  - bopreal
+  - bono_cer
+  - plazo_fijo
+  - currency_node
+  - regulatory_event
+  - action_node

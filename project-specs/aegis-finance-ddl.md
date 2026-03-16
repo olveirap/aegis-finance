@@ -142,6 +142,7 @@ CREATE TABLE kb_chunks (
     content         TEXT NOT NULL,
     embedding       vector(1024),                   -- Qwen3-embedding dimension (multilingual)
     source          VARCHAR(500),                   -- URL, book title, file path
+    source_title    VARCHAR(300),                   -- Document title for precise provenance
     source_type     VARCHAR(30)                     -- 'blog', 'book_summary', 'transcript', 'official_doc'
         CHECK (source_type IN ('blog', 'book_summary', 'transcript', 'official_doc', 'user_note')),
     topic_tags      TEXT[],                         -- PostgreSQL array of tags

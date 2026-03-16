@@ -1,0 +1,34 @@
+sources:
+  - name: bcra_comunicaciones
+    schedule: "0 18 * * 1-5" # 6 PM every weekday
+    ontology_tags: ["regulatory_bodies", "currency_controls"]
+    jurisdiction: ["AR"]
+    connector: "http_polling"
+    extractor: ["pdf"]
+    base_url: "https://www.bcra.gob.ar/Pdfs/comytexord/A7879.pdf" # MVP fixed example
+    params:
+      max_concurrent: 1
+      
+  - name: afip_resoluciones
+    schedule: "0 19 * * *"
+    ontology_tags: ["income_tax", "wealth_tax", "regulatory_bodies"]
+    jurisdiction: ["AR"]
+    connector: "http_polling"
+    extractor: ["html"]
+    base_url: "https://www.boletinoficial.gob.ar/seccion/primera"
+    params:
+      max_concurrent: 3
+
+  - name: merval_reddit
+    schedule: "0 */4 * * *"
+    ontology_tags: ["stocks", "cedears", "bonds"]
+    jurisdiction: ["AR"]
+    connector: "reddit"
+    extractor: []
+    base_url: "https://reddit.com/r/merval"
+    auth:
+      type: "oauth"
+      env: "REDDIT_CLIENT_SECRET"
+    params:
+      subreddit: "merval"
+      limit: 50
