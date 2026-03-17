@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: aegis_finance
       POSTGRES_USER: aegis
-      POSTGRES_PASSWORD: ${AEGIS_DB_PASSWORD:-aegis_dev}
+      POSTGRES_PASSWORD: ${AEGIS_DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:

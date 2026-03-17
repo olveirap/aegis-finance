@@ -32,4 +32,6 @@ class BaseConnector(ABC):
         """
         # This is an abstract async generator method; implementations must yield
         # (bytes, SourceMeta) tuples. Subclasses must override this method.
+        if False:
+            yield NotImplemented
         raise NotImplementedError("BaseConnector.fetch must be implemented by subclasses.")

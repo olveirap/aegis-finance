@@ -53,21 +53,21 @@ EXPECTED_TABLES = {
     "accounts",
     "transactions",
     "import_batches",
-    "categories",
-    "category_rules",
-    "budgets",
-    "budget_periods",
+    "assets",
+    "income_sources",
     "exchange_rates",
-    "market_prices",
     "kb_chunks",
+    "kb_entities",
+    "kb_relations",
+    "ingestion_state",
 }
 
 EXPECTED_VIEWS = {
-    "v_monthly_summary",
-    "v_category_breakdown",
-    "v_daily_balance",
-    "v_budget_status",
-    "v_flagged_transactions",
+    "v_net_worth",
+    "v_monthly_burn",
+    "v_cedear_exposure",
+    "v_income_summary",
+    "v_category_spend",
 }
 
 

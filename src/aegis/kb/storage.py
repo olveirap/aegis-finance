@@ -11,7 +11,6 @@ import logging
 import os
 from typing import Protocol
 
-import psycopg
 from psycopg_pool import ConnectionPool
 
 from aegis.kb.embedder import EmbeddedChunk

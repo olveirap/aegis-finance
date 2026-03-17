@@ -85,7 +85,7 @@ class RagBenchmarkRunner:
             api_key="sk-local",
             base_url=f"{llm_base_url.rstrip('/')}/v1",
             timeout=60.0,
-            max_retries=0
+            max_retries=1
         )
         self.embedder = LlamaCppEmbedder(base_url="http://localhost:8080/v1")
         self.seed = seed

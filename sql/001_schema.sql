@@ -8,6 +8,7 @@
 -- ── Extensions ──────────────────────────────────────────────────────────────
 
 CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- ── accounts ────────────────────────────────────────────────────────────────
 
@@ -22,6 +23,20 @@ CREATE TABLE accounts (
     created_at      TIMESTAMPTZ DEFAULT NOW(),
     updated_at      TIMESTAMPTZ DEFAULT NOW(),
     deleted_at      TIMESTAMPTZ
+);
+
+-- ── import_batches ──────────────────────────────────────────────────────────
+
+CREATE TABLE import_batches (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    account_id      UUID NOT NULL REFERENCES accounts(id),
+    file_name       VARCHAR(255) NOT NULL,
+    file_hash       VARCHAR(64) NOT NULL,
+    row_count       INTEGER NOT NULL,
+    imported_at     TIMESTAMPTZ DEFAULT NOW(),
+    parser_used     VARCHAR(50) NOT NULL,
+    status          VARCHAR(20) DEFAULT 'completed'
+        CHECK (status IN ('pending', 'processing', 'completed', 'failed'))
 );
 
 -- ── transactions ────────────────────────────────────────────────────────────
@@ -41,7 +56,7 @@ CREATE TABLE transactions (
     category_source VARCHAR(20) DEFAULT 'auto'
         CHECK (category_source IN ('auto', 'user', 'hitl')),
     is_flagged      BOOLEAN DEFAULT FALSE,
-    import_batch_id UUID,
+    import_batch_id UUID REFERENCES import_batches(id),
     created_at      TIMESTAMPTZ DEFAULT NOW(),
     updated_at      TIMESTAMPTZ DEFAULT NOW(),
 
@@ -53,20 +68,6 @@ CREATE INDEX idx_transactions_category  ON transactions(category) WHERE category
 CREATE INDEX idx_transactions_flagged   ON transactions(is_flagged) WHERE is_flagged = TRUE;
 CREATE INDEX idx_transactions_account   ON transactions(account_id);
 CREATE INDEX idx_transactions_import    ON transactions(import_batch_id);
-
--- ── import_batches ──────────────────────────────────────────────────────────
-
-CREATE TABLE import_batches (
-    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    account_id      UUID NOT NULL REFERENCES accounts(id),
-    file_name       VARCHAR(255) NOT NULL,
-    file_hash       VARCHAR(64) NOT NULL,
-    row_count       INTEGER NOT NULL,
-    imported_at     TIMESTAMPTZ DEFAULT NOW(),
-    parser_used     VARCHAR(50) NOT NULL,
-    status          VARCHAR(20) DEFAULT 'completed'
-        CHECK (status IN ('pending', 'processing', 'completed', 'failed'))
-);
 
 -- ── assets ──────────────────────────────────────────────────────────────────
 

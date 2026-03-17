@@ -32,38 +32,34 @@ def mock_embedded_chunks():
 
 @pytest.mark.asyncio
 async def test_pg_vector_store_initialization():
-    store = PgVectorStore("postgresql://test:test@localhost:5432/test")
-    
-    mock_conn = AsyncMock()
-    mock_cursor = AsyncMock()
-    
-    mock_conn.__aenter__.return_value = mock_conn
-    mock_cursor.__aenter__.return_value = mock_cursor
-    mock_conn.cursor = MagicMock(return_value=mock_cursor)
-    
-    with patch("psycopg.AsyncConnection.connect", new_callable=AsyncMock) as mock_connect:
-        mock_connect.return_value = mock_conn
+    with patch("aegis.kb.storage.ConnectionPool") as MockPool:
+        mock_pool_instance = MockPool.return_value
         
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+        
+        mock_pool_instance.connection.return_value.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        
+        store = PgVectorStore("postgresql://test:test@localhost:5432/test")
         await store.initialize()
         
-        mock_connect.assert_called_once_with("postgresql://test:test@localhost:5432/test")
+        mock_pool_instance.open.assert_called_once()
         mock_cursor.execute.assert_called_once_with("SELECT 1;")
 
 
 @pytest.mark.asyncio
 async def test_pg_vector_store_store_batch(mock_embedded_chunks):
-    store = PgVectorStore("postgresql://test:test@localhost:5432/test")
-    
-    mock_conn = AsyncMock()
-    mock_cursor = AsyncMock()
-    
-    mock_conn.__aenter__.return_value = mock_conn
-    mock_cursor.__aenter__.return_value = mock_cursor
-    mock_conn.cursor = MagicMock(return_value=mock_cursor)
-    
-    with patch("psycopg.AsyncConnection.connect", new_callable=AsyncMock) as mock_connect:
-        mock_connect.return_value = mock_conn
+    with patch("aegis.kb.storage.ConnectionPool") as MockPool:
+        mock_pool_instance = MockPool.return_value
         
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+        
+        mock_pool_instance.connection.return_value.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        
+        store = PgVectorStore("postgresql://test:test@localhost:5432/test")
         await store.store_batch(mock_embedded_chunks)
         
         mock_cursor.executemany.assert_called_once()
@@ -77,7 +73,7 @@ async def test_pg_vector_store_store_batch(mock_embedded_chunks):
         
         param_tuple = params[0]
         assert param_tuple[0] == "Test text content"
-        assert param_tuple[1] == "[0.1,0.2,0.3]"
+        assert param_tuple[1] == "[0.1, 0.2, 0.3]"
         assert param_tuple[2] == "http://test.com"
         assert param_tuple[3] == "Test Title"
         assert param_tuple[4] == "blog" # Assuming SourceType.BLOG.value is "blog"

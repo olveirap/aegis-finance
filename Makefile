@@ -22,9 +22,7 @@ db-down:
 	docker compose down
 
 db-reset:
-	docker compose down -v && docker compose up -d
-	@echo "Waiting for PostgreSQL to start…"
-	python -c "import time; time.sleep(3)"
+	docker compose down -v && docker compose up -d --wait
 
 seed:
-	poetry run python data/synthetic/generate.py
+	docker compose exec -T db psql -U aegis -d aegis_finance -f /docker-entrypoint-initdb.d/003_seed_synthetic.sql
