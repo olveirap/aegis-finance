@@ -158,3 +158,19 @@ Implemented the complete data foundation layer including project scaffolding, Do
 - Handled Playwright browser executables locally (`playwright install`).
 - Executed `make seed` against local Docker infrastructure, successfully writing 1,519 synthetic transactions, accounts, and exchange rates.
 - Concluded all Phase 0 and Phase 1 objectives structurally. The pipeline can now natively scrape, extract, parse, categorize, chunk, mock-embed, and persist both structured finance data and unstructured knowledge to PostgreSQL `pgvector`.
+
+2026-03-17: PR Review Fixes [COMPLETED]
+--------------------------------------------------------------
+- Addressed code review feedback from Gemini Code Assist on the initial Phase 1 PR.
+- Downgraded `openai` dependency to `^1.0` in `pyproject.toml`.
+- Reordered table creation in `sql/001_schema.sql` to fix a foreign key dependency issue (`import_batches` vs `transactions`) and added the `pgcrypto` extension.
+- Fixed outdated expected tables and views in `tests/integration/test_db.py`.
+- Removed hardcoded mock embedder flag in `src/aegis/kb/embedder.py`.
+- Replaced the `sleep` command with `docker compose --wait` in the `Makefile` and corrected the seed script path.
+- Updated `src/aegis/kb/ingestion/connectors/video.py` to correctly use `asyncio.to_thread` for blocking API calls.
+- Fixed a placeholder yield in `src/aegis/kb/ingestion/connectors/base.py`.
+- Updated timeout and retry configurations in `tests/benchmarks/rag_benchmark.py`.
+- Fixed the ontology enum check in `src/aegis/kb/ingestion/connectors/http_polling.py`.
+- Refactored `tests/integration/test_storage.py` into a unit test (`tests/unit/test_storage.py`) correctly mocking the synchronous `ConnectionPool`.
+- Cleaned up unused imports in `src/aegis/kb/storage.py`.
+- Verified all fixes and pushed to the `feature/phase-1` branch.
