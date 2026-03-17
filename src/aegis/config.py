@@ -65,6 +65,7 @@ class LLMConfig(BaseModel):
 class EmbeddingConfig(BaseModel):
     """Embedding model configuration."""
 
+    api_base: str = "http://localhost:8081/v1"
     model: str = "qwen3-embedding"
     ocr_fallback: str = "qwen3-vl-embedding"
     dimension: int = 1024

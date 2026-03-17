@@ -8,6 +8,7 @@ import sys
 
 from pydantic import BaseModel
 
+from aegis.config import get_config
 from aegis.kb.embedder import LlamaCppEmbedder
 from aegis.kb.ingestion.registry import SourceRegistry
 from aegis.kb.ingestion.runner import IngestionRunner
@@ -35,7 +36,11 @@ async def run_kb_ingest(registry_paths: list[str]) -> KBIngestionResult:
     5. Stores embeddings safely into Postgres.
     """
     pipeline = KBPipeline()
-    embedder = LlamaCppEmbedder()
+    config = get_config()
+    embedder = LlamaCppEmbedder(
+        base_url=config.embedding.api_base,
+        model=config.embedding.model
+    )
     storage = get_storage()
     
     await storage.initialize()

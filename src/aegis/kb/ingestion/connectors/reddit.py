@@ -1,17 +1,18 @@
 # SPDX-License-Identifier: MIT
 """Reddit Connector.
 
-Wrapper around asyncpraw to fetch subreddit posts or search results.
+Wrapper around praw to fetch subreddit posts or search results.
 """
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import os
 from typing import AsyncIterator
 
-import asyncpraw
+import praw
 
 from aegis.kb.ingestion.connectors.base import BaseConnector
 from aegis.kb.ingestion.models import SourceMeta
@@ -33,7 +34,7 @@ class RedditConnector(BaseConnector):
         if not (client_id and client_secret):
             raise ValueError(f"Source '{config.name}' requires REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET")
 
-        reddit = asyncpraw.Reddit(
+        reddit = praw.Reddit(
             client_id=client_id,
             client_secret=client_secret,
             user_agent=user_agent
@@ -43,9 +44,13 @@ class RedditConnector(BaseConnector):
             subreddit_name = config.params.get("subreddit", "merval")
             limit = config.params.get("limit", 100)
             
-            subreddit = await reddit.subreddit(subreddit_name)
+            def get_submissions():
+                subreddit = reddit.subreddit(subreddit_name)
+                return list(subreddit.hot(limit=limit))
+                
+            submissions = await asyncio.to_thread(get_submissions)
             
-            async for submission in subreddit.hot(limit=limit):
+            for submission in submissions:
                 doc_dict = {
                     "title": submission.title,
                     "selftext": submission.selftext,
@@ -69,4 +74,5 @@ class RedditConnector(BaseConnector):
                 yield raw_bytes, meta
                 
         finally:
-            await reddit.close()
+            pass
+
