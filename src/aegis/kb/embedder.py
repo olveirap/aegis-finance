@@ -46,7 +46,7 @@ class LlamaCppEmbedder:
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.batch_size = batch_size
-        self.use_mock = os.environ.get("MOCK_EMBEDDER", "1") == "1"
+        self.use_mock = os.environ.get("MOCK_EMBEDDER", "0") == "1"
 
     @tenacity.retry(
         stop=tenacity.stop_after_attempt(3),
