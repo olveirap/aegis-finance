@@ -1,0 +1,247 @@
+# SPDX-License-Identifier: MIT
+# Keyword-to-category mapping for Argentine personal finance.
+#
+# Each category lists keywords for substring matching against
+# merchant_raw + description.  The rule-based categorizer
+# (aegis.parsers.categorizer.RuleBasedCategorizer) loads this file
+# at init and uses it as its sole knowledge source.
+#
+# Flags:
+#   partial:       true  → substring match (default); false → exact token only
+#   positive_only: true  → category applies only when amount > 0
+
+categories:
+  Food:
+    keywords:
+      - carrefour
+      - coto
+      - dia
+      - jumbo
+      - disco
+      - vea
+      - supermercado
+      - almacen
+      - verduleria
+      - carniceria
+      - panaderia
+      - pedidosya
+      - rappi
+      - restaurant
+      - resto
+      - bar
+      - cafeteria
+      - mcdonald
+      - burger
+      - pizzeria
+      - sushi
+      - delivery
+      - glovo
+      - grido
+      - heladeria
+      - despensa
+      - fiambreria
+    partial: true
+
+  Housing:
+    keywords:
+      - alquiler
+      - expensas
+      - inmobiliaria
+      - consorcio
+      - hipoteca
+      - propiedad
+      - mudanza
+    partial: true
+
+  Transportation:
+    keywords:
+      - sube
+      - uber
+      - cabify
+      - didi
+      - ypf
+      - shell
+      - axion
+      - nafta
+      - combustible
+      - estacionamiento
+      - peaje
+      - autopista
+      - tren
+      - colectivo
+      - subte
+      - remis
+      - gnc
+    partial: true
+
+  Utilities:
+    keywords:
+      - edenor
+      - edesur
+      - metrogas
+      - aysa
+      - telecom
+      - personal
+      - movistar
+      - claro
+      - fibertel
+      - cablevision
+      - flow
+      - internet
+      - luz
+      - gas natural
+      - agua
+      - telefono
+    partial: true
+
+  Subscriptions:
+    keywords:
+      - netflix
+      - spotify
+      - hbo
+      - disney
+      - amazon prime
+      - steam
+      - playstation
+      - xbox
+      - youtube premium
+      - apple
+      - google one
+      - mercadolibre nivel
+      - paramount
+      - crunchyroll
+      - deezer
+      - twitch
+      - icloud
+    partial: true
+
+  Health:
+    keywords:
+      - farmacia
+      - farmacity
+      - osde
+      - swiss medical
+      - galeno
+      - medife
+      - medico
+      - hospital
+      - clinica
+      - odontolog
+      - optica
+      - laboratorio
+      - prepaga
+      - obra social
+      - salud
+      - nutricion
+      - psicolog
+      - kinesio
+    partial: true
+
+  Entertainment:
+    keywords:
+      - cine
+      - hoyts
+      - cinemark
+      - teatro
+      - show
+      - recital
+      - entrada
+      - parque
+      - museo
+      - boliche
+      - escape room
+      - bowling
+      - karaoke
+      - concierto
+      - evento
+    partial: true
+
+  Education:
+    keywords:
+      - universidad
+      - colegio
+      - escuela
+      - udemy
+      - coursera
+      - platzi
+      - libro
+      - libreria
+      - educacion
+      - curso
+      - capacitacion
+      - seminario
+      - taller
+      - formacion
+      - academia
+    partial: true
+
+  Savings:
+    keywords:
+      - plazo fijo
+      - ahorro
+      - fci
+      - fondo comun
+      - caja de ahorro
+    partial: true
+
+  Investment:
+    keywords:
+      - cedear
+      - bono
+      - accion
+      - etf
+      - crypto
+      - bitcoin
+      - usdt
+      - mep
+      - ccl
+      - iol
+      - balanz
+      - bullmarket
+      - ppi
+      - obligacion negociable
+      - lete
+      - lede
+      - broker
+    partial: true
+
+  Transfer:
+    keywords:
+      - transferencia
+      - transfer
+      - cvu
+      - cbu
+      - envio de dinero
+      - recibido de
+    partial: true
+
+  Income:
+    keywords:
+      - sueldo
+      - salario
+      - honorarios
+      - freelance
+      - facturacion
+      - cobro
+      - deposito
+      - ingreso
+      - aguinaldo
+      - bono salarial
+      - remuneracion
+    partial: true
+    positive_only: true
+
+  Work-Expense:
+    keywords:
+      - coworking
+      - oficina
+      - insumo
+      - papeleria
+      - imprenta
+      - herramienta
+      - dominio
+      - hosting
+      - servidor
+      - software
+      - licencia
+    partial: true

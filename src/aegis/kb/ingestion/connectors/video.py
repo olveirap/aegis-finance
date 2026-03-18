@@ -6,6 +6,7 @@ Provides cheap transcript extraction and an expensive Whisper fallback path.
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import logging
 from typing import AsyncIterator
@@ -39,8 +40,7 @@ class VideoConnector(BaseConnector):
 
         for vid in video_ids:
             try:
-                # Synchronous call; in real world execute in threadpool
-                transcript = YouTubeTranscriptApi.get_transcript(vid, languages=['es', 'en'])
+                transcript = await asyncio.to_thread(YouTubeTranscriptApi.get_transcript, vid, languages=['es', 'en'])
                 full_text = " ".join([t['text'] for t in transcript])
 
                 raw_bytes = full_text.encode("utf-8")

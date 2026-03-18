@@ -31,6 +31,7 @@ def mock_embedded_chunks():
     ]
 
 @pytest.mark.asyncio
+@pytest.mark.asyncio
 @patch("aegis.kb.storage.ConnectionPool")
 async def test_pg_vector_store_initialization(mock_pool):
     mock_conn = MagicMock()

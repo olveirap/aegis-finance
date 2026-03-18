@@ -1,0 +1,45 @@
+# Aegis Finance — configuration template
+# Secrets use ${ENV_VAR} syntax and are interpolated from the environment at load time.
+
+llm:
+  local:
+    model: "qwen3.5"
+    llama_cpp_server: "http://localhost:8080"
+  cloud:
+    provider: "openai"  # "openai" | "anthropic" | "gemini" | "local"
+    api_key: "${AEGIS_CLOUD_API_KEY}"
+    enabled: true
+
+embedding:
+  api_base: "http://localhost:8081/v1"
+  model: "nomic-embed-text-v1.5"
+  ocr_fallback: "qwen3-vl-embedding"
+  dimension: 768
+
+privacy:
+  risk_threshold: 0.05
+  anonymize_tools: true
+  redaction_buckets:
+    ars: [0, 50000, 500000, 5000000, 50000000]
+    usd: [0, 100, 1000, 10000, 100000]
+
+database:
+  host: "localhost"
+  port: 5432
+  name: "aegis_finance"
+  user: "aegis"
+  password: "${AEGIS_DB_PASSWORD}"
+
+market:
+  cache_ttl:
+    prices: 900
+    rates: 3600
+  mep_source: "ambito"
+
+rag:
+  chunk_size: 512
+  chunk_overlap: 64
+  top_k: 5
+
+staleness:
+  warn_after_days: 30

@@ -5,8 +5,10 @@ import argparse
 import asyncio
 import logging
 import sys
+
 from pydantic import BaseModel
 
+from aegis.config import get_config
 from aegis.kb.embedder import LlamaCppEmbedder
 from aegis.kb.ingestion.registry import SourceRegistry
 from aegis.kb.ingestion.runner import IngestionRunner
@@ -34,48 +36,55 @@ async def run_kb_ingest(registry_paths: list[str]) -> KBIngestionResult:
     5. Stores embeddings safely into Postgres.
     """
     pipeline = KBPipeline()
-    embedder = LlamaCppEmbedder()
+    config = get_config()
+    embedder = LlamaCppEmbedder(
+        base_url=config.embedding.api_base,
+        model=config.embedding.model
+    )
     storage = get_storage()
     
     await storage.initialize()
     
     result = KBIngestionResult()
     
-    for path in registry_paths:
-        logger.info(f"Loading registry from: {path}")
-        registry = SourceRegistry.load(path)
-        runner = IngestionRunner(registry)
-        
-        for name, config in registry.sources.items():
-            logger.info(f"=== Starting source: {name} ===")
-            try:
-                # Accumulate raw docs to allow cross-document semantic dedup if desired,
-                # but to avoid OOM we will process per document.
-                async for raw_doc in runner.run_source_pipeline(config):
-                    # 1. Quality Pipeline
-                    try:
-                        chunks = pipeline.process(raw_doc)
-                        if not chunks:
-                            continue
+    try:
+        for path in registry_paths:
+            logger.info(f"Loading registry from: {path}")
+            registry = SourceRegistry.load(path)
+            runner = IngestionRunner(registry)
+            
+            for name, config in registry.sources.items():
+                logger.info(f"=== Starting source: {name} ===")
+                try:
+                    # Accumulate raw docs to allow cross-document semantic dedup if desired,
+                    # but to avoid OOM we will process per document.
+                    async for raw_doc in runner.run_source_pipeline(config):
+                        # 1. Quality Pipeline
+                        try:
+                            chunks = pipeline.process(raw_doc)
+                            if not chunks:
+                                continue
+                                
+                            # 2. Embedding
+                            embedded = await embedder.embed(chunks)
+                            result.processed_chunks += len(chunks)
                             
-                        # 2. Embedding
-                        embedded = await embedder.embed(chunks)
-                        result.processed_chunks += len(chunks)
-                        
-                        if not embedded:
-                            continue
+                            if not embedded:
+                                continue
+                                
+                            # 3. Storage
+                            await storage.store_batch(embedded)
+                            result.stored_chunks += len(embedded)
                             
-                        # 3. Storage
-                        await storage.store_batch(embedded)
-                        result.stored_chunks += len(embedded)
-                        
-                    except Exception as e:
-                        logger.error(f"Error processing document {raw_doc.source_url}: {e}")
-                        result.errors += 1
-                        
-            except Exception as e:
-                logger.error(f"Source pipeline {name} failed: {e}")
-                result.errors += 1
+                        except Exception as e:
+                            logger.error(f"Error processing document {raw_doc.source_url}: {e}")
+                            result.errors += 1
+                            
+                except Exception as e:
+                    logger.error(f"Source pipeline {name} failed: {e}")
+                    result.errors += 1
+    finally:
+        await storage.close()
                 
     return result
 
