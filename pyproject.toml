@@ -29,7 +29,8 @@ dependencies = [
     "crawl4ai>=0.4.0",
     "unstructured[all-docs]>=0.16.0",
     "unstructured-inference>=0.8.0",
-    "pdfminer.six>=20240706"
+    "pdfminer.six>=20240706",
+    "langgraph>=0.2.0,<0.3.0",
 ]
 
 
