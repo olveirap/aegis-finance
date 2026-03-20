@@ -168,4 +168,5 @@ cython_debug/
 data/knowledge/raw/
 data/synthetic/
 .env*
-!config.yaml
+!config.ya
+src/aegis/__pycache__/
