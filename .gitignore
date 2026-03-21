@@ -170,3 +170,5 @@ data/synthetic/
 .env*
 !config.ya
 src/aegis/__pycache__/
+.gemini/
+gha-creds-*.json
