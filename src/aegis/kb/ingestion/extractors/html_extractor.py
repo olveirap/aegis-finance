@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import json
 from crawl4ai import AsyncWebCrawler
 from crawl4ai.extraction_strategy import NoExtractionStrategy
 

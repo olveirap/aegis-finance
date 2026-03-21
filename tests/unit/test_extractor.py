@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import pytest
 
 from aegis.kb.extractor import ExtractedEntities, HeuristicExtractor
 

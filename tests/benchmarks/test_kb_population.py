@@ -1,14 +1,3 @@
-import os
-
-import pytest
-
-pytestmark = [
-    pytest.mark.integration,
-    pytest.mark.skipif(
-        not os.getenv("AEGIS_DB_URL"),
-        reason="Requires live Postgres/pgvector; set AEGIS_DB_URL to enable.",
-    ),
-]
 """QA tests to verify the KB population process.
 
 These tests assert against a live PostgreSQL pgvector database to ensure 
@@ -22,6 +11,14 @@ import psycopg
 
 from aegis.kb.embedder import LlamaCppEmbedder
 from aegis.kb.storage import get_storage
+
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.skipif(
+        not os.getenv("AEGIS_DB_URL"),
+        reason="Requires live Postgres/pgvector; set AEGIS_DB_URL to enable.",
+    ),
+]
 
 DB_URL = os.environ.get("AEGIS_DB_URL", "postgresql://aegis:aegis_dev@localhost:5432/aegis_finance")
 

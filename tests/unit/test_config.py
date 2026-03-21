@@ -59,7 +59,7 @@ class TestLoadDefaultConfig:
         assert cfg.rag.top_k == 5
         assert cfg.privacy.risk_threshold == pytest.approx(0.05)
         assert cfg.staleness.warn_after_days == 30
-        assert cfg.embedding.dimension == 1024
+        assert cfg.embedding.dimension == 768
         assert cfg.market.cache_ttl.prices == 900
         assert cfg.market.cache_ttl.rates == 3600
         assert cfg.market.mep_source == "ambito"

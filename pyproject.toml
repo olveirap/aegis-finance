@@ -29,7 +29,8 @@ dependencies = [
     "crawl4ai>=0.4.0",
     "unstructured[all-docs]>=0.16.0",
     "unstructured-inference>=0.8.0",
-    "pdfminer.six>=20240706"
+    "pdfminer.six>=20240706",
+    "langgraph>=0.2.0,<0.3.0",
 ]
 
 
@@ -50,6 +51,7 @@ numpy = "^2.0"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+asyncio_default_fixture_loop_scope = "function"
 markers = [
     "integration: tests that require external services or provisioned infrastructure",
 ]

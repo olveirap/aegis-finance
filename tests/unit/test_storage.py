@@ -1,7 +1,7 @@
 """Tests for PostgreSQL Vector Storage backend."""
 
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import patch, MagicMock
 
 from aegis.kb.storage import PgVectorStore
 from aegis.kb.embedder import EmbeddedChunk

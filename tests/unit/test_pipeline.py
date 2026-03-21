@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import hashlib
 
-import pytest
 
 from aegis.kb.pipeline import DocumentChunk, KBPipeline
 from aegis.kb.ingestion.models import RawDocument

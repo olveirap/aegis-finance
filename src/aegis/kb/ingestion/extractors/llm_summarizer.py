@@ -21,9 +21,9 @@ class LLMSummarizerExtractor(BaseExtractor):
         # If it's a chain, runner.py handles passing the previous output.
         try:
             previous_extract = json.loads(raw_bytes)
-            text_to_summarize = previous_extract.get("text", "")
+            _text_to_summarize = previous_extract.get("text", "")
         except Exception:
-            text_to_summarize = raw_bytes.decode("utf-8", errors="ignore")
+            _text_to_summarize = raw_bytes.decode("utf-8", errors="ignore")
             
         # TODO: integrate with llama.cpp Qwen 3.5 using langchain or openai-style client
         summary = "Placeholder summary for LLM extraction."

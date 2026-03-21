@@ -174,3 +174,16 @@ Implemented the complete data foundation layer including project scaffolding, Do
 - Refactored `tests/integration/test_storage.py` into a unit test (`tests/unit/test_storage.py`) correctly mocking the synchronous `ConnectionPool`.
 - Cleaned up unused imports in `src/aegis/kb/storage.py`.
 - Verified all fixes and pushed to the `feature/phase-1` branch.
+
+2026-03-21: Task 2.1 — LangGraph Orchestrator Setup [COMPLETED]
+--------------------------------------------------------------
+- Implemented core LangGraph orchestrator in src/aegis/graph/__init__.py.
+- Defined AegisState TypedDict to manage query context, history, routing, and processing results.
+- Created create_aegis_graph() with a hub-and-spoke architecture routing through a central router node to specialized flows (sql, rag, hybrid, general, research).
+- Implemented router_node in src/aegis/graph/router.py using Qwen 3.5 (via llama.cpp) for query classification.
+- Built a robust _heuristic_router fallback to handle llama.cpp server unavailability or malformed JSON responses.
+- Optimized the integration test suite: resolved Windows ProactorEventLoop incompatibility with psycopg3 by enforcing WindowsSelectorEventLoopPolicy in tests/conftest.py.
+- Reduced integration test runtime from ~150 seconds to ~1.2 seconds (a 99% speedup).
+- Added comprehensive unit tests in tests/unit/test_graph.py covering routing logic, fallback behavior, and graph structure.
+- Resolved a masked constraint violation in test_import_pipeline.py by updating mock account data.
+- Verified all 194 unit tests and the integration test suite are passing on Windows.

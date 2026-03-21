@@ -3,10 +3,15 @@
 
 from __future__ import annotations
 
+import asyncio
+import sys
 from pathlib import Path
 from uuid import UUID
 
 import pytest
+
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 # ── Path constants ──────────────────────────────────────────────────────────
 
