@@ -277,7 +277,7 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 > **Focus:** LangGraph, LLM integration, RAG, privacy, benchmarks.
 > **Exit Criteria:** User can type a financial question → system routes, queries DB, retrieves knowledge, scrubs PII, and returns an answer.
 
-### [ ] Task 2.1 — LangGraph Orchestrator Setup
+### [x] Task 2.1 — LangGraph Orchestrator Setup
 **Agent:** AI Engineer  
 **Description:** Create the main LangGraph state machine with router node.  
 **Deliverables:**
@@ -287,7 +287,7 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
   - Output: `{ route, query_type, requires_cloud, requires_tools }`
 - State schema: `AegisState` with query, history, sql_result, rag_chunks, privacy_output, tool_results
 
-**QA:** Router correctly classifies 10+ test queries into 5 categories (incl. RESEARCH). Unit tests with mocked llama.cpp responses.
+**QA:** Router correctly classifies 10+ test queries into 5 categories (incl. RESEARCH). Unit tests with mocked llama.cpp responses. ✓ Completed 2026-03-21
 
 ---
 
