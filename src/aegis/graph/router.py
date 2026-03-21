@@ -13,7 +13,8 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, TypedDict
+from typing import Any, TypedDict, NotRequired
+from enum import Enum  
 
 import httpx
 
@@ -24,24 +25,24 @@ logger = logging.getLogger(__name__)
 # Type Definitions
 # =============================================================================
 
-class QueryType(str,):
-    """Enumeration of query types for classification."""
+class QueryType(str, Enum):  
+    """Enumeration of query types for classification."""  
 
-    PERSONAL_FINANCIAL = "PERSONAL_FINANCIAL"
-    MARKET_KNOWLEDGE = "MARKET_KNOWLEDGE"
-    HYBRID = "HYBRID"
-    GENERAL_FINANCE = "GENERAL_FINANCE"
-    RESEARCH = "RESEARCH"
+    PERSONAL_FINANCIAL = "PERSONAL_FINANCIAL"  
+    MARKET_KNOWLEDGE = "MARKET_KNOWLEDGE"  
+    HYBRID = "HYBRID"  
+    GENERAL_FINANCE = "GENERAL_FINANCE"  
+    RESEARCH = "RESEARCH"  
 
 
-class RouterOutputData(TypedDict, total=False):
+class RouterOutputData(TypedDict, total=True):
     """TypedDict for router output data."""
 
     route: str
     query_type: str
     requires_cloud: bool
     requires_tools: bool
-    reasoning: str
+    reasoning: NotRequired[str]
 
 
 class RouterOutput(dict[str, Any]):
@@ -170,11 +171,15 @@ async def router_node(
         llama_cpp_url: Base URL of the llama.cpp inference server.
 
     Returns:
-        Dict with router_output key containing classification results.
+        Dict with ``router_output`` key containing classification results.  
 
-    Raises:
-        ValueError: If the LLM response cannot be parsed or validated.
-        httpx.RequestError: If the llama.cpp server is unavailable.
+    Behavior:  
+        This function attempts to classify the query using a llama.cpp server.  
+        If the server is unavailable (e.g. an ``httpx.RequestError`` occurs) or  
+        the LLM response cannot be parsed (e.g. ``json.JSONDecodeError`` or  
+        missing keys), the error is logged and a heuristic-based fallback  
+        classification is used instead. Callers do not need to handle network  
+        or parsing exceptions raised during routing.  
     """
     query = state.get("query", "")
 
@@ -263,6 +268,10 @@ def _parse_router_response(response_text: str) -> dict[str, Any]:
         cleaned = cleaned[start_idx:end_idx]
 
     parsed = json.loads(cleaned)
+    
+    # Validate that parsed result is a dict
+    if not isinstance(parsed, dict):
+        raise KeyError("Router response is not a JSON object")
 
     # Validate required fields
     required = {"query_type", "route", "requires_cloud", "requires_tools"}
