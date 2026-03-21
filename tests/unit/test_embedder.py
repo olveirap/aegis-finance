@@ -1,7 +1,6 @@
 """Unit tests for the local LLM Embedder."""
 
 import pytest
-import httpx
 from unittest.mock import AsyncMock
 
 from aegis.kb.embedder import LlamaCppEmbedder
