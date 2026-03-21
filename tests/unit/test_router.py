@@ -7,7 +7,8 @@ Tests query classification into 5 categories with mocked llama.cpp responses.
 from __future__ import annotations
 
 import json
-from unittest.mock import AsyncMock, patch
+from typing import Any
+from unittest.mock import AsyncMock, Mock, patch
 
 import httpx
 import pytest
@@ -20,6 +21,20 @@ from aegis.graph.router import (
     _parse_router_response,
     router_node,
 )
+
+
+# =============================================================================
+# Async Context Manager Mock
+# =============================================================================
+
+class AsyncContextManagerMock(Mock):
+    """Mock that properly implements async context manager protocol."""
+
+    async def __aenter__(self) -> Any:
+        return self
+
+    async def __aexit__(self, *args: Any) -> None:
+        pass
 
 
 # =============================================================================
@@ -232,9 +247,19 @@ class TestRouterNode:
             ]
         }
 
-        mock_post = AsyncMock(return_value=AsyncMock(json=lambda: mock_response, raise_for_status=lambda: None))
+        # Create mock response object (use Mock, not AsyncMock, since we don't await it)
+        mock_response_obj = Mock()
+        mock_response_obj.json.return_value = mock_response
+        mock_response_obj.raise_for_status.return_value = None
 
-        with patch("httpx.AsyncClient", return_value=AsyncMock(post=mock_post)):
+        # Create mock client that properly handles async context manager
+        mock_client = AsyncContextManagerMock()
+        # Use side_effect with async function to return mock_response_obj when awaited
+        async def mock_post(*args: Any, **kwargs: Any) -> Mock:
+            return mock_response_obj
+        mock_client.post = mock_post
+
+        with patch("httpx.AsyncClient", return_value=mock_client):
             state = {"query": query}
             result = await router_node(state)
 
@@ -249,9 +274,14 @@ class TestRouterNode:
     @pytest.mark.asyncio
     async def test_router_fallback_on_server_error(self) -> None:
         """Test router falls back to heuristic on server error."""
-        with patch("httpx.AsyncClient", return_value=AsyncMock(
-            post=AsyncMock(side_effect=httpx.RequestError("Server unavailable"))
-        )):
+        # Create mock client that properly handles async context manager
+        mock_client = AsyncContextManagerMock()
+        # Use side_effect with async function to raise exception when awaited
+        async def mock_post_error(*args: Any, **kwargs: Any) -> None:
+            raise httpx.RequestError("Server unavailable")
+        mock_client.post = mock_post_error
+
+        with patch("httpx.AsyncClient", return_value=mock_client):
             state = {"query": "¿Cuál es mi patrimonio?"}
             result = await router_node(state)
 
@@ -268,9 +298,19 @@ class TestRouterNode:
             "choices": [{"message": {"content": "not valid json"}}]
         }
 
-        with patch("httpx.AsyncClient", return_value=AsyncMock(
-            post=AsyncMock(return_value=AsyncMock(json=lambda: mock_response, raise_for_status=lambda: None))
-        )):
+        # Create mock response object (use Mock, not AsyncMock)
+        mock_response_obj = Mock()
+        mock_response_obj.json.return_value = mock_response
+        mock_response_obj.raise_for_status.return_value = None
+
+        # Create mock client that properly handles async context manager
+        mock_client = AsyncContextManagerMock()
+        # Use side_effect with async function to return mock_response_obj when awaited
+        async def mock_post(*args: Any, **kwargs: Any) -> Mock:
+            return mock_response_obj
+        mock_client.post = mock_post
+
+        with patch("httpx.AsyncClient", return_value=mock_client):
             state = {"query": "¿Cuál es mi patrimonio?"}
             result = await router_node(state)
 
@@ -287,8 +327,17 @@ class TestRouterNode:
             "choices": [{"message": {"content": '{"query_type": "GENERAL_FINANCE", "route": "general", "requires_cloud": false, "requires_tools": false}'}}]
         }
 
-        mock_client = AsyncMock()
-        mock_client.post = AsyncMock(return_value=AsyncMock(json=lambda: mock_response, raise_for_status=lambda: None))
+        # Create mock response object (use Mock, not AsyncMock)
+        mock_response_obj = Mock()
+        mock_response_obj.json.return_value = mock_response
+        mock_response_obj.raise_for_status.return_value = None
+
+        # Create mock client that properly handles async context manager
+        mock_client = AsyncContextManagerMock()
+        # Use AsyncMock with side_effect to preserve call_args while returning correct value
+        mock_client.post = AsyncMock(
+            side_effect=lambda *args, **kwargs: mock_response_obj
+        )
 
         with patch("httpx.AsyncClient", return_value=mock_client):
             state = {"query": "Test query"}
