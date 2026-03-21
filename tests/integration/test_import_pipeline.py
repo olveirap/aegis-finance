@@ -91,6 +91,15 @@ async def pool():
 async def clean_db(pool):
     """Delete test data before and after each test to avoid pollution."""
     async with pool.connection() as conn:
+        # Ensure account exists to satisfy foreign key constraints
+        await conn.execute(
+            """
+            INSERT INTO accounts (id, name, currency, account_type)
+            VALUES (%s, 'Test Account', 'ARS', 'checking')
+            ON CONFLICT (id) DO NOTHING
+            """,
+            (str(ACCT),)
+        )
         await conn.execute(
             "DELETE FROM transactions WHERE account_id = %s", (str(ACCT),)
         )
@@ -106,6 +115,9 @@ async def clean_db(pool):
         )
         await conn.execute(
             "DELETE FROM import_batches WHERE account_id = %s", (str(ACCT),)
+        )
+        await conn.execute(
+            "DELETE FROM accounts WHERE id = %s", (str(ACCT),)
         )
         await conn.commit()
 
