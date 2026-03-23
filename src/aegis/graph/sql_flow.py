@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 import re
 from typing import Any
+import asyncio
 
 import httpx
 import numpy as np
@@ -87,16 +88,19 @@ async def _embed_text(text: str) -> np.ndarray:
         # Return random embedding as fallback to not crash the flow completely
         return np.random.rand(config.embedding.dimension).astype(np.float32)
 
-
+_view_embeddings_cache: dict[str, np.ndarray] = {}
+_view_embeddings_lock = asyncio.Lock()
 async def _get_view_embeddings() -> dict[str, np.ndarray]:
     """Cache and return embeddings for the view descriptions."""
-    if not hasattr(_get_view_embeddings, "_cache"):
-        _get_view_embeddings._cache = {}
-        for view_name, meta in VIEWS_METADATA.items():
-            _get_view_embeddings._cache[view_name] = await _embed_text(
-                meta["description"]
-            )
-    return _get_view_embeddings._cache
+    if _view_embeddings_cache:          # fast-path, no lock needed
+        return _view_embeddings_cache
+    async with _view_embeddings_lock:
+        if not _view_embeddings_cache:  # re-check inside the lock
+            for view_name, meta in VIEWS_METADATA.items():
+                _view_embeddings_cache[view_name] = await _embed_text(
+                    meta["description"]
+                )
+    return _view_embeddings_cache
 
 
 def _cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
@@ -171,7 +175,7 @@ def _check_currency_mixing(sql: str) -> str | None:
     """Check for dangerous aggregation across mixed currencies."""
     sql_upper = sql.upper()
     if "SUM(" in sql_upper or "AVG(" in sql_upper:
-        if "CURRENCY" not in sql_upper and "GROUP BY" not in sql_upper:
+        if "CURRENCY" not in sql_upper:
             # Not a strict parser, but a heuristic flag
             return "Warning: The query aggregates amounts without grouping by currency. ARS and USD values may be mixed."
     return None
