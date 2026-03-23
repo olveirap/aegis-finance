@@ -1,0 +1,102 @@
+[
+  {
+    "query": "What is my total net worth in ARS?",
+    "golden_sql": "SELECT total_ars FROM v_net_worth",
+    "views": ["v_net_worth"]
+  },
+  {
+    "query": "Show me my USD balance including investments.",
+    "golden_sql": "SELECT total_usd_equivalent FROM v_net_worth",
+    "views": ["v_net_worth"]
+  },
+  {
+    "query": "How much did I spend on Food last month?",
+    "golden_sql": "SELECT total_spend FROM v_monthly_burn WHERE category = 'Food' AND month = DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')",
+    "views": ["v_monthly_burn"]
+  },
+  {
+    "query": "List my CEDEAR holdings and their current profit.",
+    "golden_sql": "SELECT ticker, current_value_usd, pnl_pct FROM v_cedear_exposure",
+    "views": ["v_cedear_exposure"]
+  },
+  {
+    "query": "What is my average monthly spending in ARS?",
+    "golden_sql": "SELECT AVG(total_spend) FROM v_monthly_burn WHERE currency = 'ARS'",
+    "views": ["v_monthly_burn"]
+  },
+  {
+    "query": "Compare my expected vs actual salary income.",
+    "golden_sql": "SELECT expected_monthly, actual_monthly_avg FROM v_income_summary WHERE type = 'salary'",
+    "views": ["v_income_summary"]
+  },
+  {
+    "query": "What category has the highest spending this month?",
+    "golden_sql": "SELECT category FROM v_monthly_burn WHERE month = DATE_TRUNC('month', CURRENT_DATE) ORDER BY total_spend DESC LIMIT 1",
+    "views": ["v_monthly_burn"]
+  },
+  {
+    "query": "Show me the distribution of my assets between ARS and USD.",
+    "golden_sql": "SELECT total_ars, total_usd FROM v_net_worth",
+    "views": ["v_net_worth"]
+  },
+  {
+    "query": "Which CEDEAR is performing best?",
+    "golden_sql": "SELECT ticker FROM v_cedear_exposure ORDER BY pnl_pct DESC LIMIT 1",
+    "views": ["v_cedear_exposure"]
+  },
+  {
+    "query": "How many transactions did I have in Entertainment last month?",
+    "golden_sql": "SELECT tx_count FROM v_monthly_burn WHERE category = 'Entertainment' AND month = DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')",
+    "views": ["v_monthly_burn"]
+  },
+  {
+    "query": "What is my largest single transaction in Food this year?",
+    "golden_sql": "SELECT max_amount FROM v_category_spend WHERE category = 'Food' AND month >= DATE_TRUNC('year', CURRENT_DATE)",
+    "views": ["v_category_spend"]
+  },
+  {
+    "query": "Show me my income from freelance sources.",
+    "golden_sql": "SELECT actual_monthly_avg FROM v_income_summary WHERE type = 'freelance'",
+    "views": ["v_income_summary"]
+  },
+  {
+    "query": "List all months where I spent more than 500k ARS in total.",
+    "golden_sql": "SELECT month FROM v_monthly_burn WHERE currency = 'ARS' GROUP BY month HAVING SUM(total_spend) > 500000",
+    "views": ["v_monthly_burn"]
+  },
+  {
+    "query": "What is my current exposure to AAPL via CEDEARs?",
+    "golden_sql": "SELECT current_value_usd FROM v_cedear_exposure WHERE ticker = 'AAPL'",
+    "views": ["v_cedear_exposure"]
+  },
+  {
+    "query": "How much USD cash do I have?",
+    "golden_sql": "SELECT total_usd FROM v_net_worth",
+    "views": ["v_net_worth"]
+  },
+  {
+    "query": "Show my total spending trend for the last 6 months.",
+    "golden_sql": "SELECT month, total_spend FROM v_monthly_burn WHERE month >= CURRENT_DATE - INTERVAL '6 months' ORDER BY month ASC",
+    "views": ["v_monthly_burn"]
+  },
+  {
+    "query": "What is the smallest amount I spent on Utilities?",
+    "golden_sql": "SELECT MIN(min_amount) FROM v_category_spend WHERE category = 'Utilities'",
+    "views": ["v_category_spend"]
+  },
+  {
+    "query": "Are there any CEDEARs with negative PnL?",
+    "golden_sql": "SELECT ticker FROM v_cedear_exposure WHERE pnl_pct < 0",
+    "views": ["v_cedear_exposure"]
+  },
+  {
+    "query": "What is the ratio of my monthly burn to my monthly income?",
+    "golden_sql": "SELECT (SELECT SUM(total_spend) FROM v_monthly_burn WHERE month = DATE_TRUNC('month', CURRENT_DATE)) / (SELECT SUM(actual_monthly_avg) FROM v_income_summary) as burn_ratio",
+    "views": ["v_monthly_burn", "v_income_summary"]
+  },
+  {
+    "query": "Which account has the most assets in USD equivalent?",
+    "golden_sql": "SELECT total_usd_equivalent FROM v_net_worth",
+    "views": ["v_net_worth"]
+  }
+]
