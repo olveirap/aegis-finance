@@ -80,7 +80,7 @@ async def _embed_text(text: str) -> np.ndarray:
             resp.raise_for_status()
             data = resp.json()
             return np.array(data["data"][0]["embedding"], dtype=np.float32)
-    except Exception as e:
+    except (httpx.RequestError, httpx.HTTPStatusError) as e:
         logger.warning("Failed to embed text: %s", e)
         # Return random embedding as fallback to not crash the flow completely
         return np.random.rand(config.embedding.dimension).astype(np.float32)
@@ -144,7 +144,7 @@ def _validate_syntax_and_whitelist(sql: str) -> None:
 
     # Check for forbidden base tables or unknown views
     # Simple regex to find words after FROM or JOIN
-    from_join_pattern = re.compile(r"(?:FROM|JOIN)\s+([a-zA-Z_0-9]+)", re.IGNORECASE)
+    from_join_pattern = re.compile(r"(?:FROM|JOIN)\s+([a-zA-Z_][a-zA-Z_0-9]*)", re.IGNORECASE)
     tables = from_join_pattern.findall(sql)
 
     for table in tables:
@@ -171,7 +171,7 @@ def _check_currency_mixing(sql: str) -> str | None:
     """Check for dangerous aggregation across mixed currencies."""
     sql_upper = sql.upper()
     if "SUM(" in sql_upper or "AVG(" in sql_upper:
-        if "CURRENCY" not in sql_upper and "GROUP BY" not in sql_upper:
+        if "CURRENCY" not in sql_upper:
             # Not a strict parser, but a heuristic flag
             return "Warning: The query aggregates amounts without grouping by currency. ARS and USD values may be mixed."
     return None
