@@ -21,6 +21,11 @@ from aegis.common.cloud_llm import CloudLLMClient
 
 logger = logging.getLogger(__name__)
 
+# Constants for research depth and content limits
+DEFAULT_MAX_SEARCH_RESULTS = 5
+MAX_CONTENT_LENGTH = 3000
+DEFAULT_MAX_PAGES_TO_BROWSE = 2
+
 
 async def research_flow_node(state: dict[str, Any]) -> dict[str, Any]:
     """Research flow node.
@@ -43,7 +48,9 @@ async def research_flow_node(state: dict[str, Any]) -> dict[str, Any]:
     sanitized_query = privacy_output["sanitized_query"]
 
     # 2. Search
-    search_results = await search_duckduckgo(sanitized_query)
+    search_results = await search_duckduckgo(
+        sanitized_query, max_results=DEFAULT_MAX_SEARCH_RESULTS
+    )
     if not search_results:
         return {
             "final_answer": "I searched for information but couldn't find any relevant results."
@@ -51,7 +58,7 @@ async def research_flow_node(state: dict[str, Any]) -> dict[str, Any]:
 
     # 3. Filter and Browse
     # Select top whitelisted results based on config
-    max_pages = get_config().rag.research_max_pages
+    max_pages = get_config().rag.research_max_pages or DEFAULT_MAX_PAGES_TO_BROWSE
     browsed_content = []
     for res in search_results:
         url = res["href"]
@@ -62,7 +69,7 @@ async def research_flow_node(state: dict[str, Any]) -> dict[str, Any]:
                     {
                         "title": res["title"],
                         "url": url,
-                        "content": content[:3000],  # Limit content size
+                        "content": content[:MAX_CONTENT_LENGTH],  # Limit content size
                     }
                 )
         if len(browsed_content) >= max_pages:

@@ -16,6 +16,9 @@ from aegis.db.connection import get_connection
 
 logger = logging.getLogger(__name__)
 
+# Constants for staleness thresholds
+FX_STALENESS_DAYS = 1
+
 
 async def check_staleness() -> str | None:
     """Query the database to check for stale data.
@@ -58,7 +61,7 @@ async def check_staleness() -> str | None:
                         last_fx = last_fx.replace(tzinfo=timezone.utc)
                         
                     diff = (now - last_fx).days
-                    if diff > 1: # FX is usually stale after 1 day
+                    if diff > FX_STALENESS_DAYS:  # FX is usually stale after 1 day
                         warnings.append(f"Exchange rates are {diff} days old.")
                 else:
                     warnings.append("No exchange rates available.")
