@@ -31,7 +31,7 @@ def test_extract_sql_fails():
 def test_validate_syntax_and_whitelist_success():
     _validate_syntax_and_whitelist("SELECT total_ars FROM v_net_worth")
     _validate_syntax_and_whitelist(
-        "SELECT * FROM v_monthly_burn JOIN v_category_spend ON ..."
+        "SELECT * FROM v_monthly_burn JOIN v_category_spend ON v_monthly_burn.category = v_category_spend.category"
     )
 
 
