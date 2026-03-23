@@ -50,22 +50,20 @@ class RegexScrubber:
         Returns:
             Scrubbed text with tokens and buckets.
         """
-        result = text
-
         # 1. Scrub CUIT
-        for match in CUIT_RE.findall(result):
-            token = redaction_map.get_token(match, "CUIT")
-            result = result.replace(match, token)
+        result = CUIT_RE.sub(
+            lambda m: redaction_map.get_token(m.group(0), "CUIT"), text
+        )
 
         # 2. Scrub CBU
-        for match in CBU_RE.findall(result):
-            token = redaction_map.get_token(match, "CBU")
-            result = result.replace(match, token)
+        result = CBU_RE.sub(
+            lambda m: redaction_map.get_token(m.group(0), "CBU"), result
+        )
 
         # 3. Scrub Emails
-        for match in EMAIL_RE.findall(result):
-            token = redaction_map.get_token(match, "EMAIL")
-            result = result.replace(match, token)
+        result = EMAIL_RE.sub(
+            lambda m: redaction_map.get_token(m.group(0), "EMAIL"), result
+        )
 
         # 4. Bucket Amounts
         result = self._apply_bucketing(result)
