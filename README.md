@@ -21,7 +21,7 @@ The system ingests bank and credit card statements, builds a structured financia
 - **Privacy First:** Zero PII is sent in cloud or external tool calls. A robust two-pass Privacy Middleware scrubs all data locally before any external request, calculating a continuous risk score via Microsoft Presidio.
 - **Hybrid LLM Architecture:** A LangGraph orchestrator dynamically routes your queries to a local LLM (Qwen 3.5 via `llama.cpp`) or provider-agnostic cloud LLMs (OpenAI, Anthropic, Gemini) depending on privacy constraints and query complexity.
 - **Multilingual & Multi-Currency Native:** Seamlessly handles ARS, USD, USDT, and EUR with integrated USD-equivalent conversions throughout, tailored for users with diverse portfolios.
-- **Local Text-to-SQL Flow:** Chat with your finances directly. Natural language questions are translated securely into valid queries against structured PostgreSQL views. 
+- **Local Text-to-SQL Flow:** Chat with your finances directly. Natural language questions are translated securely into valid queries against structured PostgreSQL views.
 - **Intelligent RAG:** Hybrid retrieval from a local `pgvector` knowledge base capturing financial laws, investment rules, and real-time market data (via BCRA, BYMA, and Yahoo Finance APIs).
 
 ## 🏗️ Architecture

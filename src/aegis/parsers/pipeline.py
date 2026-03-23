@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 SENTINEL_UUID = UUID("00000000-0000-0000-0000-000000000000")
 
 
-def run_pipeline(sources: list[dict], usd_rate: float = 1400.0) -> pd.DataFrame:
+async def run_pipeline(sources: list[dict], usd_rate: float = 1400.0) -> pd.DataFrame:
     """
     Wires together all parsers and enrichment steps, returning a unified DataFrame.
 

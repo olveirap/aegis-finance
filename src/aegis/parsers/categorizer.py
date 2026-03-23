@@ -240,7 +240,9 @@ class RuleBasedCategorizer:
         """
 
         def _cat_row(row):
-            text = str(row["description"]).lower() if pd.notna(row["description"]) else ""
+            text = (
+                str(row["description"]).lower() if pd.notna(row["description"]) else ""
+            )
             amount = (
                 row["amount_usd"]
                 if row["currency"] in {"USD", "USDT"}

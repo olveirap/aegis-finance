@@ -13,6 +13,7 @@ from langgraph.graph import END, StateGraph
 
 from aegis.graph.router import RouterOutput, router_node
 from aegis.graph.sql_flow import sql_flow_node
+from aegis.graph.privacy import privacy_node
 
 
 # =============================================================================
@@ -156,6 +157,7 @@ def create_aegis_graph() -> StateGraph:
     graph.add_node("hybrid_flow", hybrid_flow_node)
     graph.add_node("general_flow", general_flow_node)
     graph.add_node("research_flow", research_flow_node)
+    graph.add_node("privacy", privacy_node)
 
     # Set entry point
     graph.set_entry_point("router")
