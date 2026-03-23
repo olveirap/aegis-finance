@@ -18,6 +18,7 @@ from aegis.graph.research_flow import research_flow_node
 from aegis.graph.hybrid_flow import hybrid_flow_node
 from aegis.graph.rag_flow import rag_flow_node
 from aegis.graph.general_flow import general_flow_node
+from aegis.graph.staleness import staleness_node
 
 
 # =============================================================================
@@ -121,6 +122,7 @@ def create_aegis_graph() -> StateGraph:
     graph.add_node("general_flow", general_flow_node)
     graph.add_node("research_flow", research_flow_node)
     graph.add_node("privacy", privacy_node)
+    graph.add_node("staleness", staleness_node)
 
     # Set entry point
     graph.set_entry_point("router")
@@ -138,12 +140,13 @@ def create_aegis_graph() -> StateGraph:
         },
     )
 
-    # All flows end at END
-    graph.add_edge("sql_flow", END)
-    graph.add_edge("rag_flow", END)
-    graph.add_edge("hybrid_flow", END)
-    graph.add_edge("general_flow", END)
-    graph.add_edge("research_flow", END)
+    # All flows go through staleness check before END
+    graph.add_edge("sql_flow", "staleness")
+    graph.add_edge("rag_flow", "staleness")
+    graph.add_edge("hybrid_flow", "staleness")
+    graph.add_edge("general_flow", "staleness")
+    graph.add_edge("research_flow", "staleness")
+    graph.add_edge("staleness", END)
 
     return graph
 
