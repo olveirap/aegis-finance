@@ -88,11 +88,14 @@ async def _embed_text(text: str) -> np.ndarray:
         # Return random embedding as fallback to not crash the flow completely
         return np.random.rand(config.embedding.dimension).astype(np.float32)
 
+
 _view_embeddings_cache: dict[str, np.ndarray] = {}
 _view_embeddings_lock = asyncio.Lock()
+
+
 async def _get_view_embeddings() -> dict[str, np.ndarray]:
     """Cache and return embeddings for the view descriptions."""
-    if _view_embeddings_cache:          # fast-path, no lock needed
+    if _view_embeddings_cache:  # fast-path, no lock needed
         return _view_embeddings_cache
     async with _view_embeddings_lock:
         if not _view_embeddings_cache:  # re-check inside the lock
