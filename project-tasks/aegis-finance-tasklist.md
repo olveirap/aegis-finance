@@ -1,5 +1,5 @@
 # Aegis Finance — Phased Task List
-**Orchestrated by:** Agents Orchestrator  
+**Orchestrated by:** Agents Orchestrator
 **Date:** 2026-03-07 | **Status:** Planning (v3 — Resolved architectural issues)
 
 ---
@@ -56,8 +56,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 > **Specialist Roles:** Data Engineers, RAG Specialists, Ontology Experts.
 
 ### [x] Task 0.1 — Ontology & Taxonomy Design
-**Agent:** AI Engineer (Ontology Expert role)  
-**Description:** Define the topic taxonomy, entity relationships (for future Graph DB), and metadata schema for the knowledge base. Extends toward FIBO alignment.  
+**Agent:** AI Engineer (Ontology Expert role)
+**Description:** Define the topic taxonomy, entity relationships (for future Graph DB), and metadata schema for the knowledge base. Extends toward FIBO alignment.
 **Deliverables:**
 - `src/aegis/kb/ontology.py` — Topic taxonomy and Graph node/edge definitions
   - Personal Finance: budgeting, saving, emergency fund, debt management
@@ -78,8 +78,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [x] Task 0.2 — Ingestion Framework (Connector/Extractor/Normalizer)
-**Agent:** Backend Architect (Data Engineer role)  
-**Description:** Build the ingestion framework separating transport, extraction, and normalization. YAML-driven source registry. Produces `RawDocument`s for batch KB population — **not** real-time query-time data (see Task 3.1 for that).  
+**Agent:** Backend Architect (Data Engineer role)
+**Description:** Build the ingestion framework separating transport, extraction, and normalization. YAML-driven source registry. Produces `RawDocument`s for batch KB population — **not** real-time query-time data (see Task 3.1 for that).
 **Deliverables:**
 
 **Shared HTTP layer:**
@@ -112,9 +112,9 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [x] Task 0.2b — Source YAML Configurations
-**Agent:** Backend Architect  
-**Depends on:** Task 0.1 (ontology tags) + Task 0.2 (framework)  
-**Description:** Define all source configurations as YAML files driving the ingestion framework. Uses `ontology_tags` and `jurisdiction` values from the ontology delivered in Task 0.1. Cannot be finalized until 0.1 completes.  
+**Agent:** Backend Architect
+**Depends on:** Task 0.1 (ontology tags) + Task 0.2 (framework)
+**Description:** Define all source configurations as YAML files driving the ingestion framework. Uses `ontology_tags` and `jurisdiction` values from the ontology delivered in Task 0.1. Cannot be finalized until 0.1 completes.
 **Deliverables:**
 - `data/sources/global_regulatory.yaml` — SEC EDGAR (10-K, DEF 14A) using **multi-stage** config: `stages: [{connector: rss_feed, emit: document_urls}, {connector: http_polling, extractor: [pdf, html]}]`. FINRA Rulebooks.
 - `data/sources/global_macro.yaml` — FRED (CPI, Fed Funds, GDP), ECB exchange rates
@@ -131,8 +131,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [x] Task 0.3 — Deduplication & Quality Pipeline
-**Agent:** AI Engineer (RAG Specialist role)  
-**Description:** Quality filtering, deduplication, and **lightweight heuristic** entity extraction.  
+**Agent:** AI Engineer (RAG Specialist role)
+**Description:** Quality filtering, deduplication, and **lightweight heuristic** entity extraction.
 **Deliverables:**
 - `src/aegis/kb/pipeline.py` — End-to-end KB processing pipeline
   - Content hash deduplication (SHA-256)
@@ -150,8 +150,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [x] Task 0.4 — KB Embedding & Storage
-**Agent:** AI Engineer (RAG Specialist role)  
-**Description:** Embed curated chunks and store in pgvector.  
+**Agent:** AI Engineer (RAG Specialist role)
+**Description:** Embed curated chunks and store in pgvector.
 **Deliverables:**
 - `src/aegis/kb/embedder.py` — Batch embedding via Qwen3-embedding (llama.cpp)
   - Qwen3-VL-Embedding fallback for content with images/OCR
@@ -165,8 +165,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [x] Task 0.5 — RAG Knowledge Benchmarks
-**Agent:** AI Engineer (RAG Specialist role)  
-**Description:** Benchmark suite to measure RAG quality over the curated KB.  
+**Agent:** AI Engineer (RAG Specialist role)
+**Description:** Benchmark suite to measure RAG quality over the curated KB.
 **Deliverables:**
 - [x] `tests/benchmarks/kb_quality.json` — 50+ question/answer pairs tailored to Argentine finance advisory scenarios
 - [x] `tests/benchmarks/rag_benchmark.py` — Automated RAG quality benchmarks
@@ -185,8 +185,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 > **Exit Criteria:** `docker-compose up` → populated DB → parser ingests a synthetic CSV → tests pass.
 
 ### [x] Task 1.1 — Project Scaffolding
-**Agent:** Backend Architect  
-**Description:** Initialize Python project with `pyproject.toml`, directory structure per setup spec, `Makefile`, and `config.yaml` loader.  
+**Agent:** Backend Architect
+**Description:** Initialize Python project with `pyproject.toml`, directory structure per setup spec, `Makefile`, and `config.yaml` loader.
 **Deliverables:**
 - `pyproject.toml` with dependency groups (core, dev, test)
 - `src/aegis/__init__.py` and all module `__init__.py` files
@@ -200,8 +200,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [x] Task 1.2 — Docker + PostgreSQL + pgvector
-**Agent:** DevOps Automator  
-**Description:** Create `docker-compose.yml` and SQL init scripts for PostgreSQL with pgvector. Provision Playwright/Chromium for crawl4ai HTML extraction.  
+**Agent:** DevOps Automator
+**Description:** Create `docker-compose.yml` and SQL init scripts for PostgreSQL with pgvector. Provision Playwright/Chromium for crawl4ai HTML extraction.
 **Deliverables:**
 - `docker-compose.yml` — pgvector/pgvector:pg16 service ✓
 - `sql/001_schema.sql` — All base table DDLs from DDL spec (including `ingestion_state` table for Task 0.2 checkpoint persistence) ✓
@@ -215,8 +215,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [x] Task 1.3 — Synthetic Data Generator
-**Agent:** Backend Architect  
-**Description:** Python script to populate the sandbox with realistic Argentine financial data.  
+**Agent:** Backend Architect
+**Description:** Python script to populate the sandbox with realistic Argentine financial data.
 **Deliverables:**
 - `data/synthetic/generate.py` — Faker + NumPy generator (~1,519 transactions generated) ✓
   - 3–5 accounts (checking ARS, savings USD, crypto wallet, brokerage) ✓
@@ -231,8 +231,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [x] Task 1.4 — Statement Parser Framework
-**Agent:** Backend Architect  
-**Description:** Abstract parser interface and first concrete CSV parser.  
+**Agent:** Backend Architect
+**Description:** Abstract parser interface and first concrete CSV parser.
 **Deliverables:**
 - `src/aegis/parsers/base.py` — `BaseParser` ABC with `parse(file_path) → list[Transaction]` (269 LOC) ✓
 - `src/aegis/parsers/bank_csv.py` — Generic CSV parser with configurable column mapping (312 LOC, handles Argentine formats) ✓
@@ -244,8 +244,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [x] Task 1.5 — Transaction Categorizer (Rule-Based Baseline)
-**Agent:** AI Engineer  
-**Description:** Initial rule-based categorizer with keyword matching. LLM categorizer deferred to Phase 2.  
+**Agent:** AI Engineer
+**Description:** Initial rule-based categorizer with keyword matching. LLM categorizer deferred to Phase 2.
 **Deliverables:**
 - `src/aegis/parsers/categorizer.py` — RuleBasedCategorizer implementation ✓
   - `RuleBasedCategorizer` — keyword-to-category mapping (e.g., "supermercado" → Food) ✓
@@ -259,8 +259,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [x] Task 1.6 — Phase 1 Tests
-**Agent:** Backend Architect  
-**Description:** Test suite for all Phase 1 deliverables.  
+**Agent:** Backend Architect
+**Description:** Test suite for all Phase 1 deliverables.
 **Deliverables:**
 - `tests/unit/test_config.py` — Config loader tests (10 tests) ✓
 - `tests/unit/test_parser.py` — CSV parser tests (31 tests, including Argentine format normalization) ✓
@@ -278,8 +278,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 > **Exit Criteria:** User can type a financial question → system routes, queries DB, retrieves knowledge, scrubs PII, and returns an answer.
 
 ### [x] Task 2.1 — LangGraph Orchestrator Setup
-**Agent:** AI Engineer  
-**Description:** Create the main LangGraph state machine with router node.  
+**Agent:** AI Engineer
+**Description:** Create the main LangGraph state machine with router node.
 **Deliverables:**
 - `src/aegis/graph/__init__.py` — Graph builder and state definition
 - `src/aegis/graph/router.py` — Router node with query type classification
@@ -292,8 +292,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 2.2 — Text-to-SQL Flow
-**Agent:** AI Engineer  
-**Description:** SQL generation with 4-step validation loop.  
+**Agent:** AI Engineer
+**Description:** SQL generation with 4-step validation loop.
 **Deliverables:**
 - `src/aegis/graph/sql_flow.py`
   - Prompt construction with injected view definitions
@@ -308,8 +308,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 2.3 — Privacy Middleware
-**Agent:** AI Engineer  
-**Description:** Two-pass PII scrubbing with risk scoring.  
+**Agent:** AI Engineer
+**Description:** Two-pass PII scrubbing with risk scoring.
 **Deliverables:**
 - `src/aegis/privacy/regex_scrubber.py` — Pass 1 regex patterns (CUIT, CBU, ARS, USD, email, names)
 - `src/aegis/privacy/semantic_scrubber.py` — Pass 2 LLM semantic audit
@@ -323,8 +323,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 2.3b — Anonymized Browser & Search Tools
-**Agent:** AI Engineer  
-**Description:** Agent tools for web search and browser browsing that route through Privacy Node.  
+**Agent:** AI Engineer
+**Description:** Agent tools for web search and browser browsing that route through Privacy Node.
 **Deliverables:**
 - `src/aegis/tools/web_search.py` — Web search tool that anonymizes the query via Privacy Node before searching
 - `src/aegis/tools/browser.py` — Browser tool that anonymizes navigation queries via Privacy Node
@@ -336,8 +336,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 2.4 — Hybrid RAG Pipeline
-**Agent:** AI Engineer  
-**Description:** Hybrid knowledge base ingestion and retrieval pipeline (Vector + Graph traversal).  
+**Agent:** AI Engineer
+**Description:** Hybrid knowledge base ingestion and retrieval pipeline (Vector + Graph traversal).
 **Deliverables:**
 - `src/aegis/rag/ingestion.py` — Document chunking (512 tokens, 64 overlap) + Qwen3-embedding via llama.cpp
 - `src/aegis/rag/retriever.py` — Hybrid retrieval: pgvector similarity + Graph knowledge traversal
@@ -350,8 +350,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 2.5 — LLM Categorizer (SLM-Based Upgrade)
-**Agent:** AI Engineer  
-**Description:** Replace rule-based categorizer with SLM-based classifier.  
+**Agent:** AI Engineer
+**Description:** Replace rule-based categorizer with SLM-based classifier.
 **Deliverables:**
 - Update `src/aegis/parsers/categorizer.py` with `SLMCategorizer`
   - Uses Qwen 3.5 via llama.cpp for classification
@@ -364,8 +364,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 2.6 — Staleness Guardrail
-**Agent:** Backend Architect  
-**Description:** Automated freshness checks on transaction data.  
+**Agent:** Backend Architect
+**Description:** Automated freshness checks on transaction data.
 **Deliverables:**
 - `src/aegis/graph/staleness.py` — LangGraph node checking `last_transaction_import`
   - Warning threshold: configurable (default 30 days)
@@ -377,8 +377,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 2.7 — Benchmark Suite
-**Agent:** AI Engineer  
-**Description:** Quality benchmarks for Text-to-SQL and RAG.  
+**Agent:** AI Engineer
+**Description:** Quality benchmarks for Text-to-SQL and RAG.
 **Deliverables:**
 - `tests/benchmarks/qa_finance.json` — 30+ question/answer pairs for finance Q&A
 - `tests/benchmarks/sql_accuracy.json` — 20+ NL→SQL golden pairs
@@ -392,8 +392,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 2.8 — Phase 2 Tests
-**Agent:** Backend Architect  
-**Description:** Test suite for all Phase 2 deliverables.  
+**Agent:** Backend Architect
+**Description:** Test suite for all Phase 2 deliverables.
 **Deliverables:**
 - `tests/unit/test_router.py` — Query classification tests (5 query types)
 - `tests/unit/test_sql_flow.py` — SQL generation + validation tests
@@ -412,8 +412,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 > **Exit Criteria:** User opens Gradio UI → uploads CSV → asks questions → gets contextual financial advice → HITL review works.
 
 ### [ ] Task 3.1 — Market Data Adapters (Real-Time Query-Time)
-**Agent:** Backend Architect  
-**Description:** **Synchronous real-time** market data fetching with TTL caching for **query-time context injection** (e.g., "what's the MEP dollar right now?"). These are NOT duplicates of ingestion sources in Task 0.2 — ingestion populates the KB asynchronously; market adapters provide live data at query time for LangGraph state. Both use `src/aegis/common/http_client.py` (from Task 0.2) to avoid duplicating HTTP transport logic.  
+**Agent:** Backend Architect
+**Description:** **Synchronous real-time** market data fetching with TTL caching for **query-time context injection** (e.g., "what's the MEP dollar right now?"). These are NOT duplicates of ingestion sources in Task 0.2 — ingestion populates the KB asynchronously; market adapters provide live data at query time for LangGraph state. Both use `src/aegis/common/http_client.py` (from Task 0.2) to avoid duplicating HTTP transport logic.
 **Deliverables:**
 - `src/aegis/market/bcra.py` — BCRA official rates adapter (uses shared HTTP client)
 - `src/aegis/market/mep_ccl.py` — MEP/CCL rates (ambito scraper + coingecko fallback)
@@ -426,8 +426,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 3.2 — Gradio UI
-**Agent:** Frontend Developer  
-**Description:** Chat interface with file upload and HITL review.  
+**Agent:** Frontend Developer
+**Description:** Chat interface with file upload and HITL review.
 **Deliverables:**
 - `src/aegis/ui/app.py`
   - Chat panel with conversation history
@@ -442,8 +442,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 3.3 — Cloud LLM Integration
-**Agent:** AI Engineer  
-**Description:** Cloud LLM routing for HYBRID queries with graceful degradation.  
+**Agent:** AI Engineer
+**Description:** Cloud LLM routing for HYBRID queries with graceful degradation.
 **Deliverables:**
 - Cloud LLM client — provider-agnostic (OpenAI / Anthropic / Gemini / local fallback)
 - Integration with Privacy Node output → Cloud LLM → Response reconstruction via redaction map
@@ -455,8 +455,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 3.4 — End-to-End Integration
-**Agent:** Backend Architect  
-**Description:** Wire all components together and run through full user scenarios.  
+**Agent:** Backend Architect
+**Description:** Wire all components together and run through full user scenarios.
 **Deliverables:**
 - Full pipeline test: CSV upload → parse → categorize → ask question → get answer
 - All 5 query types tested end-to-end (incl. RESEARCH with anonymized tools)
@@ -468,8 +468,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 3.5 — Documentation & README
-**Agent:** Backend Architect  
-**Description:** Public-facing documentation and contributor setup guide.  
+**Agent:** Backend Architect
+**Description:** Public-facing documentation and contributor setup guide.
 **Deliverables:**
 - `README.md` — Project overview, quickstart, architecture diagram, contributing
 - `CONTRIBUTING.md` — Development setup, coding standards, PR process
@@ -481,8 +481,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 3.6 — Phase 3 Tests & Final QA
-**Agent:** Backend Architect  
-**Description:** Full test suite coverage and final quality validation.  
+**Agent:** Backend Architect
+**Description:** Full test suite coverage and final quality validation.
 **Deliverables:**
 - `tests/unit/test_market.py` — Market adapter tests
 - `tests/integration/test_end_to_end.py` — Full pipeline integration tests
@@ -499,8 +499,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 > **Exit Criteria:** System uses both pgvector and Neo4j for retrieval. Temporal versioning prevents stale advice. Drift scoring flags uncertain answers.
 
 ### [ ] Task 4.1 — Neo4j Graph Store
-**Agent:** Data Engineer + DevOps  
-**Description:** Add Neo4j to Docker stack, build graph CRUD layer.  
+**Agent:** Data Engineer + DevOps
+**Description:** Add Neo4j to Docker stack, build graph CRUD layer.
 **Deliverables:**
 - `docker-compose.yml` update with Neo4j Community service
 - `src/aegis/kb/graph_store.py` — Neo4j driver, CRUD, temporal edges, Cypher builder
@@ -510,8 +510,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 4.2 — DSPy Triple Extraction (Replaces Task 0.3 Heuristic)
-**Agent:** AI Engineer  
-**Description:** **Replaces** the heuristic entity extractor from Task 0.3 with proper Subject-Predicate-Object triple extraction using DSPy + local Qwen 3.5. Seeds entity resolver with canonical names discovered by the 0.3 heuristic.  
+**Agent:** AI Engineer
+**Description:** **Replaces** the heuristic entity extractor from Task 0.3 with proper Subject-Predicate-Object triple extraction using DSPy + local Qwen 3.5. Seeds entity resolver with canonical names discovered by the 0.3 heuristic.
 **Deliverables:**
 - `src/aegis/kb/triple_extractor.py` — DSPy signatures, entity normalization, confidence scoring. Replaces `src/aegis/kb/extractor.py` from Task 0.3.
 - `src/aegis/kb/entity_resolver.py` — Fuzzy matching + canonical name registry. Bootstrapped from 0.3 heuristic entity output.
@@ -521,8 +521,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 4.3 — Hybrid Retriever (Vector + Graph)
-**Agent:** Semantic Search Researcher  
-**Description:** Fuse pgvector similarity and Neo4j multi-hop traversal.  
+**Agent:** Semantic Search Researcher
+**Description:** Fuse pgvector similarity and Neo4j multi-hop traversal.
 **Deliverables:**
 - `src/aegis/rag/hybrid_retriever.py` — Query routing, fusion scoring, temporal filtering
 - Update `src/aegis/rag/retriever.py` to route through hybrid
@@ -532,8 +532,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 4.4 — Streaming CDC & Drift Handling
-**Agent:** Backend Architect + Semantic Search Researcher  
-**Description:** Real-time updates, IOL WebSocket streaming (deferred from Task 0.2), and uncertainty scoring.  
+**Agent:** Backend Architect + Semantic Search Researcher
+**Description:** Real-time updates, IOL WebSocket streaming (deferred from Task 0.2), and uncertainty scoring.
 **Deliverables:**
 - `src/aegis/kb/ingestion/streaming/cdc_connector.py` — PostgreSQL LISTEN/NOTIFY for price updates
 - `src/aegis/kb/ingestion/connectors/websocket.py` — WebSocket streaming connector for IOL real-time price feeds (deferred from Phase 1 where IOL uses polling via `rest_api.py`)
@@ -545,8 +545,8 @@ Tasks 0.1 and 0.2 run **in parallel**. Task 0.2b requires both to complete.
 ---
 
 ### [ ] Task 4.5 — Stress Test Suite
-**Agent:** AI Engineer  
-**Description:** Complex user stories for multi-hop RAG validation.  
+**Agent:** AI Engineer
+**Description:** Complex user stories for multi-hop RAG validation.
 **Deliverables:**
 - `tests/benchmarks/stress_test_generator.py` — Argentine investor profiles with tax/portfolio/global triggers
 - 10+ multi-hop scenarios validated against graph traversal

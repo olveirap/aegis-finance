@@ -8,7 +8,7 @@ sources:
     base_url: "https://www.bcra.gob.ar/Pdfs/comytexord/A7879.pdf" # MVP fixed example
     params:
       max_concurrent: 1
-      
+
   - name: afip_resoluciones
     schedule: "0 19 * * *"
     ontology_tags: ["income_tax", "wealth_tax", "regulatory_bodies"]

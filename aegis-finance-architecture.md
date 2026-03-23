@@ -33,7 +33,7 @@ The original PRD described a Local SLM + Cloud LLM split. With Qwen 3.5 running 
 └─────────────────────┘  └─────────────────────────────┘
 ```
 
-**Cloud LLM provider rationale:**  
+**Cloud LLM provider rationale:**
 For a privacy-first product targeting a "Sovereign Investor" persona, routing data through a cloud provider is a trust and marketing problem regardless of technical safeguards. The cloud provider is now **configurable**: OpenAI, Anthropic, or Google Gemini. A local fallback (Qwen 3.5) is available when no cloud API key is configured.
 
 ---
@@ -122,7 +122,7 @@ Injecting only relevant view definitions (not the full schema) is critical — i
 }
 ```
 
-**Argentine-specific SQL consideration:**  
+**Argentine-specific SQL consideration:**
 The `transactions` table must include a `currency` column (`ARS | USD | USDT`). All aggregation views must expose both raw and USD-equivalent values. The validation layer should warn (not fail) when a query aggregates across currencies without a conversion node.
 
 #### Curated Views (DDL summary — full DDL in separate file)
@@ -205,7 +205,7 @@ User: {pass_1_output}
 
 This map is used to reconstruct concrete values in the final response shown to the user, after the cloud response is received.
 
-**Risk score calculation:**  
+**Risk score calculation:**
 After Pass 2, run the output through a lightweight PII scanner (e.g., `presidio-analyzer` locally). Count residual hits / total tokens = `risk_score`. If `risk_score > 0.05`, block the cloud call and surface a warning.
 
 ---
@@ -246,9 +246,9 @@ Two retrieval paths with explicit routing logic.
 
 **Local KB ingestion pipeline (offline, not part of query flow):**
 ```
-Source docs (PDF/HTML/MP3) 
-  → Chunking (512 tokens, 64 overlap) 
-  → Qwen3-embedding (via llama.cpp embed endpoint) 
+Source docs (PDF/HTML/MP3)
+  → Chunking (512 tokens, 64 overlap)
+  → Qwen3-embedding (via llama.cpp embed endpoint)
   → pgvector storage with metadata: {source, date, topic_tags, argentina_specific: bool}
 ```
 
@@ -258,7 +258,7 @@ Source docs (PDF/HTML/MP3)
 query_embedding = llama_cpp.embed(model="qwen3-embedding", prompt=query)
 
 # 2. Retrieve top-k chunks
-chunks = pgvector.similarity_search(query_embedding, k=5, 
+chunks = pgvector.similarity_search(query_embedding, k=5,
                                      filter={"argentina_specific": True} if applicable)
 
 # 3. Staleness check on market data
@@ -269,7 +269,7 @@ if market_data_age > TTL:
 context = rerank(chunks + market_snippets)  # cross-encoder rerank via local model
 ```
 
-**Staleness Guardrail (from PRD):**  
+**Staleness Guardrail (from PRD):**
 Implemented as a LangGraph node that checks `last_transaction_import` timestamp. If `> 30 days`, the graph injects a warning banner into the Gradio UI and appends a disclaimer to every SQL-based answer. It does NOT block the query — blocking would hurt UX for users who use the knowledge-only features.
 
 ---
