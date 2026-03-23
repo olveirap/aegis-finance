@@ -12,6 +12,7 @@ from typing import Any, TypedDict
 from langgraph.graph import END, StateGraph
 
 from aegis.graph.router import RouterOutput, router_node
+from aegis.graph.sql_flow import sql_flow_node
 
 
 # =============================================================================
@@ -65,15 +66,6 @@ class AegisState(TypedDict, total=False):
 # =============================================================================
 # Placeholder Nodes (to be implemented in subsequent tasks)
 # =============================================================================
-
-
-async def sql_flow_node(state: dict[str, Any]) -> dict[str, Any]:
-    """Text-to-SQL flow node.
-
-    To be implemented in Task 2.2.
-    """
-    # Placeholder - returns state unchanged
-    return {"final_answer": "[SQL Flow not yet implemented]"}
 
 
 async def rag_flow_node(state: dict[str, Any]) -> dict[str, Any]:
