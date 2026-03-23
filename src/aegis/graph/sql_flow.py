@@ -7,6 +7,7 @@ and execution against the database.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 from typing import Any
@@ -14,6 +15,8 @@ from typing import Any
 import httpx
 import numpy as np
 import psycopg
+import sqlglot
+from sqlglot import exp
 
 from aegis.config import get_config
 from aegis.db.connection import get_connection
@@ -80,7 +83,7 @@ async def _embed_text(text: str) -> np.ndarray:
             resp.raise_for_status()
             data = resp.json()
             return np.array(data["data"][0]["embedding"], dtype=np.float32)
-    except Exception as e:
+    except (httpx.RequestError, httpx.HTTPStatusError) as e:
         logger.warning("Failed to embed text: %s", e)
         # Return random embedding as fallback to not crash the flow completely
         return np.random.rand(config.embedding.dimension).astype(np.float32)
@@ -90,10 +93,15 @@ async def _get_view_embeddings() -> dict[str, np.ndarray]:
     """Cache and return embeddings for the view descriptions."""
     if not hasattr(_get_view_embeddings, "_cache"):
         _get_view_embeddings._cache = {}
-        for view_name, meta in VIEWS_METADATA.items():
-            _get_view_embeddings._cache[view_name] = await _embed_text(
-                meta["description"]
-            )
+        # Add a lock for thread-safe cache population
+        _get_view_embeddings._lock = asyncio.Lock()
+
+    async with _get_view_embeddings._lock:
+        if not _get_view_embeddings._cache:
+            for view_name, meta in VIEWS_METADATA.items():
+                _get_view_embeddings._cache[view_name] = await _embed_text(
+                    meta["description"]
+                )
     return _get_view_embeddings._cache
 
 
@@ -138,23 +146,21 @@ def _extract_sql(text: str) -> str:
 
 def _validate_syntax_and_whitelist(sql: str) -> None:
     """Check that the SQL is a SELECT statement and uses only allowed views."""
-    sql_upper = sql.upper()
-    if not sql_upper.startswith("SELECT"):
-        raise ValueError("Query must be a SELECT statement.")
+    try:
+        # Robust parsing with sqlglot
+        parsed = sqlglot.parse_one(sql, read="postgres")
+        if not isinstance(parsed, exp.Select):
+            raise ValueError("Query must be a SELECT statement.")
 
-    # Check for forbidden base tables or unknown views
-    # Simple regex to find words after FROM or JOIN
-    from_join_pattern = re.compile(r"(?:FROM|JOIN)\s+([a-zA-Z_0-9]+)", re.IGNORECASE)
-    tables = from_join_pattern.findall(sql)
-
-    for table in tables:
-        # Ignore subqueries or functions that might be captured
-        if table.upper() in {"SELECT", "UNNEST", "LATERAL", "AS", "ON"}:
-            continue
-        if table.lower() not in ALLOWED_VIEWS:
-            raise ValueError(
-                f"Query attempts to use unauthorized table/view: '{table}'. Only {', '.join(ALLOWED_VIEWS)} are allowed."
-            )
+        # Extract all table/view identifiers
+        tables = [t.name.lower() for t in parsed.find_all(exp.Table)]
+        for table in tables:
+            if table not in ALLOWED_VIEWS:
+                raise ValueError(
+                    f"Query attempts to use unauthorized table/view: '{table}'. Only {', '.join(ALLOWED_VIEWS)} are allowed."
+                )
+    except sqlglot.errors.ParseError as e:
+        raise ValueError(f"SQL Syntax Error: {e}")
 
 
 async def _validate_schema(sql: str) -> None:
@@ -164,7 +170,7 @@ async def _validate_schema(sql: str) -> None:
             async with conn.cursor() as cursor:
                 await cursor.execute(f"EXPLAIN (FORMAT JSON) {sql}")
     except psycopg.Error as e:
-        raise ValueError(f"PostgreSQL syntax/schema error: {e}")
+        raise ValueError(f"PostgreSQL schema validation error: {e}")
 
 
 def _check_currency_mixing(sql: str) -> str | None:
@@ -261,7 +267,7 @@ Question: {query}
             final_sql = sql
             break  # Valid SQL found
 
-        except ValueError as e:
+        except (ValueError, httpx.RequestError, httpx.HTTPStatusError) as e:
             logger.warning(
                 "SQL Validation failed (attempt %d/%d): %s", attempt + 1, max_retries, e
             )
@@ -288,7 +294,7 @@ Question: {query}
                 columns = [desc.name for desc in cursor.description]
                 rows = await cursor.fetchall()
                 sql_result = [dict(zip(columns, row)) for row in rows]
-    except Exception as e:
+    except psycopg.Error as e:
         logger.error("Error executing validated SQL: %s", e)
         return {"final_answer": f"Error executing query: {e}"}
 

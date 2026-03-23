@@ -18,6 +18,11 @@ from aegis.privacy.risk_scorer import RiskScorer
 
 logger = logging.getLogger(__name__)
 
+# Global instances for reuse (expensive to initialize)
+_REGEX_SCRUBBER = RegexScrubber()
+_SEMANTIC_SCRUBBER = SemanticScrubber()
+_RISK_SCORER = RiskScorer()
+
 
 async def privacy_node(state: dict[str, Any]) -> dict[str, Any]:
     """Privacy middleware node.
@@ -31,15 +36,12 @@ async def privacy_node(state: dict[str, Any]) -> dict[str, Any]:
     sql_result = state.get("sql_result", [])
 
     redaction_map = RedactionMap()
-    regex_scrubber = RegexScrubber()
-    semantic_scrubber = SemanticScrubber()
-    risk_scorer = RiskScorer()
 
     # 1. Regex Pass
-    scrubbed_query = regex_scrubber.scrub(query, redaction_map)
+    scrubbed_query = _REGEX_SCRUBBER.scrub(query, redaction_map)
 
     # 2. Semantic Pass (Audit)
-    scrubbed_query = await semantic_scrubber.scrub(scrubbed_query, redaction_map)
+    scrubbed_query = await _SEMANTIC_SCRUBBER.scrub(scrubbed_query, redaction_map)
 
     # 3. Process Context (SQL Results)
     # We redact the values in the SQL result dictionaries
@@ -49,7 +51,7 @@ async def privacy_node(state: dict[str, Any]) -> dict[str, Any]:
             new_row = {}
             for k, v in row.items():
                 if isinstance(v, str):
-                    scrubbed_v = regex_scrubber.scrub(v, redaction_map)
+                    scrubbed_v = _REGEX_SCRUBBER.scrub(v, redaction_map)
                     # We don't necessarily need semantic pass for data that's already structured,
                     # but regex is good for catching leaked IDs in fields.
                     new_row[k] = scrubbed_v
@@ -58,7 +60,7 @@ async def privacy_node(state: dict[str, Any]) -> dict[str, Any]:
             sanitized_sql_result.append(new_row)
 
     # 4. Risk Scoring
-    risk_score = risk_scorer.calculate_risk(scrubbed_query)
+    risk_score = _RISK_SCORER.calculate_risk(scrubbed_query)
 
     threshold = get_config().privacy.risk_threshold
 

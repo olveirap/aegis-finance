@@ -35,10 +35,8 @@ class Retriever:
             # 1. Embed query
             query_vector = await _embed_text(query)
 
-            # 2. Initialize storage and search
-            await self.storage.initialize()
+            # 2. Search (assuming storage is already initialized at app level)
             results = await self.storage.search(query_vector.tolist(), top_k=top_k)
-            await self.storage.close()
 
             return results
         except Exception as e:

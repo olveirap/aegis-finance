@@ -45,7 +45,7 @@ class RiskScorer:
             # We look for common PII entities
             results = self.analyzer.analyze(
                 text=text,
-                language="en",  # Presidio works best with 'en', but can be configured for 'es'
+                language="es",  # Adjusted to 'es' for Argentine context
                 entities=[
                     "PERSON",
                     "EMAIL_ADDRESS",
