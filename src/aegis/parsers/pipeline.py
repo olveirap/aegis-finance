@@ -13,7 +13,7 @@ from aegis.parsers.dataframe import (
 from aegis.parsers.icbc import ICBCParser
 from aegis.parsers.mercadopago import MercadoPagoParser
 from aegis.parsers.credit_card import CreditCardParser
-from aegis.parsers.categorizer import RuleBasedCategorizer
+from aegis.parsers.categorizer import get_categorizer
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 SENTINEL_UUID = UUID("00000000-0000-0000-0000-000000000000")
 
 
-def run_pipeline(sources: list[dict], usd_rate: float = 1400.0) -> pd.DataFrame:
+async def run_pipeline(sources: list[dict], usd_rate: float = 1400.0) -> pd.DataFrame:
     """
     Wires together all parsers and enrichment steps, returning a unified DataFrame.
 
@@ -75,9 +75,15 @@ def run_pipeline(sources: list[dict], usd_rate: float = 1400.0) -> pd.DataFrame:
     combined_df = flag_transfers(combined_df)
     combined_df = apply_fx(combined_df, usd_rate=usd_rate)
 
-    # Run RuleBasedCategorizer
-    categorizer = RuleBasedCategorizer()
-    cat_results = categorizer.categorize_df(combined_df)
+    # Run Categorizer (RuleBased or SLM based on config)
+    categorizer = get_categorizer()
+    
+    # Handle both sync and async categorize_df
+    import inspect
+    if inspect.iscoroutinefunction(categorizer.categorize_df):
+        cat_results = await categorizer.categorize_df(combined_df)
+    else:
+        cat_results = categorizer.categorize_df(combined_df)
 
     combined_df["category"] = cat_results["category"].values
     combined_df["is_flagged"] = cat_results["is_flagged"].values

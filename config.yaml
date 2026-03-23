@@ -43,3 +43,6 @@ rag:
 
 staleness:
   warn_after_days: 30
+
+parser:
+  categorizer_type: "rule_based"  # "rule_based" | "slm"

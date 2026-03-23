@@ -130,6 +130,13 @@ class StalenessConfig(BaseModel):
     warn_after_days: int = 30
 
 
+class ParserConfig(BaseModel):
+    """Transaction parsing and categorization settings."""
+
+    # Options: "rule_based", "slm"
+    categorizer_type: str = "rule_based"
+
+
 # ---------------------------------------------------------------------------
 # Root settings model
 # ---------------------------------------------------------------------------
@@ -145,6 +152,7 @@ class Settings(BaseModel):
     market: MarketConfig = MarketConfig()
     rag: RAGConfig = RAGConfig()
     staleness: StalenessConfig = StalenessConfig()
+    parser: ParserConfig = ParserConfig()
 
     @model_validator(mode="before")
     @classmethod
