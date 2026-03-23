@@ -35,9 +35,7 @@ class TestCausalActionNode:
     def test_action_node_creation(self) -> None:
         now = datetime.now(timezone.utc)
         node = CausalActionNode(
-            action_type="AMENDS",
-            effective_date=now,
-            description="Law 123 amended"
+            action_type="AMENDS", effective_date=now, description="Law 123 amended"
         )
         assert node.action_type == "AMENDS"
         assert node.effective_date == now
@@ -48,12 +46,12 @@ class TestPointInTimeFilter:
     def test_filter_generation(self) -> None:
         now = datetime.now(timezone.utc)
         filter_dict = point_in_time_filter(now)
-        
+
         # Verify structure
         assert "$and" in filter_dict
         conditions = filter_dict["$and"]
         assert len(conditions) == 2
-        
+
         # Checking string output of isoformat()
         now_str = now.isoformat()
         assert conditions[0]["$or"][0]["temporal_validity.t_start"]["$lte"] == now_str

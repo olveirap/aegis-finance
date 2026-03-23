@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 import logging
 from typing import Any, TypedDict, NotRequired
-from enum import Enum  
+from enum import Enum
 
 import httpx
 
@@ -25,14 +25,15 @@ logger = logging.getLogger(__name__)
 # Type Definitions
 # =============================================================================
 
-class QueryType(str, Enum):  
-    """Enumeration of query types for classification."""  
 
-    PERSONAL_FINANCIAL = "PERSONAL_FINANCIAL"  
-    MARKET_KNOWLEDGE = "MARKET_KNOWLEDGE"  
-    HYBRID = "HYBRID"  
-    GENERAL_FINANCE = "GENERAL_FINANCE"  
-    RESEARCH = "RESEARCH"  
+class QueryType(str, Enum):
+    """Enumeration of query types for classification."""
+
+    PERSONAL_FINANCIAL = "PERSONAL_FINANCIAL"
+    MARKET_KNOWLEDGE = "MARKET_KNOWLEDGE"
+    HYBRID = "HYBRID"
+    GENERAL_FINANCE = "GENERAL_FINANCE"
+    RESEARCH = "RESEARCH"
 
 
 class RouterOutputData(TypedDict, total=True):
@@ -88,6 +89,7 @@ class RouterOutput(dict[str, Any]):
 # =============================================================================
 # Router Configuration
 # =============================================================================
+
 
 class QueryTypeConfig(TypedDict):
     """Configuration for a query type."""
@@ -160,9 +162,9 @@ QUERY_TYPE_CONFIG: dict[QueryType, QueryTypeConfig] = {
 # Router Node Implementation
 # =============================================================================
 
+
 async def router_node(
-    state: dict[str, Any],
-    llama_cpp_url: str = "http://localhost:8080"
+    state: dict[str, Any], llama_cpp_url: str = "http://localhost:8080"
 ) -> dict[str, Any]:
     """Classify a user query and determine the appropriate processing route.
 
@@ -171,15 +173,15 @@ async def router_node(
         llama_cpp_url: Base URL of the llama.cpp inference server.
 
     Returns:
-        Dict with ``router_output`` key containing classification results.  
+        Dict with ``router_output`` key containing classification results.
 
-    Behavior:  
-        This function attempts to classify the query using a llama.cpp server.  
-        If the server is unavailable (e.g. an ``httpx.RequestError`` occurs) or  
-        the LLM response cannot be parsed (e.g. ``json.JSONDecodeError`` or  
-        missing keys), the error is logged and a heuristic-based fallback  
-        classification is used instead. Callers do not need to handle network  
-        or parsing exceptions raised during routing.  
+    Behavior:
+        This function attempts to classify the query using a llama.cpp server.
+        If the server is unavailable (e.g. an ``httpx.RequestError`` occurs) or
+        the LLM response cannot be parsed (e.g. ``json.JSONDecodeError`` or
+        missing keys), the error is logged and a heuristic-based fallback
+        classification is used instead. Callers do not need to handle network
+        or parsing exceptions raised during routing.
     """
     query = state.get("query", "")
 
@@ -200,7 +202,9 @@ async def router_node(
         router_output = _heuristic_router(query)
 
     except (json.JSONDecodeError, KeyError) as e:
-        logger.warning("Failed to parse router response: %s. Using heuristic fallback.", e)
+        logger.warning(
+            "Failed to parse router response: %s. Using heuristic fallback.", e
+        )
         router_output = _heuristic_router(query)
 
     return {"router_output": router_output}
@@ -247,28 +251,28 @@ def _parse_router_response(response_text: str) -> dict[str, Any]:
     """
     # Clean up any markdown code blocks
     cleaned = response_text.strip()
-    
+
     # Remove opening markdown code block
     if cleaned.startswith("```json"):
         cleaned = cleaned[7:]
     elif cleaned.startswith("```"):
         cleaned = cleaned[3:]
-    
+
     # Remove closing markdown code block
     if cleaned.endswith("```"):
         cleaned = cleaned[:-3]
-    
+
     cleaned = cleaned.strip()
 
     # Try to find JSON object in the response
     start_idx = cleaned.find("{")
     end_idx = cleaned.rfind("}") + 1
-    
+
     if start_idx >= 0 and end_idx > start_idx:
         cleaned = cleaned[start_idx:end_idx]
 
     parsed = json.loads(cleaned)
-    
+
     # Validate that parsed result is a dict
     if not isinstance(parsed, dict):
         raise KeyError("Router response is not a JSON object")
@@ -297,61 +301,111 @@ def _heuristic_router(query: str) -> RouterOutput:
 
     # RESEARCH indicators - questions about current/real-time data
     research_keywords = [
-        "hoy", "actualmente", "actual", "última", "últimas",
-        "actualización", "tiempo real", "en vivo", "busca", "buscar",
-        "noticias", "tasa de inflación", "tipo de cambio",
+        "hoy",
+        "actualmente",
+        "actual",
+        "última",
+        "últimas",
+        "actualización",
+        "tiempo real",
+        "en vivo",
+        "busca",
+        "buscar",
+        "noticias",
+        "tasa de inflación",
+        "tipo de cambio",
     ]
     for keyword in research_keywords:
         if keyword in query_lower:
-            return RouterOutput(QUERY_TYPE_CONFIG[QueryType.RESEARCH] | {
-                "query_type": QueryType.RESEARCH,
-                "reasoning": "Heuristic: detected research keyword",
-            })
+            return RouterOutput(
+                QUERY_TYPE_CONFIG[QueryType.RESEARCH]
+                | {
+                    "query_type": QueryType.RESEARCH,
+                    "reasoning": "Heuristic: detected research keyword",
+                }
+            )
 
     # HYBRID indicators - combines personal + advice/reasoning
     # Check BEFORE personal finance to catch hybrid queries first
     hybrid_patterns = [
-        ("debería", "mi"), ("debería", "mis"), ("debería", "gastos"),
-        ("puedo", "mi"), ("puedo", "mis"), ("puedo", "gastos"),
-        ("conviene", "mi"), ("recomienda", "mi"), ("dado mi", None),
+        ("debería", "mi"),
+        ("debería", "mis"),
+        ("debería", "gastos"),
+        ("puedo", "mi"),
+        ("puedo", "mis"),
+        ("puedo", "gastos"),
+        ("conviene", "mi"),
+        ("recomienda", "mi"),
+        ("dado mi", None),
         ("permitirme", None),  # "¿Puedo permitirme...?" is hybrid
     ]
     for pattern in hybrid_patterns:
-        if pattern[0] in query_lower and (pattern[1] is None or pattern[1] in query_lower):
-            return RouterOutput(QUERY_TYPE_CONFIG[QueryType.HYBRID] | {
-                "query_type": QueryType.HYBRID,
-                "reasoning": "Heuristic: detected hybrid pattern",
-            })
+        if pattern[0] in query_lower and (
+            pattern[1] is None or pattern[1] in query_lower
+        ):
+            return RouterOutput(
+                QUERY_TYPE_CONFIG[QueryType.HYBRID]
+                | {
+                    "query_type": QueryType.HYBRID,
+                    "reasoning": "Heuristic: detected hybrid pattern",
+                }
+            )
 
     # PERSONAL_FINANCIAL indicators - questions about user's own data
     personal_keywords = [
-        "mi patrimonio", "mis gastos", "mis ingresos", "mi cuenta",
-        "mis activos", "mi saldo", "gasté", "gané", "tengo",
-        "¿cuál es mi", "¿cuánto gasté", "¿cuánto tengo",
+        "mi patrimonio",
+        "mis gastos",
+        "mis ingresos",
+        "mi cuenta",
+        "mis activos",
+        "mi saldo",
+        "gasté",
+        "gané",
+        "tengo",
+        "¿cuál es mi",
+        "¿cuánto gasté",
+        "¿cuánto tengo",
         "patrimonio",  # Standalone keyword
     ]
     for keyword in personal_keywords:
         if keyword in query_lower:
-            return RouterOutput(QUERY_TYPE_CONFIG[QueryType.PERSONAL_FINANCIAL] | {
-                "query_type": QueryType.PERSONAL_FINANCIAL,
-                "reasoning": "Heuristic: detected personal finance keyword",
-            })
+            return RouterOutput(
+                QUERY_TYPE_CONFIG[QueryType.PERSONAL_FINANCIAL]
+                | {
+                    "query_type": QueryType.PERSONAL_FINANCIAL,
+                    "reasoning": "Heuristic: detected personal finance keyword",
+                }
+            )
 
     # MARKET_KNOWLEDGE indicators - Argentine market concepts
     # Exclude generic terms like "qué es" and "explicame" - those are too broad
     market_keywords = [
-        "cedear", "mep", "ccl", "dólar blue", "bcra", "byma", "aba",
-        "impuesto a las ganancias", "monotributo", "afip",
+        "cedear",
+        "mep",
+        "ccl",
+        "dólar blue",
+        "bcra",
+        "byma",
+        "aba",
+        "impuesto a las ganancias",
+        "monotributo",
+        "afip",
     ]
     for keyword in market_keywords:
         if keyword in query_lower:
-            return RouterOutput(QUERY_TYPE_CONFIG[QueryType.MARKET_KNOWLEDGE] | {
-                "query_type": QueryType.MARKET_KNOWLEDGE,
-                "reasoning": "Heuristic: detected market knowledge keyword",
-            })
+            return RouterOutput(
+                QUERY_TYPE_CONFIG[QueryType.MARKET_KNOWLEDGE]
+                | {
+                    "query_type": QueryType.MARKET_KNOWLEDGE,
+                    "reasoning": "Heuristic: detected market knowledge keyword",
+                }
+            )
 
     # Default to GENERAL_FINANCE
-    return RouterOutput(QUERY_TYPE_CONFIG[QueryType.GENERAL_FINANCE] | {
-        "query_type": QueryType.GENERAL_FINANCE,
-        "reasoning": "Heuristic: default to general finance",
-    })
+    return RouterOutput(
+        QUERY_TYPE_CONFIG[QueryType.GENERAL_FINANCE]
+        | {
+            "query_type": QueryType.GENERAL_FINANCE,
+            "reasoning": "Heuristic: default to general finance",
+        }
+    )

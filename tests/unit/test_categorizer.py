@@ -19,6 +19,7 @@ import pytest
 # Mark the entire module so the suite doesn't hard-crash.
 try:
     from aegis.parsers.categorizer import RuleBasedCategorizer
+
     _HAS_CATEGORIZER = True
 except ImportError:
     _HAS_CATEGORIZER = False
@@ -90,7 +91,9 @@ class TestCategoryMatching:
         result = categorizer.categorize(txn)
         assert result.category == "Income"
 
-    def test_income_negative_amount_not_matched(self, categorizer: RuleBasedCategorizer) -> None:
+    def test_income_negative_amount_not_matched(
+        self, categorizer: RuleBasedCategorizer
+    ) -> None:
         """Negative amount with 'SUELDO' should NOT be categorized as Income
         if the categorizer respects a positive_only flag for income rules."""
         txn = _txn(merchant="SUELDO DEVOLUCION", amount=Decimal("-50000.00"))
@@ -113,7 +116,9 @@ class TestFlagging:
         assert result.is_flagged is True
         assert result.category_score == pytest.approx(0.0)
 
-    def test_multi_category_conflict_flagged(self, categorizer: RuleBasedCategorizer) -> None:
+    def test_multi_category_conflict_flagged(
+        self, categorizer: RuleBasedCategorizer
+    ) -> None:
         """A merchant matching multiple categories should be flagged."""
         # A merchant name designed to match both Food and Health rules
         txn = _txn(merchant="FARMACIA SUPERMERCADO")
@@ -147,6 +152,38 @@ class TestBatchAndEdgeCases:
         # Each result must have a category assigned
         for r in results:
             assert r.category is not None
+
+    def test_categorize_df(self, categorizer: RuleBasedCategorizer) -> None:
+        """categorize_df should process a DataFrame and return results."""
+        import pandas as pd
+
+        df = pd.DataFrame(
+            [
+                {
+                    "description": "CARREFOUR",
+                    "amount_ars": -1000.0,
+                    "amount_usd": None,
+                    "currency": "ARS",
+                },
+                {
+                    "description": "SUBE CARGA",
+                    "amount_ars": -500.0,
+                    "amount_usd": None,
+                    "currency": "ARS",
+                },
+                {
+                    "description": "SUELDO",
+                    "amount_ars": 1000000.0,
+                    "amount_usd": None,
+                    "currency": "ARS",
+                },
+            ]
+        )
+        results = categorizer.categorize_df(df)
+        assert len(results) == 3
+        assert results.iloc[0]["category"] == "Food"
+        assert results.iloc[1]["category"] == "Transportation"
+        assert results.iloc[2]["category"] == "Income"
 
     def test_empty_merchant(self, categorizer: RuleBasedCategorizer) -> None:
         """None or empty merchant_raw must be handled gracefully (no crash)."""

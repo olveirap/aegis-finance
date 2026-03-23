@@ -14,6 +14,7 @@ def test_all_node_types_mapped() -> None:
         assert iri is not None
         assert iri.startswith("https://spec.edmcouncil.org/fibo/ontology/")
 
+
 def test_all_edge_types_mapped() -> None:
     for edge_type in GraphEdgeType:
         assert edge_type in FIBO_EDGE_MAPPING, f"{edge_type} lacks FIBO mapping"

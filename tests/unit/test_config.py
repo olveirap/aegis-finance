@@ -69,21 +69,31 @@ class TestLoadDefaultConfig:
 class TestEnvVarInterpolation:
     """${VAR} replacement inside config values."""
 
-    def test_env_var_interpolation(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_env_var_interpolation(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Set an env var and verify it appears in the loaded config."""
         monkeypatch.setenv("TEST_API_KEY", "sk-secret-123")
-        p = _write_yaml(tmp_path, {
-            "llm": {"cloud": {"api_key": "${TEST_API_KEY}"}},
-        })
+        p = _write_yaml(
+            tmp_path,
+            {
+                "llm": {"cloud": {"api_key": "${TEST_API_KEY}"}},
+            },
+        )
         cfg = get_config(path=p)
         assert cfg.llm.cloud.api_key == "sk-secret-123"
 
-    def test_missing_env_var_becomes_empty(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_missing_env_var_becomes_empty(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """An unset env var should resolve to an empty string."""
         monkeypatch.delenv("TOTALLY_NONEXISTENT_VAR", raising=False)
-        p = _write_yaml(tmp_path, {
-            "llm": {"cloud": {"api_key": "${TOTALLY_NONEXISTENT_VAR}"}},
-        })
+        p = _write_yaml(
+            tmp_path,
+            {
+                "llm": {"cloud": {"api_key": "${TOTALLY_NONEXISTENT_VAR}"}},
+            },
+        )
         cfg = get_config(path=p)
         assert cfg.llm.cloud.api_key == ""
 
@@ -100,12 +110,16 @@ class TestDatabaseConfig:
             user="admin",
             password="s3cret",
         )
-        assert db.connection_string == "postgresql://admin:s3cret@db.example.com:5433/mydb"
+        assert (
+            db.connection_string == "postgresql://admin:s3cret@db.example.com:5433/mydb"
+        )
 
     def test_database_connection_string_default(self) -> None:
         """Default values produce the expected development DSN."""
         db = DatabaseConfig()
-        assert db.connection_string == "postgresql://aegis:@localhost:5432/aegis_finance"
+        assert (
+            db.connection_string == "postgresql://aegis:@localhost:5432/aegis_finance"
+        )
 
 
 class TestConfigEdgeCases:

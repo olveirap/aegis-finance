@@ -175,7 +175,9 @@ class KBPipeline:
 
         # ── Stages 5 / 7 / 8: score + tag + extract per chunk ────────────────
         return [
-            self._build_chunk(tc.text, tc.n_tokens, tc.chunk_id, tc.chunk_index, doc, lang)
+            self._build_chunk(
+                tc.text, tc.n_tokens, tc.chunk_id, tc.chunk_index, doc, lang
+            )
             for tc in text_chunks
         ]
 
@@ -262,7 +264,9 @@ class KBPipeline:
 
         texts = [ch.text for ch in chunks]
         try:
-            vectorizer = TfidfVectorizer(min_df=1, analyzer="word", token_pattern=r"[^\s]+")
+            vectorizer = TfidfVectorizer(
+                min_df=1, analyzer="word", token_pattern=r"[^\s]+"
+            )
             tfidf = vectorizer.fit_transform(texts)
         except ValueError:
             return chunks

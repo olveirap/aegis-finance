@@ -15,12 +15,15 @@ from aegis.kb.ingestion.runner import IngestionRunner
 from aegis.kb.pipeline import KBPipeline
 from aegis.kb.storage import get_storage
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
 class KBIngestionResult(BaseModel):
     """Result summary of the KB ingestion run."""
+
     processed_chunks: int = 0
     stored_chunks: int = 0
     errors: int = 0
@@ -28,7 +31,7 @@ class KBIngestionResult(BaseModel):
 
 async def run_kb_ingest(registry_paths: list[str]) -> KBIngestionResult:
     """Run the end-to-end knowledge base ingestion logic.
-    
+
     1. Reads YAML sources.
     2. Runs extractors/connectors.
     3. Runs the quality pipeline (chunking, tagging).
@@ -38,21 +41,20 @@ async def run_kb_ingest(registry_paths: list[str]) -> KBIngestionResult:
     pipeline = KBPipeline()
     config = get_config()
     embedder = LlamaCppEmbedder(
-        base_url=config.embedding.api_base,
-        model=config.embedding.model
+        base_url=config.embedding.api_base, model=config.embedding.model
     )
     storage = get_storage()
-    
+
     await storage.initialize()
-    
+
     result = KBIngestionResult()
-    
+
     try:
         for path in registry_paths:
             logger.info(f"Loading registry from: {path}")
             registry = SourceRegistry.load(path)
             runner = IngestionRunner(registry)
-            
+
             for name, config in registry.sources.items():
                 logger.info(f"=== Starting source: {name} ===")
                 try:
@@ -64,46 +66,44 @@ async def run_kb_ingest(registry_paths: list[str]) -> KBIngestionResult:
                             chunks = pipeline.process(raw_doc)
                             if not chunks:
                                 continue
-                                
+
                             # 2. Embedding
                             embedded = await embedder.embed(chunks)
                             result.processed_chunks += len(chunks)
-                            
+
                             if not embedded:
                                 continue
-                                
+
                             # 3. Storage
                             await storage.store_batch(embedded)
                             result.stored_chunks += len(embedded)
-                            
+
                         except Exception as e:
-                            logger.error(f"Error processing document {raw_doc.source_url}: {e}")
+                            logger.error(
+                                f"Error processing document {raw_doc.source_url}: {e}"
+                            )
                             result.errors += 1
-                            
+
                 except Exception as e:
                     logger.error(f"Source pipeline {name} failed: {e}")
                     result.errors += 1
     finally:
         await storage.close()
-                
+
     return result
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="KB Ingestion Pipeline Orchestrator")
-    parser.add_argument(
-        "cmd", 
-        choices=["ingest"], 
-        help="Command to run."
-    )
+    parser.add_argument("cmd", choices=["ingest"], help="Command to run.")
     parser.add_argument(
         "--sources",
         nargs="+",
         required=True,
-        help="Paths to one or more YAML source definition files."
+        help="Paths to one or more YAML source definition files.",
     )
     args = parser.parse_args()
-    
+
     if args.cmd == "ingest":
         try:
             result = asyncio.run(run_kb_ingest(args.sources))
@@ -117,6 +117,7 @@ def main() -> None:
         except Exception as e:
             logger.critical(f"Unhandled fatal error: {e}")
             sys.exit(2)
+
 
 if __name__ == "__main__":
     main()

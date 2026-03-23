@@ -15,6 +15,7 @@ from aegis.kb.ontology import SubTopic
 def test_base_tagger_is_abstract() -> None:
     """BaseTagger cannot be instantiated directly."""
     import inspect
+
     assert inspect.isabstract(BaseTagger)
 
 
@@ -84,7 +85,9 @@ def test_etfs_keyword() -> None:
 
 def test_budgeting_spanish_keyword() -> None:
     t = HeuristicTagger()
-    tags = t.tag("Mantener un presupuesto mensual es clave para las finanzas personales.")
+    tags = t.tag(
+        "Mantener un presupuesto mensual es clave para las finanzas personales."
+    )
     assert SubTopic.BUDGETING in tags
 
 

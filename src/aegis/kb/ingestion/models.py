@@ -11,7 +11,7 @@ from aegis.kb.temporal import TemporalInterval
 
 class SourceMeta(BaseModel):
     """Metadata emitted by a connector along with the raw bytes."""
-    
+
     source_url: str
     source_title: str | None = None
     source_type: SourceType
@@ -24,26 +24,36 @@ class SourceMeta(BaseModel):
 
 class ExtractedContent(BaseModel):
     """Structured text and tables emitted by an extractor."""
-    
-    text: str = Field(description="The primary extracted textual content in Markdown or plain text.")
-    tables: list[dict] = Field(default_factory=list, description="Extracted table data, usually as JSON representations.")
+
+    text: str = Field(
+        description="The primary extracted textual content in Markdown or plain text."
+    )
+    tables: list[dict] = Field(
+        default_factory=list,
+        description="Extracted table data, usually as JSON representations.",
+    )
     content_format: Literal["markdown", "json", "raw_text", "table_json", "timeseries"]
-    confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Confidence score from the extractor.")
-    temporal_metadata: TemporalInterval | None = Field(default=None, description="Extracted temporal validity info if applicable (e.g. from timeseries).")
+    confidence: float = Field(
+        default=1.0, ge=0.0, le=1.0, description="Confidence score from the extractor."
+    )
+    temporal_metadata: TemporalInterval | None = Field(
+        default=None,
+        description="Extracted temporal validity info if applicable (e.g. from timeseries).",
+    )
 
 
 class RawDocument(BaseModel):
     """The unified output of the ingestion pipeline, ready for chunking and embedding."""
-    
+
     text: str
     tables: list[dict]
     content_format: Literal["markdown", "json", "raw_text", "table_json", "timeseries"]
-    
+
     source_url: str
     source_title: str | None = None
     source_type: SourceType
     jurisdiction: list[str]
     topic_tags: list[SubTopic]
     raw_bytes_hash: str
-    
+
     temporal_metadata: TemporalInterval | None = None

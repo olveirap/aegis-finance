@@ -26,6 +26,7 @@ from aegis.parsers.bank_csv import BankCSVParser, ColumnMapping
 # Guard against missing psycopg_pool (not installed outside Docker env).
 try:
     from aegis.db.connection import close_pool, get_pool
+
     _HAS_DB_DEPS = True
 except ImportError:
     _HAS_DB_DEPS = False
@@ -33,6 +34,7 @@ except ImportError:
 # Conditionally import categorizer — pipeline test degrades gracefully.
 try:
     from aegis.parsers.categorizer import RuleBasedCategorizer
+
     _HAS_CATEGORIZER = True
 except ImportError:
     _HAS_CATEGORIZER = False
@@ -98,7 +100,7 @@ async def clean_db(pool):
             VALUES (%s, 'Test Account', 'ARS', 'checking')
             ON CONFLICT (id) DO NOTHING
             """,
-            (str(ACCT),)
+            (str(ACCT),),
         )
         await conn.execute(
             "DELETE FROM transactions WHERE account_id = %s", (str(ACCT),)
@@ -116,9 +118,7 @@ async def clean_db(pool):
         await conn.execute(
             "DELETE FROM import_batches WHERE account_id = %s", (str(ACCT),)
         )
-        await conn.execute(
-            "DELETE FROM accounts WHERE id = %s", (str(ACCT),)
-        )
+        await conn.execute("DELETE FROM accounts WHERE id = %s", (str(ACCT),))
         await conn.commit()
 
 

@@ -44,12 +44,8 @@ class ChunkMetadata(BaseModel):
     """Pydantic v2 model describing one knowledge-base chunk."""
 
     # ── Source provenance ─────────────────────────────────────────────────
-    source_url: str = Field(
-        ..., description="Origin URL, book title, or file path."
-    )
-    source_type: SourceType = Field(
-        ..., description="How the content was acquired."
-    )
+    source_url: str = Field(..., description="Origin URL, book title, or file path.")
+    source_type: SourceType = Field(..., description="How the content was acquired.")
     date_published: date | None = Field(
         default=None, description="Publication date of the source document."
     )

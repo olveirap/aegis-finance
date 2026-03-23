@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 class EmbeddedChunk(NamedTuple):
     """A chunk paired with its vector embedding."""
+
     chunk: DocumentChunk
     embedding: list[float]
 
@@ -51,7 +52,9 @@ class LlamaCppEmbedder:
     @tenacity.retry(
         stop=tenacity.stop_after_attempt(3),
         wait=tenacity.wait_exponential(multiplier=1, min=2, max=10),
-        retry=tenacity.retry_if_exception_type((httpx.RequestError, httpx.HTTPStatusError)),
+        retry=tenacity.retry_if_exception_type(
+            (httpx.RequestError, httpx.HTTPStatusError)
+        ),
         before_sleep=lambda retry_state: logger.warning(
             f"Embedding request failed, retrying (attempt {retry_state.attempt_number})..."
         ),
@@ -61,17 +64,17 @@ class LlamaCppEmbedder:
         if self.use_mock:
             # Return random 1024-dimensional vectors for testing without LLM
             return [[random.random() for _ in range(1024)] for _ in texts]
-            
+
         url = f"{self.base_url}/embeddings"
         payload = {
             "input": texts,
             "model": self.model,
         }
-        
+
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(url, json=payload)
             response.raise_for_status()
-            
+
             data = response.json()
             # Sort by index to make sure they match the input order
             sorted_data = sorted(data["data"], key=lambda x: x["index"])
@@ -79,21 +82,21 @@ class LlamaCppEmbedder:
 
     async def embed(self, chunks: list[DocumentChunk]) -> list[EmbeddedChunk]:
         """Embed a list of chunks, applying vision fallback logic.
-        
+
         Chunks that appear to be vision/OCR stubs (e.g. empty text but carrying structural tables
         without accompanying parsed text) will be dropped with a warning.
-        We strictly avoid generating zero or random vectors for unprocessable chunks 
+        We strictly avoid generating zero or random vectors for unprocessable chunks
         to prevent pgvector index corruption.
-        
+
         Args:
             chunks: A list of DocumentChunk objects that passed pipeline quality gates.
-            
+
         Returns:
             A list of ``EmbeddedChunk`` representing valid embedded documents.
         """
         valid_chunks: list[DocumentChunk] = []
         vision_skipped_count = 0
-        
+
         for c in chunks:
             # Explicit vision fallback strategy
             # If a chunk is effectively empty text but meant to represent vision data,
@@ -106,30 +109,38 @@ class LlamaCppEmbedder:
                 vision_skipped_count += 1
                 continue
             valid_chunks.append(c)
-            
+
         if vision_skipped_count > 0:
-            logger.info(f"Skipped {vision_skipped_count} vision chunks during embedding.")
+            logger.info(
+                f"Skipped {vision_skipped_count} vision chunks during embedding."
+            )
 
         if not valid_chunks:
             return []
 
         results: list[EmbeddedChunk] = []
-        
+
         # Process in batches
-        for i in tqdm(range(0, len(valid_chunks), self.batch_size), desc="Embedding Chunks"):
-            batch = valid_chunks[i:i + self.batch_size]
+        for i in tqdm(
+            range(0, len(valid_chunks), self.batch_size), desc="Embedding Chunks"
+        ):
+            batch = valid_chunks[i : i + self.batch_size]
             texts = [c.text for c in batch]
-            
+
             try:
                 embeddings = await self._embed_batch(texts)
                 for chunk, emb in zip(batch, embeddings):
                     if len(emb) == 0:
-                        logger.error(f"Received empty embedding for chunk {chunk.chunk_id}. Skipping.")
+                        logger.error(
+                            f"Received empty embedding for chunk {chunk.chunk_id}. Skipping."
+                        )
                         continue
                     results.append(EmbeddedChunk(chunk=chunk, embedding=emb))
             except Exception as e:
-                logger.error(f"Failed to embed batch starting at index {i}: {e}. Skipping batch.")
+                logger.error(
+                    f"Failed to embed batch starting at index {i}: {e}. Skipping batch."
+                )
                 # We skip the batch on total failure to allow the rest of the ingestion to proceed
                 # In a robust system we might dead-letter these.
-                
+
         return results

@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 
+import pandas as pd
 import yaml
 
 from aegis.parsers.base import Transaction
@@ -24,7 +25,9 @@ logger = logging.getLogger(__name__)
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
-_DEFAULT_RULES_PATH = Path(__file__).resolve().parents[3] / "data" / "category_rules.yaml"
+_DEFAULT_RULES_PATH = (
+    Path(__file__).resolve().parents[3] / "data" / "category_rules.yaml"
+)
 
 _SCORE_EXACT: float = 1.0
 _SCORE_PARTIAL: float = 0.8
@@ -43,7 +46,8 @@ class _CategoryRule:
     positive_only: bool = False
     # Pre-compiled word-boundary patterns for each keyword.
     _boundary_patterns: tuple[re.Pattern[str], ...] = field(
-        default=(), repr=False,
+        default=(),
+        repr=False,
     )
 
 
@@ -227,3 +231,32 @@ class RuleBasedCategorizer:
         Returns a new list; the original transaction objects are not modified.
         """
         return [self.categorize(txn) for txn in transactions]
+
+    def categorize_df(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Categorize transactions in a DataFrame.
+
+        Expects columns 'description', 'amount_ars', 'amount_usd', 'currency'.
+        Returns a DataFrame with 'category', 'category_score', 'category_source', 'is_flagged'.
+        """
+
+        def _cat_row(row):
+            text = str(row["description"]).lower() if pd.notna(row["description"]) else ""
+            amount = (
+                row["amount_usd"]
+                if row["currency"] in {"USD", "USDT"}
+                else row["amount_ars"]
+            )
+            amount_dec = Decimal(str(amount)) if pd.notna(amount) else Decimal("0")
+
+            matches = self._find_matches(text, amount_dec)
+            category, score, flagged = self._resolve_matches(matches)
+            return pd.Series([category, score, "auto", flagged])
+
+        cat_results = df.apply(_cat_row, axis=1)
+        cat_results.columns = [
+            "category",
+            "category_score",
+            "category_source",
+            "is_flagged",
+        ]
+        return cat_results

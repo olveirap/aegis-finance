@@ -25,9 +25,7 @@ _ENV_VAR_RE = re.compile(r"\$\{(?P<name>[A-Za-z_][A-Za-z0-9_]*)\}")
 def _interpolate_env(value: Any) -> Any:
     """Recursively walk a parsed YAML tree and replace ``${VAR}`` tokens."""
     if isinstance(value, str):
-        return _ENV_VAR_RE.sub(
-            lambda m: os.environ.get(m.group("name"), ""), value
-        )
+        return _ENV_VAR_RE.sub(lambda m: os.environ.get(m.group("name"), ""), value)
     if isinstance(value, dict):
         return {k: _interpolate_env(v) for k, v in value.items()}
     if isinstance(value, list):

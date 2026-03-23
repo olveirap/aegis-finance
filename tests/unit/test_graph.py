@@ -18,6 +18,7 @@ from aegis.graph import create_aegis_graph, route_query
 # route_query Tests
 # =============================================================================
 
+
 class TestRouteQuery:
     """Tests for the conditional edge routing logic."""
 
@@ -31,7 +32,9 @@ class TestRouteQuery:
             ("research", "research_flow"),
         ],
     )
-    def test_route_query_valid_routes(self, route_value: str, expected_node: str) -> None:
+    def test_route_query_valid_routes(
+        self, route_value: str, expected_node: str
+    ) -> None:
         """Test routing for all known valid route values."""
         state = {"router_output": {"route": route_value}}
         assert route_query(state) == expected_node
@@ -61,6 +64,7 @@ class TestRouteQuery:
 # Graph Structure Tests
 # =============================================================================
 
+
 class TestGraphStructure:
     """Tests for the Aegis graph construction."""
 
@@ -75,7 +79,7 @@ class TestGraphStructure:
         graph = create_aegis_graph()
         # Accessing internal nodes attribute of StateGraph
         nodes = graph.nodes
-        
+
         expected_nodes = {
             "router",
             "sql_flow",
@@ -84,6 +88,6 @@ class TestGraphStructure:
             "general_flow",
             "research_flow",
         }
-        
+
         for node in expected_nodes:
             assert node in nodes, f"Node {node} missing from graph"
