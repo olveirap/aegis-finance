@@ -17,6 +17,7 @@ def test_credit_card_parse_lines():
         "17-01-2024 IVA RG 4240 21%(103887,00) 21.816,27 0,00",  # Tax line
         "18.01.24 DEVOLUCION 35.771,17- 0,00",  # Trailing-minus negative amount
         "19.01.24 HOTEL EUR 0,00 120,50",  # EUR descriptor line -> mapped to USD
+        "19.01.24 HOTEL EUROPA 1.200,00 0,00",  # False EUR substring -> ARS
         "20.01.24 VUELOS 1.234.567,89 0,00",  # Thousands dots
         "Not a date line",
         "21.01.24 NO AMOUNT HERE",
@@ -24,7 +25,7 @@ def test_credit_card_parse_lines():
 
     transactions = parser._parse_lines(lines)
 
-    assert len(transactions) == 6
+    assert len(transactions) == 7
 
     # Standard ARS line
     assert transactions[0].date == date(2024, 1, 15)
@@ -53,9 +54,14 @@ def test_credit_card_parse_lines():
     assert transactions[4].amount == Decimal("-120.50")
     assert transactions[4].currency == "USD"
 
+    # HOTEL EUROPA -> should be ARS
+    assert transactions[5].date == date(2024, 1, 19)
+    assert transactions[5].amount == Decimal("-1200.00")
+    assert transactions[5].currency == "ARS"
+
     # Thousands dots
-    assert transactions[5].date == date(2024, 1, 20)
-    assert transactions[5].amount == Decimal("-1234567.89")
+    assert transactions[6].date == date(2024, 1, 20)
+    assert transactions[6].amount == Decimal("-1234567.89")
 
 
 @patch("aegis.parsers.credit_card.pdfplumber.open")

@@ -3,7 +3,6 @@ from pathlib import Path
 import pandas as pd
 from uuid import UUID
 
-from aegis.parsers.base import Transaction
 from aegis.parsers.dataframe import (
     to_dataframe,
     flag_transfers,
@@ -78,39 +77,10 @@ def run_pipeline(sources: list[dict], usd_rate: float = 1400.0) -> pd.DataFrame:
 
     # Run RuleBasedCategorizer
     categorizer = RuleBasedCategorizer()
-    tx_objects = []
+    cat_results = categorizer.categorize_df(combined_df)
 
-    for _, row in combined_df.iterrows():
-        amount = (
-            row["amount_usd"]
-            if row["currency"] in {"USD", "USDT"}
-            else row["amount_ars"]
-        )
-
-        tx = Transaction(
-            date=row["date"].date(),
-            amount=amount,
-            currency=row["currency"],
-            merchant_raw=row["description"],
-            merchant_clean=row["merchant_clean"],
-            description=row["description"],
-            account_id=UUID(row["account_id"])
-            if pd.notna(row["account_id"])
-            else SENTINEL_UUID,
-            is_flagged=row["is_transfer"],
-        )
-        tx_objects.append(tx)
-
-    categorized_txs = categorizer.categorize_batch(tx_objects)
-
-    categories = []
-    flagged = []
-    for tx in categorized_txs:
-        categories.append(tx.category)
-        flagged.append(tx.is_flagged)
-
-    combined_df["category"] = pd.Series(categories, dtype="object")
-    combined_df["is_flagged"] = pd.Series(flagged, dtype="bool")
+    combined_df["category"] = cat_results["category"].values
+    combined_df["is_flagged"] = cat_results["is_flagged"].values
 
     combined_df = combined_df.sort_values(by="date", ascending=True).reset_index(
         drop=True

@@ -100,11 +100,7 @@ class CreditCardParser(BaseParser):
             else:
                 amount = penultimate_val
                 # If EUR is in description, treat as USD (often converted or billed that way)
-                if (
-                    "USD" in description.upper()
-                    or "U$S" in description.upper()
-                    or "EUR" in description.upper()
-                ):
+                if re.search(r"\b(USD|U\$S|EUR)\b", description, re.IGNORECASE):
                     currency = "USD"
                 else:
                     currency = "ARS"
