@@ -286,10 +286,10 @@ class TestCSVEdgeCases:
         """Rows with bad dates or amounts are skipped (not crashing)."""
         lines = [
             "Fecha,Descripción,Monto",
-            "01/01/2026,GOOD ROW,-100.00",        # valid
-            "BADDATE,BAD ROW,-200.00",             # invalid date
-            "02/01/2026,MISSING AMOUNT,",          # empty amount
-            "03/01/2026,ANOTHER GOOD,-300.00",     # valid
+            "01/01/2026,GOOD ROW,-100.00",  # valid
+            "BADDATE,BAD ROW,-200.00",  # invalid date
+            "02/01/2026,MISSING AMOUNT,",  # empty amount
+            "03/01/2026,ANOTHER GOOD,-300.00",  # valid
         ]
         p = tmp_path / "bad.csv"
         p.write_text("\n".join(lines), encoding="utf-8")
@@ -321,8 +321,8 @@ class TestCSVEdgeCases:
     def test_skip_rows(self, tmp_path: Path) -> None:
         """skip_rows setting should skip leading meta-data lines."""
         lines = [
-            "Bank Export v2.0",                       # meta row
-            "Fecha,Descripción,Monto",                # header
+            "Bank Export v2.0",  # meta row
+            "Fecha,Descripción,Monto",  # header
             "01/01/2026,SOME MERCHANT,-500.00",
         ]
         p = tmp_path / "skip.csv"

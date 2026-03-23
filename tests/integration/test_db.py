@@ -23,6 +23,7 @@ try:
         close_pool,
         get_pool,
     )
+
     _HAS_DB_DEPS = True
 except ImportError:
     _HAS_DB_DEPS = False

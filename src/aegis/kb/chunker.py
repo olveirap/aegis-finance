@@ -66,14 +66,21 @@ class Chunker:
             end = min(start + self.chunk_size, len(token_ids))
             window = token_ids[start:end]
             chunk_text = self._enc.decode(window)
-            
+
             # Incorporate the chunk index into the hash to prevent collisions
             # when a document contains repeated identical text patterns.
             hasher = hashlib.sha256(chunk_text.encode())
             hasher.update(str(i).encode())
             chunk_id = hasher.hexdigest()
-            
-            chunks.append(TextChunk(chunk_id=chunk_id, text=chunk_text, n_tokens=len(window), chunk_index=i))
+
+            chunks.append(
+                TextChunk(
+                    chunk_id=chunk_id,
+                    text=chunk_text,
+                    n_tokens=len(window),
+                    chunk_index=i,
+                )
+            )
             if end == len(token_ids):
                 break
             start += step

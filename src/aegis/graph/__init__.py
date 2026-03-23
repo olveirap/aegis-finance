@@ -18,6 +18,7 @@ from aegis.graph.router import RouterOutput, router_node
 # State Schema
 # =============================================================================
 
+
 class PrivacyOutput(TypedDict, total=False):
     """Output from the privacy middleware node.
 
@@ -64,6 +65,7 @@ class AegisState(TypedDict, total=False):
 # =============================================================================
 # Placeholder Nodes (to be implemented in subsequent tasks)
 # =============================================================================
+
 
 async def sql_flow_node(state: dict[str, Any]) -> dict[str, Any]:
     """Text-to-SQL flow node.
@@ -114,6 +116,7 @@ async def research_flow_node(state: dict[str, Any]) -> dict[str, Any]:
 # Conditional Edge Functions
 # =============================================================================
 
+
 def route_query(state: dict[str, Any]) -> str:
     """Conditional edge function to route queries to appropriate flow.
 
@@ -129,7 +132,7 @@ def route_query(state: dict[str, Any]) -> str:
         return "general_flow"
 
     route = router_output.get("route", "general")
-    
+
     route_mapping = {
         "sql": "sql_flow",
         "rag": "rag_flow",
@@ -137,13 +140,14 @@ def route_query(state: dict[str, Any]) -> str:
         "general": "general_flow",
         "research": "research_flow",
     }
-    
+
     return route_mapping.get(route, "general_flow")
 
 
 # =============================================================================
 # Graph Builder
 # =============================================================================
+
 
 def create_aegis_graph() -> StateGraph:
     """Build and return the main Aegis Finance LangGraph state machine.
@@ -199,7 +203,10 @@ aegis_graph = create_aegis_graph().compile()
 # Convenience Functions
 # =============================================================================
 
-async def process_query(query: str, history: list[dict[str, str]] | None = None) -> dict[str, Any]:
+
+async def process_query(
+    query: str, history: list[dict[str, str]] | None = None
+) -> dict[str, Any]:
     """Process a user query through the Aegis graph.
 
     Args:
@@ -209,10 +216,12 @@ async def process_query(query: str, history: list[dict[str, str]] | None = None)
     Returns:
         Final state containing the processed result.
     """
-    initial_state = AegisState({
-        "query": query,
-        "history": history or [],
-    })
+    initial_state = AegisState(
+        {
+            "query": query,
+            "history": history or [],
+        }
+    )
 
     result = await aegis_graph.ainvoke(initial_state)
     return dict(result)

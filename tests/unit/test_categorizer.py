@@ -19,6 +19,7 @@ import pytest
 # Mark the entire module so the suite doesn't hard-crash.
 try:
     from aegis.parsers.categorizer import RuleBasedCategorizer
+
     _HAS_CATEGORIZER = True
 except ImportError:
     _HAS_CATEGORIZER = False
@@ -90,7 +91,9 @@ class TestCategoryMatching:
         result = categorizer.categorize(txn)
         assert result.category == "Income"
 
-    def test_income_negative_amount_not_matched(self, categorizer: RuleBasedCategorizer) -> None:
+    def test_income_negative_amount_not_matched(
+        self, categorizer: RuleBasedCategorizer
+    ) -> None:
         """Negative amount with 'SUELDO' should NOT be categorized as Income
         if the categorizer respects a positive_only flag for income rules."""
         txn = _txn(merchant="SUELDO DEVOLUCION", amount=Decimal("-50000.00"))
@@ -113,7 +116,9 @@ class TestFlagging:
         assert result.is_flagged is True
         assert result.category_score == pytest.approx(0.0)
 
-    def test_multi_category_conflict_flagged(self, categorizer: RuleBasedCategorizer) -> None:
+    def test_multi_category_conflict_flagged(
+        self, categorizer: RuleBasedCategorizer
+    ) -> None:
         """A merchant matching multiple categories should be flagged."""
         # A merchant name designed to match both Food and Health rules
         txn = _txn(merchant="FARMACIA SUPERMERCADO")

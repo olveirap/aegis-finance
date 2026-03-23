@@ -35,7 +35,9 @@ class HTTPPollingConnector(BaseConnector):
         self, config: SourceConfig, checkpoint: dict | None = None
     ) -> AsyncIterator[tuple[bytes, SourceMeta]]:
         if not config.base_url:
-            raise ValueError(f"Source '{config.name}' requires a base_url for HTTP polling")
+            raise ValueError(
+                f"Source '{config.name}' requires a base_url for HTTP polling"
+            )
 
         # Rate limiting configuration (per source group, e.g., 5 concurrent)
         max_concurrent = config.params.get("max_concurrent", 5)

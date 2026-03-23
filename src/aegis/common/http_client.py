@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 class ResilientHTTPClient:
     """A resilient HTTP client wrapping httpx.AsyncClient.
-    
+
     Features:
       - Configurable rate limiting via asyncio.Semaphore
       - Configurable retries via tenacity
@@ -44,7 +44,7 @@ class ResilientHTTPClient:
         self.max_retries = max_retries
         self.timeout = timeout
         self.headers = headers or {}
-        
+
         self._client: httpx.AsyncClient | None = None
 
     @property
@@ -69,8 +69,11 @@ class ResilientHTTPClient:
     async def request(self, method: str, url: str, **kwargs: Any) -> httpx.Response:
         """Generic request execution with the configured resilience."""
         async with self.semaphore:
+
             def should_retry(exc: BaseException) -> bool:
-                return isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code in {
+                return isinstance(
+                    exc, httpx.HTTPStatusError
+                ) and exc.response.status_code in {
                     408,
                     429,
                 } | set(range(500, 600))
@@ -79,7 +82,9 @@ class ResilientHTTPClient:
             retryer = AsyncRetrying(
                 stop=stop_after_attempt(self.max_retries),
                 wait=wait_exponential(multiplier=1, min=2, max=10),
-                retry=retry_if_exception_type((httpx.RequestError, httpx.TimeoutException))
+                retry=retry_if_exception_type(
+                    (httpx.RequestError, httpx.TimeoutException)
+                )
                 | retry_if_exception(should_retry),
                 reraise=True,
             )

@@ -32,7 +32,9 @@ class VideoConnector(BaseConnector):
         playlist_id = config.params.get("playlist_id")
 
         if not video_id and not playlist_id:
-            raise ValueError(f"Source '{config.name}' requires a video_id or playlist_id")
+            raise ValueError(
+                f"Source '{config.name}' requires a video_id or playlist_id"
+            )
 
         # For simplicity, if video_id is provided, fetch single.
         # Playlist expansion requires Google API or scrapetube (deferred detail).
@@ -40,8 +42,10 @@ class VideoConnector(BaseConnector):
 
         for vid in video_ids:
             try:
-                transcript = await asyncio.to_thread(YouTubeTranscriptApi.get_transcript, vid, languages=['es', 'en'])
-                full_text = " ".join([t['text'] for t in transcript])
+                transcript = await asyncio.to_thread(
+                    YouTubeTranscriptApi.get_transcript, vid, languages=["es", "en"]
+                )
+                full_text = " ".join([t["text"] for t in transcript])
 
                 raw_bytes = full_text.encode("utf-8")
                 bytes_hash = hashlib.sha256(raw_bytes).hexdigest()
@@ -62,7 +66,7 @@ class VideoConnector(BaseConnector):
 
 class WhisperVideoConnector(BaseConnector):
     """Downloads audio and uses Whisper via llama.cpp (expensive)."""
-    
+
     async def fetch(
         self, config: SourceConfig, checkpoint: dict | None = None
     ) -> AsyncIterator[tuple[bytes, SourceMeta]]:

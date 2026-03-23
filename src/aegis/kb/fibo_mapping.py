@@ -21,12 +21,11 @@ FIBO_NODE_MAPPING: dict[GraphNodeType, str] = {
     # Argentine-specific extensions mapped to broader or specialized concepts:
     GraphNodeType.CEDEAR: f"{FIBO_NAMESPACE}SEC/Equities/DepositaryReceipts/DepositaryReceipt",
     GraphNodeType.BOPREAL: f"{FIBO_NAMESPACE}SEC/Debt/SovereignDebt/SovereignBond",
-    GraphNodeType.BONO_CER: f"{FIBO_NAMESPACE}SEC/Debt/SovereignDebt/SovereignBond", # Inflation-linked
+    GraphNodeType.BONO_CER: f"{FIBO_NAMESPACE}SEC/Debt/SovereignDebt/SovereignBond",  # Inflation-linked
     GraphNodeType.PLAZO_FIJO: f"{FIBO_NAMESPACE}FBC/ProductsAndServices/FinancialProductsAndServices/CertificateOfDeposit",
     GraphNodeType.CURRENCY_NODE: f"{FIBO_NAMESPACE}FND/Accounting/CurrencyAmount/Currency",
     GraphNodeType.REGULATORY_EVENT: f"{FIBO_NAMESPACE}FND/Law/Jurisdiction/RegulatoryEvent",
     GraphNodeType.ACTION_NODE: f"{FIBO_NAMESPACE}FND/Law/LegalCapacity/LegalAction",
-    
     # Legacy fallbacks:
     GraphNodeType.CONCEPT: f"{FIBO_NAMESPACE}FND/Arrangements/Arrangements/Concept",
     GraphNodeType.REGULATION: f"{FIBO_NAMESPACE}FND/Law/Jurisdiction/StatuteLaw",
@@ -45,7 +44,6 @@ FIBO_EDGE_MAPPING: dict[GraphEdgeType, str] = {
     GraphEdgeType.TRIGGERS: f"{FIBO_NAMESPACE}FND/Relations/Relations/triggers",
     GraphEdgeType.HAS_CONVERSION_RATIO: f"{FIBO_NAMESPACE}SEC/Equities/DepositaryReceipts/hasConversionRatio",
     GraphEdgeType.VALID_DURING: f"{FIBO_NAMESPACE}FND/DatesAndTimes/FinancialDates/isValidDuring",
-    
     # Legacy fallbacks:
     GraphEdgeType.RELATES_TO: f"{FIBO_NAMESPACE}FND/Relations/Relations/relatesTo",
     GraphEdgeType.REGULATES: f"{FIBO_NAMESPACE}FND/Law/Jurisdiction/governs",

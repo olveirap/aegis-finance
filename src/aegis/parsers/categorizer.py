@@ -24,7 +24,9 @@ logger = logging.getLogger(__name__)
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
-_DEFAULT_RULES_PATH = Path(__file__).resolve().parents[3] / "data" / "category_rules.yaml"
+_DEFAULT_RULES_PATH = (
+    Path(__file__).resolve().parents[3] / "data" / "category_rules.yaml"
+)
 
 _SCORE_EXACT: float = 1.0
 _SCORE_PARTIAL: float = 0.8
@@ -43,7 +45,8 @@ class _CategoryRule:
     positive_only: bool = False
     # Pre-compiled word-boundary patterns for each keyword.
     _boundary_patterns: tuple[re.Pattern[str], ...] = field(
-        default=(), repr=False,
+        default=(),
+        repr=False,
     )
 
 

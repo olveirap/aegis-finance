@@ -19,7 +19,7 @@ def test_source_meta_construction() -> None:
         source_type=SourceType.BLOG,
         raw_bytes_hash="mockhash",
         jurisdiction=["AR", "US"],
-        topic_tags=[SubTopic.BUDGETING]
+        topic_tags=[SubTopic.BUDGETING],
     )
     assert meta.source_url == "https://example.com"
     assert "AR" in meta.jurisdiction
@@ -31,7 +31,7 @@ def test_extracted_content_logic() -> None:
         text="Sample text",
         tables=[{"id": 1}],
         content_format="markdown",
-        confidence=0.95
+        confidence=0.95,
     )
     assert extracted.text == "Sample text"
     assert len(extracted.tables) == 1
@@ -47,7 +47,7 @@ def test_raw_document_logic() -> None:
         source_type=SourceType.REDDIT,
         jurisdiction=["GLOBAL"],
         topic_tags=[],
-        raw_bytes_hash="xyz"
+        raw_bytes_hash="xyz",
     )
     assert doc.source_type == SourceType.REDDIT
 
@@ -59,7 +59,7 @@ def test_registry_config_single_stage() -> None:
         jurisdiction=["AR"],
         connector="http_polling",
         base_url="https://api.example.com",
-        extractor=["html"]
+        extractor=["html"],
     )
     assert config.connector == "http_polling"
     assert config.extractor == ["html"]
@@ -72,8 +72,8 @@ def test_registry_config_multi_stage() -> None:
         jurisdiction=["US"],
         stages=[
             StageConfig(connector="rss_feed"),
-            StageConfig(connector="http_polling", extractor=["pdf", "llm_summarizer"])
-        ]
+            StageConfig(connector="http_polling", extractor=["pdf", "llm_summarizer"]),
+        ],
     )
     assert len(config.stages) == 2
     assert config.stages[1].extractor == ["pdf", "llm_summarizer"]
@@ -111,5 +111,5 @@ def test_registry_config_validation_fail() -> None:
             name="bad",
             ontology_tags=[],
             jurisdiction=["GLOBAL"],
-            base_url="https://bad.com"
+            base_url="https://bad.com",
         )

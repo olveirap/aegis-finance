@@ -29,32 +29,95 @@ from aegis.graph.router import (
 TEST_QUERIES = [
     # (query, expected_type, expected_route, requires_cloud, requires_tools)
     # PERSONAL_FINANCIAL (3 queries)
-    ("¿Cuál es mi patrimonio neto actual?", QueryType.PERSONAL_FINANCIAL, "sql", False, False),
-    ("¿Cuánto gasté en supermercado el mes pasado?", QueryType.PERSONAL_FINANCIAL, "sql", False, False),
-    ("Muestra mis ingresos de los últimos 3 meses", QueryType.PERSONAL_FINANCIAL, "sql", False, False),
-
+    (
+        "¿Cuál es mi patrimonio neto actual?",
+        QueryType.PERSONAL_FINANCIAL,
+        "sql",
+        False,
+        False,
+    ),
+    (
+        "¿Cuánto gasté en supermercado el mes pasado?",
+        QueryType.PERSONAL_FINANCIAL,
+        "sql",
+        False,
+        False,
+    ),
+    (
+        "Muestra mis ingresos de los últimos 3 meses",
+        QueryType.PERSONAL_FINANCIAL,
+        "sql",
+        False,
+        False,
+    ),
     # MARKET_KNOWLEDGE (3 queries)
     ("¿Qué es un CEDEAR?", QueryType.MARKET_KNOWLEDGE, "rag", False, False),
-    ("Explicame cómo funciona el dólar MEP", QueryType.MARKET_KNOWLEDGE, "rag", False, False),
-    ("¿Qué impuestos pago por vender acciones?", QueryType.MARKET_KNOWLEDGE, "rag", False, False),
-
+    (
+        "Explicame cómo funciona el dólar MEP",
+        QueryType.MARKET_KNOWLEDGE,
+        "rag",
+        False,
+        False,
+    ),
+    (
+        "¿Qué impuestos pago por vender acciones?",
+        QueryType.MARKET_KNOWLEDGE,
+        "rag",
+        False,
+        False,
+    ),
     # HYBRID (2 queries)
-    ("¿Debería comprar más acciones dado mi patrimonio actual?", QueryType.HYBRID, "hybrid", True, False),
-    ("Con mi nivel de gastos, ¿puedo permitirme invertir $1000 USD?", QueryType.HYBRID, "hybrid", True, False),
-
+    (
+        "¿Debería comprar más acciones dado mi patrimonio actual?",
+        QueryType.HYBRID,
+        "hybrid",
+        True,
+        False,
+    ),
+    (
+        "Con mi nivel de gastos, ¿puedo permitirme invertir $1000 USD?",
+        QueryType.HYBRID,
+        "hybrid",
+        True,
+        False,
+    ),
     # GENERAL_FINANCE (2 queries)
-    ("¿Cuál es la regla del 72 en inversiones?", QueryType.GENERAL_FINANCE, "general", False, False),
-    ("Explicame qué es el interés compuesto", QueryType.GENERAL_FINANCE, "general", False, False),
-
+    (
+        "¿Cuál es la regla del 72 en inversiones?",
+        QueryType.GENERAL_FINANCE,
+        "general",
+        False,
+        False,
+    ),
+    (
+        "Explicame qué es el interés compuesto",
+        QueryType.GENERAL_FINANCE,
+        "general",
+        False,
+        False,
+    ),
     # RESEARCH (2 queries)
-    ("¿Cuál es la tasa de inflación en Argentina hoy?", QueryType.RESEARCH, "research", False, True),
-    ("Busca las últimas noticias sobre el BCRA", QueryType.RESEARCH, "research", False, True),
+    (
+        "¿Cuál es la tasa de inflación en Argentina hoy?",
+        QueryType.RESEARCH,
+        "research",
+        False,
+        True,
+    ),
+    (
+        "Busca las últimas noticias sobre el BCRA",
+        QueryType.RESEARCH,
+        "research",
+        False,
+        True,
+    ),
 ]
 
 
 # =============================================================================
 # RouterOutput Tests
 # =============================================================================
+
 
 class TestRouterOutput:
     """Tests for the RouterOutput class."""
@@ -99,6 +162,7 @@ class TestRouterOutput:
 # Parser Tests
 # =============================================================================
 
+
 class TestParseRouterResponse:
     """Tests for the response parser."""
 
@@ -114,7 +178,7 @@ class TestParseRouterResponse:
 
     def test_parse_json_with_markdown(self) -> None:
         """Test parsing JSON wrapped in markdown code blocks."""
-        response = "```json\n{\"query_type\": \"RESEARCH\", \"route\": \"research\", \"requires_cloud\": false, \"requires_tools\": true}\n```"
+        response = '```json\n{"query_type": "RESEARCH", "route": "research", "requires_cloud": false, "requires_tools": true}\n```'
         result = _parse_router_response(response)
 
         assert result["query_type"] == "RESEARCH"
@@ -140,6 +204,7 @@ class TestParseRouterResponse:
 # Heuristic Router Tests
 # =============================================================================
 
+
 class TestHeuristicRouter:
     """Tests for the heuristic fallback router."""
 
@@ -151,36 +216,38 @@ class TestHeuristicRouter:
             ("Busca las últimas noticias del BCRA", QueryType.RESEARCH),
             ("¿Tipo de cambio actual?", QueryType.RESEARCH),
             ("Noticias sobre el dólar", QueryType.RESEARCH),
-
             # PERSONAL_FINANCIAL queries
             ("¿Cuál es mi patrimonio?", QueryType.PERSONAL_FINANCIAL),
             ("¿Cuánto gasté el mes pasado?", QueryType.PERSONAL_FINANCIAL),
             ("Muestra mis ingresos", QueryType.PERSONAL_FINANCIAL),
             ("¿Cuánto tengo en la cuenta?", QueryType.PERSONAL_FINANCIAL),
-
             # HYBRID queries
             ("¿Debería comprar acciones con mi patrimonio?", QueryType.HYBRID),
             ("¿Puedo permitirme invertir con mis gastos?", QueryType.HYBRID),
             ("Dado mi situación, ¿conviene ahorrar?", QueryType.HYBRID),
-
             # MARKET_KNOWLEDGE queries
             ("¿Qué es un CEDEAR?", QueryType.MARKET_KNOWLEDGE),
             ("Explicame el dólar MEP", QueryType.MARKET_KNOWLEDGE),
             ("¿Qué es el impuesto a las ganancias?", QueryType.MARKET_KNOWLEDGE),
-
             # GENERAL_FINANCE queries (default)
             ("¿Qué es el interés compuesto?", QueryType.GENERAL_FINANCE),
             ("Explicame la regla del 72", QueryType.GENERAL_FINANCE),
         ],
     )
-    def test_heuristic_classification(self, query: str, expected_type: QueryType) -> None:
+    def test_heuristic_classification(
+        self, query: str, expected_type: QueryType
+    ) -> None:
         """Test heuristic router correctly classifies queries."""
         result = _heuristic_router(query)
 
         assert result.query_type == expected_type
         assert result.route == QUERY_TYPE_CONFIG[expected_type]["route"]
-        assert result.requires_cloud == QUERY_TYPE_CONFIG[expected_type]["requires_cloud"]
-        assert result.requires_tools == QUERY_TYPE_CONFIG[expected_type]["requires_tools"]
+        assert (
+            result.requires_cloud == QUERY_TYPE_CONFIG[expected_type]["requires_cloud"]
+        )
+        assert (
+            result.requires_tools == QUERY_TYPE_CONFIG[expected_type]["requires_tools"]
+        )
 
     def test_heuristic_returns_valid_router_output(self) -> None:
         """Test heuristic router returns valid RouterOutput."""
@@ -197,6 +264,7 @@ class TestHeuristicRouter:
 # =============================================================================
 # Router Node Tests (with mocked llama.cpp)
 # =============================================================================
+
 
 class TestRouterNode:
     """Tests for the router node with mocked llama.cpp responses."""
@@ -222,13 +290,15 @@ class TestRouterNode:
             "choices": [
                 {
                     "message": {
-                        "content": json.dumps({
-                            "query_type": expected_type,
-                            "route": expected_route,
-                            "requires_cloud": requires_cloud,
-                            "requires_tools": requires_tools,
-                            "reasoning": "Mocked classification",
-                        })
+                        "content": json.dumps(
+                            {
+                                "query_type": expected_type,
+                                "route": expected_route,
+                                "requires_cloud": requires_cloud,
+                                "requires_tools": requires_tools,
+                                "reasoning": "Mocked classification",
+                            }
+                        )
                     }
                 }
             ]
@@ -290,9 +360,7 @@ class TestRouterNode:
         mock_async_client: MagicMock,
     ) -> None:
         """Test router falls back to heuristic on parse error."""
-        mock_response_json = {
-            "choices": [{"message": {"content": "not valid json"}}]
-        }
+        mock_response_json = {"choices": [{"message": {"content": "not valid json"}}]}
 
         # Configure the mock response object
         mock_response = MagicMock()
@@ -324,7 +392,13 @@ class TestRouterNode:
     ) -> None:
         """Test router uses low temperature for deterministic classification."""
         mock_response_json = {
-            "choices": [{"message": {"content": '{"query_type": "GENERAL_FINANCE", "route": "general", "requires_cloud": false, "requires_tools": false}'}}]
+            "choices": [
+                {
+                    "message": {
+                        "content": '{"query_type": "GENERAL_FINANCE", "route": "general", "requires_cloud": false, "requires_tools": false}'
+                    }
+                }
+            ]
         }
 
         # Configure the mock response object
@@ -352,6 +426,7 @@ class TestRouterNode:
 # Query Type Config Tests
 # =============================================================================
 
+
 class TestQueryTypeConfig:
     """Tests for the query type configuration."""
 
@@ -378,7 +453,9 @@ class TestQueryTypeConfig:
         """Test route values are valid node names."""
         valid_routes = {"sql", "rag", "hybrid", "general", "research"}
         for query_type, config in QUERY_TYPE_CONFIG.items():
-            assert config["route"] in valid_routes, f"Invalid route for {query_type}: {config['route']}"
+            assert config["route"] in valid_routes, (
+                f"Invalid route for {query_type}: {config['route']}"
+            )
 
     def test_hybrid_requires_cloud(self) -> None:
         """Test HYBRID query type requires cloud LLM."""
@@ -398,6 +475,7 @@ class TestQueryTypeConfig:
 # =============================================================================
 # Edge Case Tests
 # =============================================================================
+
 
 class TestRouterEdgeCases:
     """Tests for router edge cases."""

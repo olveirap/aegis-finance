@@ -13,10 +13,12 @@ from aegis.kb.ingestion.models import ExtractedContent, SourceMeta
 class HTMLExtractor(BaseExtractor):
     """Converts raw HTML bytes to Markdown using crawl4ai."""
 
-    async def extract(self, raw_bytes: bytes, source_meta: SourceMeta) -> ExtractedContent:
+    async def extract(
+        self, raw_bytes: bytes, source_meta: SourceMeta
+    ) -> ExtractedContent:
         url = source_meta.source_url
-        
-        # In a real environment, we'd reuse the crawler instance, 
+
+        # In a real environment, we'd reuse the crawler instance,
         # but for safety against complex memory leaks in headless browsers:
         async with AsyncWebCrawler(verbose=False) as crawler:
             # We can pass raw_html directly to crawl4ai
@@ -26,12 +28,12 @@ class HTMLExtractor(BaseExtractor):
                 extraction_strategy=NoExtractionStrategy(),
                 bypass_cache=True,
             )
-            
+
             tables = []
-            
+
             return ExtractedContent(
                 text=result.markdown,
                 tables=tables,
                 content_format="markdown",
-                confidence=0.85 if result.success else 0.0
+                confidence=0.85 if result.success else 0.0,
             )

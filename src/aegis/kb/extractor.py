@@ -89,9 +89,11 @@ class HeuristicExtractor:
     def _load_spacy():  # type: ignore[return]
         try:
             import spacy  # noqa: PLC0415
+
             return spacy.load("es_core_news_sm")
         except (ImportError, OSError):
             import warnings  # noqa: PLC0415
+
             warnings.warn(
                 "spaCy model 'es_core_news_sm' not found. "
                 "Run 'make setup-models' to enable NER extraction.",

@@ -25,29 +25,28 @@ class RSSFeedConnector(BaseConnector):
     async def fetch(
         self, config: SourceConfig, checkpoint: dict | None = None
     ) -> AsyncIterator[tuple[bytes, SourceMeta]]:
-        
         if not config.base_url:
             raise ValueError(f"Source '{config.name}' requires a base_url for RSS Feed")
 
         last_seen = checkpoint.get("last_seen_id") if checkpoint else None
-        
+
         client = ResilientHTTPClient(max_concurrent=1)
         try:
             response = await client.get(config.base_url)
             feed = feedparser.parse(response.content)
-            
+
             new_last_seen = last_seen
-            
+
             for entry in feed.entries:
                 entry_id = entry.get("id", entry.get("link", ""))
-                
+
                 # Simple chronological stop condition
                 if last_seen and entry_id == last_seen:
                     break
-                    
+
                 if not new_last_seen:
-                    new_last_seen = entry_id 
-                    
+                    new_last_seen = entry_id
+
                 raw_bytes = json.dumps(dict(entry)).encode("utf-8")
                 bytes_hash = hashlib.sha256(raw_bytes).hexdigest()
 
@@ -58,9 +57,9 @@ class RSSFeedConnector(BaseConnector):
                     topic_tags=config.ontology_tags,
                     raw_bytes_hash=bytes_hash,
                     last_seen_id=entry_id,
-                    extra={"document_urls": [entry.get("link")]}
+                    extra={"document_urls": [entry.get("link")]},
                 )
-                
+
                 yield raw_bytes, meta
 
         finally:

@@ -97,13 +97,14 @@ def test_chunk_ids_are_unique() -> None:
 
 def test_chunk_id_is_sha256() -> None:
     import hashlib
+
     c = Chunker()
     chunks = c.chunk("Hello world")
-    
+
     hasher = hashlib.sha256(chunks[0].text.encode())
     hasher.update(b"0")
     expected_id = hasher.hexdigest()
-    
+
     assert chunks[0].chunk_id == expected_id
 
 
