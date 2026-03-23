@@ -122,6 +122,7 @@ class RAGConfig(BaseModel):
     chunk_size: int = 512
     chunk_overlap: int = 64
     top_k: int = 5
+    research_max_pages: int = 2
 
 
 class StalenessConfig(BaseModel):

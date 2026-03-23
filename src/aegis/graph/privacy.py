@@ -60,7 +60,9 @@ async def privacy_node(state: dict[str, Any]) -> dict[str, Any]:
             sanitized_sql_result.append(new_row)
 
     # 4. Risk Scoring
-    risk_score = _RISK_SCORER.calculate_risk(scrubbed_query)
+    risk_score = _RISK_SCORER.calculate_risk(
+        scrubbed_query + " " + str(sanitized_sql_result)
+    )
 
     threshold = get_config().privacy.risk_threshold
 

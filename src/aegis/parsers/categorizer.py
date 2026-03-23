@@ -185,7 +185,8 @@ class SLMCategorizer:
                     for row in rows:
                         ex_str += f"- '{row[0]}' -> {row[1]}\n"
                     return ex_str
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to fetch few-shot examples: %s", e)
             return ""
 
     async def _call_slm_batch(
