@@ -13,12 +13,11 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import httpx
-
 from aegis.config import get_config
 from aegis.graph.privacy import privacy_node
 from aegis.tools.search import search_duckduckgo
 from aegis.tools.browser import browse_url, is_whitelisted
+from aegis.common.cloud_llm import CloudLLMClient
 
 logger = logging.getLogger(__name__)
 
@@ -90,35 +89,18 @@ async def research_flow_node(state: dict[str, Any]) -> dict[str, Any]:
 
 
 async def _synthesize_research(query: str, context: str) -> str:
-    """Synthesize research findings using the local LLM."""
-    config = get_config()
-    url = config.llm.local.llama_cpp_server
-
+    """Synthesize research findings using the cloud client (with local fallback)."""
+    cloud_client = CloudLLMClient()
+    
     system_prompt = """You are a financial research assistant. 
 Based on the following search results and browsed content, answer the user's query.
 The user's query has been anonymized for privacy.
 Be objective, cite your sources, and focus on the Argentine financial market context if applicable."""
 
-    prompt = f"Query: {query}\n\nResearch Context:\n{context}\n\nPlease provide a comprehensive answer."
-
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": prompt},
-    ]
-
+    user_prompt = f"Query: {query}\n\nResearch Context:\n{context}\n\nPlease provide a comprehensive answer."
+    
     try:
-        endpoint = f"{url}/v1/chat/completions"
-        payload = {
-            "model": "qwen3.5",
-            "messages": messages,
-            "temperature": 0.3,
-        }
-
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.post(endpoint, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
-            return data["choices"][0]["message"]["content"]
+        return await cloud_client.generate(system_prompt, user_prompt, temperature=0.3)
     except Exception as e:
         logger.error("Synthesis failed: %s", e)
         return f"I found the following information, but I encountered an error while synthesizing the final answer:\n\n{context[:500]}..."
