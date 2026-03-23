@@ -8,6 +8,7 @@ using local Qwen 3.5.
 from __future__ import annotations
 
 import json
+import json
 import logging
 import re
 from dataclasses import dataclass
@@ -15,9 +16,12 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+import httpx
 import pandas as pd
 import yaml
 
+from aegis.config import get_config
+from aegis.db.connection import get_connection
 from aegis.config import get_config
 from aegis.db.connection import get_connection
 from aegis.parsers.base import Transaction
@@ -40,6 +44,24 @@ class RuleBasedCategorizer:
     """Strict keyword-based categorizer (Pass 1)."""
 
     def __init__(self, rules_path: Path | None = None) -> None:
+        if rules_path is None:
+            rules_path = Path("data/category_rules.yaml")
+
+        if not rules_path.exists():
+            logger.warning(f"Category rules file not found: {rules_path}")
+            self.rules = {}
+        else:
+            with open(rules_path, encoding="utf-8") as f:
+                data = yaml.safe_load(f) or {}
+                self.rules = data.get("categories", data) # Support both flat and nested
+
+    def categorize(self, txn: Transaction) -> Transaction:
+        """Assign category to a single transaction."""
+        text = str(txn.merchant_raw or "").lower()
+        # Pass signed amount to respect positive_only rules
+        amount = txn.amount
+
+        matches = self._find_matches(text, amount)
         if rules_path is None:
             rules_path = Path("data/category_rules.yaml")
 
@@ -92,12 +114,7 @@ class RuleBasedCategorizer:
             return pd.Series([category, score, "auto", flagged])
 
         cat_results = df.apply(_cat_row, axis=1)
-        cat_results.columns = [
-            "category",
-            "category_score",
-            "category_source",
-            "is_flagged",
-        ]
+        cat_results.columns = ["category", "category_score", "category_source", "is_flagged"]
         return cat_results
 
     def _find_matches(self, text: str, amount: Decimal) -> list[CategoryMatch]:
