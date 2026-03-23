@@ -29,6 +29,26 @@ class StorageBackend(Protocol):
         """
         ...
 
+    async def search(
+        self,
+        query_vector: list[float],
+        top_k: int = 5,
+        source_type: str | None = None,
+        argentina_specific: bool | None = None,
+    ) -> list[dict[str, Any]]:
+        """Search for the most similar chunks using cosine distance.
+
+        Args:
+            query_vector: The embedding vector of the query.
+            top_k: Number of results to return.
+            source_type: Optional filter by source type.
+            argentina_specific: Optional filter by Argentina relevance.
+
+        Returns:
+            List of dicts containing 'content', 'metadata', and 'distance'.
+        """
+        ...
+
     async def get_count(self) -> int:
         """Return the total number of chunks stored. Useful for QA."""
         ...
@@ -123,6 +143,54 @@ class PgVectorStore(StorageBackend):
 
         await asyncio.to_thread(_insert)
         logger.info(f"Stored {len(chunks)} chunks in pgvector.")
+
+    async def search(
+        self,
+        query_vector: list[float],
+        top_k: int = 5,
+        source_type: str | None = None,
+        argentina_specific: bool | None = None,
+    ) -> list[dict[str, Any]]:
+        """Search for similar chunks."""
+        vector_str = "[" + ",".join(map(str, query_vector)) + "]"
+        
+        where_clauses = []
+        params = [vector_str]
+        
+        if source_type:
+            where_clauses.append("source_type = %s")
+            params.append(source_type)
+        if argentina_specific is not None:
+            where_clauses.append("argentina_specific = %s")
+            params.append(argentina_specific)
+            
+        where_str = " WHERE " + " AND ".join(where_clauses) if where_clauses else ""
+        
+        query = f"""
+            SELECT 
+                content,
+                source,
+                source_title,
+                source_type,
+                topic_tags,
+                argentina_specific,
+                embedding <=> %s::vector as distance
+            FROM kb_chunks
+            {where_str}
+            ORDER BY distance ASC
+            LIMIT %s
+        """
+        params.append(top_k)
+
+        def _search():
+            with self.pool.connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query, params)
+                    cols = [desc.name for desc in cur.description]
+                    rows = cur.fetchall()
+                    return [dict(zip(cols, row)) for row in rows]
+
+        return await asyncio.to_thread(_search)
 
     async def get_count(self) -> int:
         query = "SELECT COUNT(*) FROM kb_chunks;"
