@@ -10,19 +10,10 @@ from aegis.config import reset_config, get_config
 
 
 @pytest.mark.asyncio
-@patch("aegis.parsers.categorizer.httpx.AsyncClient.post")
-async def test_slm_categorizer_success(mock_post):
+@patch("aegis.common.cloud_llm.CloudLLMClient.generate", new_callable=AsyncMock)
+async def test_slm_categorizer_success(mock_generate):
     # Mock LLM response
-    mock_resp = MagicMock()
-    mock_resp.json.return_value = {
-        "choices": [{
-            "message": {
-                "content": '[{"category": "Food", "confidence": 0.95, "reasoning": "Grocery store"}]'
-            }
-        }]
-    }
-    mock_resp.raise_for_status = MagicMock()
-    mock_post.return_value = mock_resp
+    mock_generate.return_value = '[{"category": "Food", "confidence": 0.95, "reasoning": "Grocery store"}]'
     
     df = pd.DataFrame([{
         "description": "CARREFOUR",
@@ -40,18 +31,9 @@ async def test_slm_categorizer_success(mock_post):
     assert results.iloc[0]["is_flagged"] == False
 
 @pytest.mark.asyncio
-@patch("aegis.parsers.categorizer.httpx.AsyncClient.post")
-async def test_slm_categorizer_low_confidence_flags(mock_post):
-    mock_resp = MagicMock()
-    mock_resp.json.return_value = {
-        "choices": [{
-            "message": {
-                "content": '[{"category": "Entertainment", "confidence": 0.5, "reasoning": "Unsure"}]'
-            }
-        }]
-    }
-    mock_resp.raise_for_status = MagicMock()
-    mock_post.return_value = mock_resp
+@patch("aegis.common.cloud_llm.CloudLLMClient.generate", new_callable=AsyncMock)
+async def test_slm_categorizer_low_confidence_flags(mock_generate):
+    mock_generate.return_value = '[{"category": "Entertainment", "confidence": 0.5, "reasoning": "Unsure"}]'
     
     df = pd.DataFrame([{
         "description": "UNKNOWN",
@@ -67,10 +49,10 @@ async def test_slm_categorizer_low_confidence_flags(mock_post):
     assert results.iloc[0]["is_flagged"] == True
 
 @pytest.mark.asyncio
-@patch("aegis.parsers.categorizer.httpx.AsyncClient.post")
-async def test_slm_categorizer_fallback_on_error(mock_post):
+@patch("aegis.common.cloud_llm.CloudLLMClient.generate", new_callable=AsyncMock)
+async def test_slm_categorizer_fallback_on_error(mock_generate):
     # Mock server error
-    mock_post.side_effect = Exception("Server down")
+    mock_generate.side_effect = Exception("Server down")
     
     df = pd.DataFrame([{
         "description": "CARREFOUR",
@@ -92,13 +74,6 @@ def test_get_categorizer_config():
     assert isinstance(get_categorizer(), RuleBasedCategorizer)
     
     # Mock config to SLM
-    with patch("aegis.config.Settings.model_validate") as mock_val:
-        mock_settings = MagicMock()
-        mock_settings.parser.categorizer_type = "slm"
-        # Need to mock the whole singleton structure if we don't want to use real files
-        pass
-    
-    # A simpler way to test the factory logic
     with patch("aegis.parsers.categorizer.get_config") as mock_get:
         mock_config = MagicMock()
         mock_config.parser.categorizer_type = "slm"

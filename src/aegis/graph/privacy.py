@@ -7,6 +7,7 @@ to ensure PII is redacted before leaving the local environment.
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any
 
@@ -60,15 +61,14 @@ async def privacy_node(state: dict[str, Any]) -> dict[str, Any]:
             sanitized_sql_result.append(new_row)
 
     # 4. Risk Scoring
-    risk_score = _RISK_SCORER.calculate_risk(
-        scrubbed_query + " " + str(sanitized_sql_result)
-    )
+    context_str = json.dumps(sanitized_sql_result) if sanitized_sql_result else ""
+    risk_score = _RISK_SCORER.calculate_risk(scrubbed_query + " " + context_str)
 
     threshold = get_config().privacy.risk_threshold
 
     privacy_output = {
         "sanitized_query": scrubbed_query,
-        "sanitized_context": str(sanitized_sql_result) if sanitized_sql_result else "",
+        "sanitized_context": context_str,
         "redaction_map": redaction_map.to_dict(),
         "risk_score": risk_score,
     }

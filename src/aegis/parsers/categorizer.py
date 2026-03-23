@@ -10,18 +10,18 @@ from __future__ import annotations
 import json
 import logging
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-import httpx
 import pandas as pd
 import yaml
 
 from aegis.config import get_config
 from aegis.db.connection import get_connection
 from aegis.parsers.base import Transaction
+from aegis.common.cloud_llm import CloudLLMClient
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class RuleBasedCategorizer:
         else:
             with open(rules_path, encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
-                self.rules = data.get("categories", data) # Support both flat and nested
+                self.rules = data.get("categories", data)  # Support both flat and nested
 
     def categorize(self, txn: Transaction) -> Transaction:
         """Assign category to a single transaction."""
@@ -90,7 +90,12 @@ class RuleBasedCategorizer:
             return pd.Series([category, score, "auto", flagged])
 
         cat_results = df.apply(_cat_row, axis=1)
-        cat_results.columns = ["category", "category_score", "category_source", "is_flagged"]
+        cat_results.columns = [
+            "category",
+            "category_score",
+            "category_source",
+            "is_flagged",
+        ]
         return cat_results
 
     def _find_matches(self, text: str, amount: Decimal) -> list[CategoryMatch]:
@@ -114,7 +119,9 @@ class RuleBasedCategorizer:
 
         return matches
 
-    def _resolve_matches(self, matches: list[CategoryMatch]) -> tuple[str | None, float, bool]:
+    def _resolve_matches(
+        self, matches: list[CategoryMatch]
+    ) -> tuple[str | None, float, bool]:
         if not matches:
             return "Other", 0.0, True  # Default to 'Other' and flag for review
 
@@ -137,26 +144,25 @@ class SLMCategorizer:
     def __init__(self) -> None:
         self.rules = RuleBasedCategorizer()
         self.config = get_config()
+        self.client = CloudLLMClient()
 
     async def categorize_df(self, df: pd.DataFrame) -> pd.DataFrame:
         """Categorize transactions using SLM with fallback."""
-        url = self.config.llm.local.llama_cpp_server
-        
         # If SLM is requested but server is down, fallback
         try:
             # 1. Fetch few-shot examples
             few_shot = await self._get_few_shot_examples()
-            
+
             # 2. Prepare categories list
             allowed_cats = list(self.rules.rules.keys())
-            
+
             # 3. Batch LLM call (processing in chunks of 10)
             results = []
             for i in range(0, len(df), 10):
-                batch = df.iloc[i:i+10]
-                batch_res = await self._call_slm_batch(batch, allowed_cats, few_shot, url)
+                batch = df.iloc[i : i + 10]
+                batch_res = await self._call_slm_batch(batch, allowed_cats, few_shot)
                 results.extend(batch_res)
-            
+
             # 4. Map results back to DataFrame
             cat_df = pd.DataFrame(results)
             return cat_df
@@ -180,7 +186,7 @@ class SLMCategorizer:
                     rows = await cur.fetchall()
                     if not rows:
                         return ""
-                    
+
                     ex_str = "\nExamples of previous categorizations:\n"
                     for row in rows:
                         ex_str += f"- '{row[0]}' -> {row[1]}\n"
@@ -190,16 +196,20 @@ class SLMCategorizer:
             return ""
 
     async def _call_slm_batch(
-        self, batch: pd.DataFrame, categories: list[str], few_shot: str, url: str
+        self, batch: pd.DataFrame, categories: list[str], few_shot: str
     ) -> list[dict[str, Any]]:
         """Call local LLM for a batch of transactions."""
         tx_list = []
         for _, row in batch.iterrows():
-            tx_list.append({
-                "description": row["description"],
-                "amount": row["amount_ars"] if row["currency"] == "ARS" else row["amount_usd"],
-                "currency": row["currency"]
-            })
+            tx_list.append(
+                {
+                    "description": row["description"],
+                    "amount": row["amount_ars"]
+                    if row["currency"] == "ARS"
+                    else row["amount_usd"],
+                    "currency": row["currency"],
+                }
+            )
 
         system_prompt = f"""You are a financial personal assistant. Your task is to categorize bank transactions.
 Allowed Categories: {', '.join(categories)}
@@ -212,57 +222,50 @@ Each object must have:
 """
 
         user_prompt = f"Categorize these transactions:\n{json.dumps(tx_list)}"
-        
-        payload = {
-            "model": "qwen3.5",
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            "temperature": 0.0,
-            "response_format": {"type": "json_object"}
-        }
 
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(f"{url}/v1/chat/completions", json=payload)
-            resp.raise_for_status()
-            data = resp.json()
-            content = data["choices"][0]["message"]["content"]
-            
+        try:
+            content = await self.client.generate(
+                system_prompt,
+                user_prompt,
+                temperature=0.0,
+                response_format={"type": "json_object"},
+            )
+
             # Robust parsing
-            try:
-                # Sometimes models wrap in ```json
-                clean_content = content.strip()
-                if clean_content.startswith("```"):
-                    clean_content = re.sub(r"```json\s*|\s*```", "", clean_content)
-                
-                # Check if it's a list directly or an object with a 'transactions' key
-                parsed = json.loads(clean_content)
-                if isinstance(parsed, dict) and "transactions" in parsed:
-                    parsed = parsed["transactions"]
-                
-                final_results = []
-                for i, res in enumerate(parsed):
-                    cat = res.get("category")
-                    conf = float(res.get("confidence", 0.0))
-                    
-                    # Validate category
-                    if cat not in categories:
-                        # Fallback to rules for this specific row if LLM hallucinated category
-                        row = batch.iloc[i]
-                        rule_res = self.rules.categorize_df(pd.DataFrame([row])).iloc[0]
-                        final_results.append(rule_res.to_dict())
-                    else:
-                        final_results.append({
+            # Sometimes models wrap in ```json
+            clean_content = content.strip()
+            if clean_content.startswith("```"):
+                clean_content = re.sub(r"```json\s*|\s*```", "", clean_content)
+
+            # Check if it's a list directly or an object with a 'transactions' key
+            parsed = json.loads(clean_content)
+            if isinstance(parsed, dict) and "transactions" in parsed:
+                parsed = parsed["transactions"]
+
+            final_results = []
+            for i, res in enumerate(parsed):
+                cat = res.get("category")
+                conf = float(res.get("confidence", 0.0))
+
+                # Validate category
+                if cat not in categories:
+                    # Fallback to rules for this specific row if LLM hallucinated category
+                    row = batch.iloc[i]
+                    rule_res = self.rules.categorize_df(pd.DataFrame([row])).iloc[0]
+                    final_results.append(rule_res.to_dict())
+                else:
+                    final_results.append(
+                        {
                             "category": cat,
                             "category_score": conf,
                             "category_source": "auto",
-                            "is_flagged": conf < 0.75
-                        })
-                return final_results
-            except Exception as e:
-                logger.error("Failed to parse SLM response: %s", e)
-                raise ValueError("Malformed SLM response")
+                            "is_flagged": conf < 0.75,
+                        }
+                    )
+            return final_results
+        except Exception as e:
+            logger.error("Failed to process SLM batch: %s", e)
+            raise ValueError("SLM processing failed") from e
 
 
 def get_categorizer() -> RuleBasedCategorizer | SLMCategorizer:
