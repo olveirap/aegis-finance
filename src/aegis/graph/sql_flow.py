@@ -80,7 +80,7 @@ async def _embed_text(text: str) -> np.ndarray:
             resp.raise_for_status()
             data = resp.json()
             return np.array(data["data"][0]["embedding"], dtype=np.float32)
-    except Exception as e:
+    except (httpx.RequestError, httpx.HTTPStatusError) as e:
         logger.warning("Failed to embed text: %s", e)
         # Return random embedding as fallback to not crash the flow completely
         return np.random.rand(config.embedding.dimension).astype(np.float32)
