@@ -14,6 +14,7 @@ from langgraph.graph import END, StateGraph
 from aegis.graph.router import RouterOutput, router_node
 from aegis.graph.sql_flow import sql_flow_node
 from aegis.graph.privacy import privacy_node
+from aegis.graph.research_flow import research_flow_node
 
 
 # =============================================================================
@@ -94,15 +95,6 @@ async def general_flow_node(state: dict[str, Any]) -> dict[str, Any]:
     """
     # Placeholder - returns state unchanged
     return {"final_answer": "[General Flow not yet implemented]"}
-
-
-async def research_flow_node(state: dict[str, Any]) -> dict[str, Any]:
-    """Research flow node (Privacy + Tools + Synthesis).
-
-    To be implemented in Task 2.3b.
-    """
-    # Placeholder - returns state unchanged
-    return {"final_answer": "[Research Flow not yet implemented]"}
 
 
 # =============================================================================
