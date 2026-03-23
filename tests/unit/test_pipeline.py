@@ -1,17 +1,16 @@
 import pytest
-import pandas as pd
-from pathlib import Path
-from uuid import uuid4
 
 from aegis.parsers.pipeline import run_pipeline
 from aegis.parsers.dataframe import EXPECTED_SCHEMA
 
-def test_run_pipeline_empty():
-    df = run_pipeline([])
+@pytest.mark.asyncio
+async def test_run_pipeline_empty():
+    df = await run_pipeline([])
     assert len(df) == 0
     assert list(df.columns) == list(EXPECTED_SCHEMA.keys())
 
-def test_run_pipeline_integration(tmp_path):
+@pytest.mark.asyncio
+async def test_run_pipeline_integration(tmp_path):
     # Create fixture files
     icbc_csv = tmp_path / "icbc.csv"
     icbc_csv.write_text("""Fecha,Concepto,Referencia,Débito,Crédito,Saldo
@@ -25,15 +24,12 @@ def test_run_pipeline_integration(tmp_path):
 03/01/2023;Transferencia a Juan;-500,00;foo
 """)
 
-    # We will mock the PDF parser entirely or use the previous mock technique, but it's an integration test.
-    # To avoid PDF mock complexity here, we can test with just ICBC and MP, then check behavior.
-    
     sources = [
         {"type": "icbc", "path": icbc_csv},
         {"type": "mercadopago", "path": mp_csv}
     ]
     
-    df = run_pipeline(sources, usd_rate=1000.0)
+    df = await run_pipeline(sources, usd_rate=1000.0)
     
     assert len(df) == 3
     # icbc has 2 rows, mp has 1 row
@@ -50,8 +46,7 @@ def test_run_pipeline_integration(tmp_path):
     assert df["amount_ars_equivalent"].notna().all()
     
     # Categorizer should have run
-    # Supermercado -> Food (based on existing category rules)
-    assert df.loc[0, "category"] in [None, "Food", "Other"] # Not failing if rules are different
+    assert df.loc[0, "category"] in ["Food", "Other"]
     
     # Schema check
     assert list(df.columns) == list(EXPECTED_SCHEMA.keys())
