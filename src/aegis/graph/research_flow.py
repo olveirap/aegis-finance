@@ -17,6 +17,7 @@ from aegis.graph.privacy import privacy_node
 from aegis.tools.search import search_duckduckgo
 from aegis.tools.browser import browse_url, is_whitelisted
 from aegis.common.cloud_llm import CloudLLMClient
+from aegis.config import get_config
 
 logger = logging.getLogger(__name__)
 

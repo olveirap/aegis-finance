@@ -187,3 +187,11 @@ Implemented the complete data foundation layer including project scaffolding, Do
 - Added comprehensive unit tests in tests/unit/test_graph.py covering routing logic, fallback behavior, and graph structure.
 - Resolved a masked constraint violation in test_import_pipeline.py by updating mock account data.
 - Verified all 194 unit tests and the integration test suite are passing on Windows.
+
+2026-03-24: CI and Linting Fixes [COMPLETED]
+--------------------------------------------------------------
+- Fixed missing imports (`Any`, `get_config`) in `src/aegis/common/cloud_llm.py` and `src/aegis/graph/research_flow.py`.
+- Resolved all linting issues identified by `ruff check`.
+- Reformatted codebase using `ruff format`.
+- Configured `pytest` to skip integration tests by default using `addopts = "-m 'not integration'"` in `pyproject.toml`, as requested by the user.
+- Verified that all 226 unit tests pass successfully while integration tests are correctly deselected.

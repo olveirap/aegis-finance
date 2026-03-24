@@ -77,9 +77,10 @@ async def run_pipeline(sources: list[dict], usd_rate: float = 1400.0) -> pd.Data
 
     # Run Categorizer (RuleBased or SLM based on config)
     categorizer = get_categorizer()
-    
+
     # Handle both sync and async categorize_df
     import inspect
+
     if inspect.iscoroutinefunction(categorizer.categorize_df):
         cat_results = await categorizer.categorize_df(combined_df)
     else:

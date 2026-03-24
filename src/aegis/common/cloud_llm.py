@@ -8,6 +8,7 @@ missing, it falls back to the local llama.cpp server.
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import httpx
 from openai import AsyncOpenAI
