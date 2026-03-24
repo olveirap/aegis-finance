@@ -75,7 +75,7 @@ async def _embed_text(text: str) -> np.ndarray:
 
     # Simple fallback for tests if mock embedder is needed
     if "localhost" not in api_base and "127.0.0.1" not in api_base:
-        return np.random.rand(config.embedding.dimension).astype(np.float32)
+        return np.zeros(config.embedding.dimension, dtype=np.float32)
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:

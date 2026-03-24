@@ -122,12 +122,20 @@ class RAGConfig(BaseModel):
     chunk_size: int = 512
     chunk_overlap: int = 64
     top_k: int = 5
+    research_max_pages: int = 2
 
 
 class StalenessConfig(BaseModel):
     """Staleness detection thresholds."""
 
     warn_after_days: int = 30
+
+
+class ParserConfig(BaseModel):
+    """Transaction parsing and categorization settings."""
+
+    # Options: "rule_based", "slm"
+    categorizer_type: str = "rule_based"
 
 
 # ---------------------------------------------------------------------------
@@ -145,6 +153,7 @@ class Settings(BaseModel):
     market: MarketConfig = MarketConfig()
     rag: RAGConfig = RAGConfig()
     staleness: StalenessConfig = StalenessConfig()
+    parser: ParserConfig = ParserConfig()
 
     @model_validator(mode="before")
     @classmethod

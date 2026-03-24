@@ -40,6 +40,10 @@ rag:
   chunk_size: 512
   chunk_overlap: 64
   top_k: 5
+  research_max_pages: 2
 
 staleness:
   warn_after_days: 30
+
+parser:
+  categorizer_type: "rule_based"  # "rule_based" | "slm"

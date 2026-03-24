@@ -1,243 +1,86 @@
 # SPDX-License-Identifier: MIT
-"""Rule-based transaction categorizer (baseline).
+"""Transaction categorizer using rule-based or SLM-based approaches.
 
-Loads keyword→category rules from a YAML file and assigns categories to
-:class:`~aegis.parsers.base.Transaction` objects using substring and
-word-boundary matching.  This module serves as the deterministic baseline;
-Phase 2 will add an SLM-based categorizer that falls back to these rules
-when confidence is low.
+Provides a strict keyword-based categorizer and an upgraded semantic classifier
+using local Qwen 3.5.
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import yaml
 
+from aegis.config import get_config
+from aegis.db.connection import get_connection
 from aegis.parsers.base import Transaction
+from aegis.common.cloud_llm import CloudLLMClient
 
 logger = logging.getLogger(__name__)
 
-# ── Constants ────────────────────────────────────────────────────────────────
 
-_DEFAULT_RULES_PATH = (
-    Path(__file__).resolve().parents[3] / "data" / "category_rules.yaml"
-)
-
-_SCORE_EXACT: float = 1.0
-_SCORE_PARTIAL: float = 0.8
-_FLAGGING_THRESHOLD: float = 0.85
-
-# ── Internal data structures ────────────────────────────────────────────────
-
-
-@dataclass(frozen=True, slots=True)
-class _CategoryRule:
-    """Compiled matching rule for a single category."""
-
-    name: str
-    keywords: tuple[str, ...]
-    partial: bool = True
-    positive_only: bool = False
-    # Pre-compiled word-boundary patterns for each keyword.
-    _boundary_patterns: tuple[re.Pattern[str], ...] = field(
-        default=(),
-        repr=False,
-    )
-
-
-@dataclass(frozen=True, slots=True)
-class _Match:
-    """A candidate category match with its score."""
+@dataclass
+class CategoryMatch:
+    """Represents a potential category match for a transaction."""
 
     category: str
-    score: float
-
-
-# ── Helpers ──────────────────────────────────────────────────────────────────
-
-
-def _build_boundary_pattern(keyword: str) -> re.Pattern[str]:
-    r"""Compile a regex that matches *keyword* at word boundaries.
-
-    Uses ``\b`` on both sides so that ``"bar"`` matches the word *bar*
-    but not the substring inside *embargo*.
-    """
-    return re.compile(r"\b" + re.escape(keyword) + r"\b")
-
-
-def _load_rules(path: Path) -> list[_CategoryRule]:
-    """Parse the YAML rules file into a list of :class:`_CategoryRule`."""
-    with open(path, encoding="utf-8") as fh:
-        data = yaml.safe_load(fh)
-
-    if not isinstance(data, dict) or "categories" not in data:
-        msg = f"Invalid rules file {path}: expected top-level 'categories' mapping"
-        raise ValueError(msg)
-
-    rules: list[_CategoryRule] = []
-    for cat_name, cat_cfg in data["categories"].items():
-        raw_keywords: list[str] = cat_cfg.get("keywords", [])
-        # Normalise keywords to lowercase at load time.
-        keywords = tuple(kw.lower().strip() for kw in raw_keywords if kw)
-        partial = bool(cat_cfg.get("partial", True))
-        positive_only = bool(cat_cfg.get("positive_only", False))
-
-        patterns = tuple(_build_boundary_pattern(kw) for kw in keywords)
-
-        rules.append(
-            _CategoryRule(
-                name=str(cat_name),
-                keywords=keywords,
-                partial=partial,
-                positive_only=positive_only,
-                _boundary_patterns=patterns,
-            )
-        )
-
-    logger.info("Loaded %d category rules from %s", len(rules), path)
-    return rules
-
-
-def _normalise_text(merchant_raw: str | None, description: str | None) -> str:
-    """Combine and lowercase merchant + description for matching."""
-    parts: list[str] = []
-    if merchant_raw:
-        parts.append(merchant_raw)
-    if description:
-        parts.append(description)
-    return " ".join(parts).lower()
-
-
-# ── Public API ───────────────────────────────────────────────────────────────
+    confidence: float
+    source: str = "rule"
+    is_flagged: bool = False
 
 
 class RuleBasedCategorizer:
-    """Deterministic keyword-based transaction categorizer.
-
-    Parameters
-    ----------
-    rules_path:
-        Path to the ``category_rules.yaml`` file.  When *None*, the
-        default path ``<project_root>/data/category_rules.yaml`` is used.
-    """
+    """Strict keyword-based categorizer (Pass 1)."""
 
     def __init__(self, rules_path: Path | None = None) -> None:
-        resolved = rules_path or _DEFAULT_RULES_PATH
-        self._rules = _load_rules(resolved)
-
-    # ── Core matching ───────────────────────────────────────────────────
-
-    def _find_matches(
-        self,
-        text: str,
-        amount: Decimal,
-    ) -> list[_Match]:
-        """Return all category matches for *text*, scored and filtered."""
-        matches: list[_Match] = []
-
-        for rule in self._rules:
-            # Skip positive_only rules when amount is not positive.
-            if rule.positive_only and amount <= 0:
-                continue
-
-            best_score: float = 0.0
-
-            for kw, boundary_re in zip(rule.keywords, rule._boundary_patterns):
-                # Check substring presence first (cheap).
-                if kw not in text:
-                    continue
-
-                # Found a substring hit — determine if it's an exact
-                # (word-boundary) match or just a partial one.
-                if boundary_re.search(text):
-                    best_score = max(best_score, _SCORE_EXACT)
-                    break  # Can't do better than 1.0.
-                elif rule.partial:
-                    best_score = max(best_score, _SCORE_PARTIAL)
-
-            if best_score > 0.0:
-                matches.append(_Match(category=rule.name, score=best_score))
-
-        return matches
-
-    def _resolve_matches(self, matches: list[_Match]) -> tuple[str, float, bool]:
-        """Pick the winning category from a list of candidates.
-
-        Returns
-        -------
-        tuple[str, float, bool]
-            ``(category, score, is_flagged)``
-        """
-        if not matches:
-            return "Other", 0.0, True
-
-        # Sort descending by score.
-        matches.sort(key=lambda m: m.score, reverse=True)
-        top_score = matches[0].score
-
-        # Collect all candidates that share the top score.
-        top_matches = [m for m in matches if m.score == top_score]
-
-        if len(top_matches) > 1:
-            # Tie — flag for HITL review; pick the first alphabetically
-            # for deterministic output.
-            top_matches.sort(key=lambda m: m.category)
-            winner = top_matches[0]
-            logger.debug(
-                "Tie between %s (score=%.2f); flagged for HITL",
-                [m.category for m in top_matches],
-                top_score,
+        if rules_path is None:
+            rules_path = (
+                Path(__file__).resolve().parents[2]
+                / ".."
+                / "data"
+                / "category_rules.yaml"
             )
-            return winner.category, winner.score, True
 
-        winner = top_matches[0]
-        flagged = winner.score < _FLAGGING_THRESHOLD
-        return winner.category, winner.score, flagged
+        if not rules_path.exists():
+            logger.warning(f"Category rules file not found: {rules_path}")
+            self.rules = {}
+        else:
+            with open(rules_path, encoding="utf-8") as f:
+                data = yaml.safe_load(f) or {}
+                self.rules = data.get(
+                    "categories", data
+                )  # Support both flat and nested
 
-    # ── Public interface ────────────────────────────────────────────────
+    def categorize(self, txn: Transaction) -> Transaction:
+        """Assign category to a single transaction."""
+        text = str(txn.merchant_raw or "").lower()
+        # Pass signed amount to respect positive_only rules
+        amount = txn.amount
 
-    def categorize(self, transaction: Transaction) -> Transaction:
-        """Categorize a single transaction.
-
-        Returns a **new** :class:`Transaction` with ``category``,
-        ``category_score``, ``category_source``, and ``is_flagged`` set.
-        The original object is not modified.
-        """
-        text = _normalise_text(transaction.merchant_raw, transaction.description)
-        matches = self._find_matches(text, transaction.amount)
+        matches = self._find_matches(text, amount)
         category, score, flagged = self._resolve_matches(matches)
 
-        return transaction.model_copy(
-            update={
-                "category": category,
-                "category_score": score,
-                "category_source": "auto",
-                "is_flagged": flagged,
-            },
-        )
+        # Update transaction (mutate copy)
+        new_txn = txn.model_copy()
+        new_txn.category = category
+        new_txn.category_score = score
+        new_txn.category_source = "auto"
+        new_txn.is_flagged = flagged or txn.is_flagged
+        return new_txn
 
-    def categorize_batch(
-        self,
-        transactions: list[Transaction],
-    ) -> list[Transaction]:
-        """Categorize a list of transactions.
-
-        Returns a new list; the original transaction objects are not modified.
-        """
+    def categorize_batch(self, transactions: list[Transaction]) -> list[Transaction]:
+        """Categorize a list of transactions."""
         return [self.categorize(txn) for txn in transactions]
 
     def categorize_df(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Categorize transactions in a DataFrame.
-
-        Expects columns 'description', 'amount_ars', 'amount_usd', 'currency'.
-        Returns a DataFrame with 'category', 'category_score', 'category_source', 'is_flagged'.
-        """
+        """Categorize transactions in a DataFrame efficiently."""
 
         def _cat_row(row):
             text = (
@@ -248,6 +91,7 @@ class RuleBasedCategorizer:
                 if row["currency"] in {"USD", "USDT"}
                 else row["amount_ars"]
             )
+            # Use signed amount
             amount_dec = Decimal(str(amount)) if pd.notna(amount) else Decimal("0")
 
             matches = self._find_matches(text, amount_dec)
@@ -262,3 +106,180 @@ class RuleBasedCategorizer:
             "is_flagged",
         ]
         return cat_results
+
+    def _find_matches(self, text: str, amount: Decimal) -> list[CategoryMatch]:
+        matches = []
+        for cat, config in self.rules.items():
+            # Check positive_only flag
+            if config.get("positive_only") and amount <= 0:
+                continue
+
+            # Keyword matching
+            for kw in config.get("keywords", []):
+                kw_low = kw.lower()
+                if kw_low in text:
+                    # Score: 1.0 for exact, 0.8 for partial
+                    score = 1.0 if kw_low == text else 0.8
+                    matches.append(CategoryMatch(cat, score))
+
+            # Amount-based rules (e.g. high income)
+            if amount > 500000 and cat == "Income" and "SUELDO" in text:
+                matches.append(CategoryMatch(cat, 0.9))
+
+        return matches
+
+    def _resolve_matches(
+        self, matches: list[CategoryMatch]
+    ) -> tuple[str | None, float, bool]:
+        if not matches:
+            return "Other", 0.0, True  # Default to 'Other' and flag for review
+
+        # Unique categories
+        unique_cats = {m.category for m in matches}
+        if len(unique_cats) > 1:
+            # Conflict! Return top score but flag it
+            top = max(matches, key=lambda x: x.confidence)
+            return top.category, top.confidence, True
+
+        top = max(matches, key=lambda x: x.confidence)
+        # Flag if score is too low
+        flagged = top.confidence < 0.85
+        return top.category, top.confidence, flagged
+
+
+class SLMCategorizer:
+    """Semantic classifier using local Qwen 3.5 with rule-based fallback."""
+
+    def __init__(self) -> None:
+        self.rules = RuleBasedCategorizer()
+        self.config = get_config()
+        self.client = CloudLLMClient()
+
+    async def categorize_df(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Categorize transactions using SLM with fallback."""
+        # If SLM is requested but server is down, fallback
+        try:
+            # 1. Fetch few-shot examples
+            few_shot = await self._get_few_shot_examples()
+
+            # 2. Prepare categories list
+            allowed_cats = list(self.rules.rules.keys())
+
+            # 3. Batch LLM call (processing in chunks of 10)
+            results = []
+            for i in range(0, len(df), 10):
+                batch = df.iloc[i : i + 10]
+                batch_res = await self._call_slm_batch(batch, allowed_cats, few_shot)
+                results.extend(batch_res)
+
+            # 4. Map results back to DataFrame
+            cat_df = pd.DataFrame(results)
+            return cat_df
+
+        except Exception as e:
+            logger.warning("SLM Categorization failed: %s. Falling back to rules.", e)
+            return self.rules.categorize_df(df)
+
+    async def _get_few_shot_examples(self) -> str:
+        """Fetch historical user-corrected transactions for prompt."""
+        try:
+            async with get_connection() as conn:
+                async with conn.cursor() as cur:
+                    await cur.execute("""
+                        SELECT merchant_raw, category
+                        FROM transactions
+                        WHERE category_source IN ('user', 'hitl')
+                        AND category IS NOT NULL
+                        LIMIT 10
+                    """)
+                    rows = await cur.fetchall()
+                    if not rows:
+                        return ""
+
+                    ex_str = "\nExamples of previous categorizations:\n"
+                    for row in rows:
+                        ex_str += f"- '{row[0]}' -> {row[1]}\n"
+                    return ex_str
+        except Exception as e:
+            logger.warning("Failed to fetch few-shot examples: %s", e)
+            return ""
+
+    async def _call_slm_batch(
+        self, batch: pd.DataFrame, categories: list[str], few_shot: str
+    ) -> list[dict[str, Any]]:
+        """Call local LLM for a batch of transactions."""
+        tx_list = []
+        for _, row in batch.iterrows():
+            tx_list.append(
+                {
+                    "description": row["description"],
+                    "amount": row["amount_ars"]
+                    if row["currency"] == "ARS"
+                    else row["amount_usd"],
+                    "currency": row["currency"],
+                }
+            )
+
+        system_prompt = f"""You are a financial personal assistant. Your task is to categorize bank transactions.
+Allowed Categories: {", ".join(categories)}
+{few_shot}
+Output ONLY a JSON list of objects, one for each input transaction in order.
+Each object must have:
+- "category": the chosen category string
+- "confidence": a score between 0.0 and 1.0
+- "reasoning": a short string explaining why
+"""
+
+        user_prompt = f"Categorize these transactions:\n{json.dumps(tx_list)}"
+
+        try:
+            content = await self.client.generate(
+                system_prompt,
+                user_prompt,
+                temperature=0.0,
+                response_format={"type": "json_object"},
+            )
+
+            # Robust parsing
+            # Sometimes models wrap in ```json
+            clean_content = content.strip()
+            if clean_content.startswith("```"):
+                clean_content = re.sub(r"```json\s*|\s*```", "", clean_content)
+
+            # Check if it's a list directly or an object with a 'transactions' key
+            parsed = json.loads(clean_content)
+            if isinstance(parsed, dict) and "transactions" in parsed:
+                parsed = parsed["transactions"]
+
+            final_results = []
+            for i, res in enumerate(parsed):
+                cat = res.get("category")
+                conf = float(res.get("confidence", 0.0))
+
+                # Validate category
+                if cat not in categories:
+                    # Fallback to rules for this specific row if LLM hallucinated category
+                    row = batch.iloc[i]
+                    rule_res = self.rules.categorize_df(pd.DataFrame([row])).iloc[0]
+                    final_results.append(rule_res.to_dict())
+                else:
+                    final_results.append(
+                        {
+                            "category": cat,
+                            "category_score": conf,
+                            "category_source": "auto",
+                            "is_flagged": conf < 0.75,
+                        }
+                    )
+            return final_results
+        except Exception as e:
+            logger.error("Failed to process SLM batch: %s", e)
+            raise ValueError("SLM processing failed") from e
+
+
+def get_categorizer() -> RuleBasedCategorizer | SLMCategorizer:
+    """Factory function to get the configured categorizer."""
+    config = get_config()
+    if config.parser.categorizer_type == "slm":
+        return SLMCategorizer()
+    return RuleBasedCategorizer()

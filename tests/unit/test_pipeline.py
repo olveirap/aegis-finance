@@ -3,13 +3,11 @@ import pytest
 from aegis.parsers.pipeline import run_pipeline
 from aegis.parsers.dataframe import EXPECTED_SCHEMA
 
-
 @pytest.mark.asyncio
 async def test_run_pipeline_empty():
     df = await run_pipeline([])
     assert len(df) == 0
     assert list(df.columns) == list(EXPECTED_SCHEMA.keys())
-
 
 @pytest.mark.asyncio
 async def test_run_pipeline_integration(tmp_path):
@@ -33,9 +31,9 @@ async def test_run_pipeline_integration(tmp_path):
         {"type": "icbc", "path": icbc_csv},
         {"type": "mercadopago", "path": mp_csv},
     ]
-
+    
     df = await run_pipeline(sources, usd_rate=1000.0)
-
+    
     assert len(df) == 3
     # icbc has 2 rows, mp has 1 row
 
@@ -51,7 +49,8 @@ async def test_run_pipeline_integration(tmp_path):
     assert df["amount_ars_equivalent"].notna().all()
 
     # Categorizer should have run
+    # Supermercado -> Food (based on existing category rules)
     assert df.loc[0, "category"] in ["Food", "Other"]
-
+    
     # Schema check
     assert list(df.columns) == list(EXPECTED_SCHEMA.keys())

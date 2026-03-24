@@ -17,6 +17,7 @@ from aegis.graph.privacy import privacy_node
 from aegis.tools.search import search_duckduckgo
 from aegis.tools.browser import browse_url, is_whitelisted
 from aegis.common.cloud_llm import CloudLLMClient
+from aegis.config import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,8 @@ async def research_flow_node(state: dict[str, Any]) -> dict[str, Any]:
         }
 
     # 3. Filter and Browse
-    # Select top 2 whitelisted results
+    # Select top whitelisted results based on config
+    max_pages = get_config().rag.research_max_pages
     browsed_content = []
     for res in search_results:
         url = res["href"]
@@ -63,7 +65,7 @@ async def research_flow_node(state: dict[str, Any]) -> dict[str, Any]:
                         "content": content[:3000],  # Limit content size
                     }
                 )
-        if len(browsed_content) >= 2:
+        if len(browsed_content) >= max_pages:
             break
 
     # 4. Synthesis
