@@ -9,7 +9,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
-from typing import Protocol
+from typing import Protocol, Any
 
 from psycopg_pool import ConnectionPool
 
@@ -153,21 +153,21 @@ class PgVectorStore(StorageBackend):
     ) -> list[dict[str, Any]]:
         """Search for similar chunks."""
         vector_str = "[" + ",".join(map(str, query_vector)) + "]"
-        
+
         where_clauses = []
         params = [vector_str]
-        
+
         if source_type:
             where_clauses.append("source_type = %s")
             params.append(source_type)
         if argentina_specific is not None:
             where_clauses.append("argentina_specific = %s")
             params.append(argentina_specific)
-            
+
         where_str = " WHERE " + " AND ".join(where_clauses) if where_clauses else ""
-        
+
         query = f"""
-            SELECT 
+            SELECT
                 content,
                 source,
                 source_title,
