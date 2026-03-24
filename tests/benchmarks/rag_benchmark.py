@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 # --- PROMPT CONSTANTS for Reproducibility ---
 
-JUDGE_RELEVANCE_PROMPT = """You are an expert financial evaluator. 
+JUDGE_RELEVANCE_PROMPT = """You are an expert financial evaluator.
 Your task is to determine if the provided retrieved document chunk contains information that is highly relevant and necessary to answer the user's query.
 
 Query: {query}

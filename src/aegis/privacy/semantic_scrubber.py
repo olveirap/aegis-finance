@@ -69,7 +69,7 @@ class SemanticScrubber:
             entities = self._parse_response(response)
 
             result = text
-            for entity in entities:
+            for entity in sorted(entities, key=len, reverse=True):
                 # Avoid redacting already bucketed or tokenized items
                 if entity.startswith("[") and entity.endswith("]"):
                     continue
