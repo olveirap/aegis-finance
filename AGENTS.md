@@ -37,7 +37,7 @@ We use `pytest` and `pytest-asyncio` for our testing framework.
 - **Type Hinting:** Comprehensive type hinting is mandatory for all function signatures (arguments and return types) and class attributes.
 - **Docstrings:** Provide concise docstrings for all modules, public classes, and public functions explaining the *why* and *what*, but avoid redundant comments for obvious code.
 - **Error Handling:** Use custom exception classes when appropriate. Catch specific exceptions rather than a broad `except Exception:` unless specifically building a top-level error boundary.
-- **Naming Conventions:** 
+- **Naming Conventions:**
   - `snake_case` for variables, functions, and modules.
   - `PascalCase` for classes and type variables.
   - `UPPER_SNAKE_CASE` for constants.
@@ -49,7 +49,7 @@ We use `pytest` and `pytest-asyncio` for our testing framework.
 
 ### 3.3. Architectural Principles
 - **SOLID Principles:** Keep classes and functions focused on a single responsibility.
-- **Hybrid LLM Routing:** Respect the architectural boundary between Local LLMs (Qwen 3.5) and Cloud LLMs. 
+- **Hybrid LLM Routing:** Respect the architectural boundary between Local LLMs (Qwen 3.5) and Cloud LLMs.
   - Local LLMs handle: PII scrubbing, Text-to-SQL generation, RAG, and categorization.
   - Cloud LLMs handle: Complex reasoning and web search synthesis (only utilizing anonymized data).
 - **LangGraph:** Orchestration logic and state machines should leverage LangGraph. Maintain clear state definitions.

@@ -13,7 +13,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from aegis.config import get_config
 from aegis.graph.privacy import privacy_node
 from aegis.tools.search import search_duckduckgo
 from aegis.tools.browser import browse_url, is_whitelisted
@@ -92,14 +91,14 @@ async def research_flow_node(state: dict[str, Any]) -> dict[str, Any]:
 async def _synthesize_research(query: str, context: str) -> str:
     """Synthesize research findings using the cloud client (with local fallback)."""
     cloud_client = CloudLLMClient()
-    
-    system_prompt = """You are a financial research assistant. 
+
+    system_prompt = """You are a financial research assistant.
 Based on the following search results and browsed content, answer the user's query.
 The user's query has been anonymized for privacy.
 Be objective, cite your sources, and focus on the Argentine financial market context if applicable."""
 
     user_prompt = f"Query: {query}\n\nResearch Context:\n{context}\n\nPlease provide a comprehensive answer."
-    
+
     try:
         return await cloud_client.generate(system_prompt, user_prompt, temperature=0.3)
     except Exception as e:
