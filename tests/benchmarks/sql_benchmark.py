@@ -135,13 +135,13 @@ class SQLBenchmarkRunner:
         if df_gen.empty and df_golden.empty:
             return True
             
-        # Basic check: do they have the same shape?
-        if df_gen.shape != df_golden.shape:
+        try:
+            # Reorder columns to match if necessary
+            df_gen = df_gen[df_golden.columns]
+            pd.testing.assert_frame_equal(df_gen, df_golden, check_dtype=False, check_exact=False)
+            return True
+        except (AssertionError, KeyError):
             return False
-            
-        # For simplicity in this benchmark, we just check if the values are roughly the same
-        # across the first row/column if it's a scalar result
-        return True # Placeholder for more complex comparison logic
 
 
 if __name__ == "__main__":

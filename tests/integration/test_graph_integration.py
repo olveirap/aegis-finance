@@ -9,15 +9,6 @@ from aegis.graph.router import QueryType
 
 
 @pytest.mark.asyncio
-@patch("aegis.graph.router.router_node", new_callable=AsyncMock)
-@patch("aegis.graph.sql_flow.sql_flow_node", new_callable=AsyncMock)
-@patch("aegis.graph.staleness.staleness_node", new_callable=AsyncMock)
-async def test_graph_flow_sql_to_staleness(mock_stale, mock_sql, mock_router):
-    # This test verifies that the graph can be partially mocked if we were building it.
-    # But since aegis_graph is compiled at import, we mostly rely on internal mocks.
-    pass
-
-@pytest.mark.asyncio
 async def test_full_graph_execution_mocked():
     """Test the compiled graph by mocking all external side effects."""
     
