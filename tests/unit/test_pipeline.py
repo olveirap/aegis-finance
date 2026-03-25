@@ -7,15 +7,10 @@ from aegis.parsers.dataframe import EXPECTED_SCHEMA
 @pytest.mark.asyncio
 async def test_run_pipeline_empty():
     df = await run_pipeline([])
-@pytest.mark.asyncio
-async def test_run_pipeline_empty():
-    df = await run_pipeline([])
     assert len(df) == 0
     assert list(df.columns) == list(EXPECTED_SCHEMA.keys())
 
 
-@pytest.mark.asyncio
-async def test_run_pipeline_integration(tmp_path):
 @pytest.mark.asyncio
 async def test_run_pipeline_integration(tmp_path):
     # Create fixture files

@@ -152,10 +152,14 @@ def _validate_syntax_and_whitelist(sql: str) -> None:
         parsed = sqlglot.parse_one(sql, read="postgres")
         if not isinstance(parsed, exp.Select):
             raise ValueError("Query must be a SELECT statement.")
+    except sqlglot.errors.ParseError as e:
+        raise ValueError(f"Failed to parse SQL: {e}")
 
     # Check for forbidden base tables or unknown views
     # Simple regex to find words after FROM or JOIN
-    from_join_pattern = re.compile(r"(?:FROM|JOIN)\s+([a-zA-Z_][a-zA-Z_0-9]*)", re.IGNORECASE)
+    from_join_pattern = re.compile(
+        r"(?:FROM|JOIN)\s+([a-zA-Z_][a-zA-Z_0-9]*)", re.IGNORECASE
+    )
     tables = from_join_pattern.findall(sql)
 
     for table in tables:
