@@ -152,16 +152,24 @@ def _validate_syntax_and_whitelist(sql: str) -> None:
         parsed = sqlglot.parse_one(sql, read="postgres")
         if not isinstance(parsed, exp.Select):
             raise ValueError("Query must be a SELECT statement.")
-
-        # Extract all table/view identifiers
-        tables = [t.name.lower() for t in parsed.find_all(exp.Table)]
-        for table in tables:
-            if table not in ALLOWED_VIEWS:
-                raise ValueError(
-                    f"Query attempts to use unauthorized table/view: '{table}'. Only {', '.join(ALLOWED_VIEWS)} are allowed."
-                )
     except sqlglot.errors.ParseError as e:
-        raise ValueError(f"SQL Syntax Error: {e}")
+        raise ValueError(f"Failed to parse SQL: {e}")
+
+    # Check for forbidden base tables or unknown views
+    # Simple regex to find words after FROM or JOIN
+    from_join_pattern = re.compile(
+        r"(?:FROM|JOIN)\s+([a-zA-Z_][a-zA-Z_0-9]*)", re.IGNORECASE
+    )
+    tables = from_join_pattern.findall(sql)
+
+    for table in tables:
+        # Ignore subqueries or functions that might be captured
+        if table.upper() in {"SELECT", "UNNEST", "LATERAL", "AS", "ON"}:
+            continue
+        if table.lower() not in ALLOWED_VIEWS:
+            raise ValueError(
+                f"Query attempts to use unauthorized table/view: '{table}'. Only {', '.join(ALLOWED_VIEWS)} are allowed."
+            )
 
 
 async def _validate_schema(sql: str) -> None:
