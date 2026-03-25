@@ -49,61 +49,68 @@ class SQLBenchmarkRunner:
             try:
                 # 1. Generate SQL via flow node
                 state = {"query": query}
-                # We need to mock the LLM if we want a pure code test, 
+                # We need to mock the LLM if we want a pure code test,
                 # but for a benchmark we usually run against the real LLM.
                 # Assuming llama.cpp is running.
                 node_result = await sql_flow_node(state)
-                
+
                 # Check if we got a final_answer (error) or sql_result
-                generated_sql = ""
-                # Since sql_flow_node doesn't return the SQL string in the state, 
-                # we'd need to modify it or extract it. 
+                # Since sql_flow_node doesn't return the SQL string in the state,
+                # we'd need to modify it or extract it.
                 # Let's assume for benchmark we want to see the SQL.
                 # I will modify sql_flow_node slightly to include 'generated_sql' in state.
-                
+
                 # For now, let's just compare the execution results if sql_result exists
                 if "sql_result" in node_result:
                     gen_data = node_result["sql_result"]
                     # 2. Get golden results
                     golden_data = await self._execute_sql(golden_sql)
-                    
+
                     # 3. Compare
                     is_match = self._compare_results(gen_data, golden_data)
                     if is_match:
                         metrics["execution_match"] += 1
-                    
-                    results.append({
-                        "query": query,
-                        "golden_sql": golden_sql,
-                        "match": is_match,
-                        "error": None
-                    })
+
+                    results.append(
+                        {
+                            "query": query,
+                            "golden_sql": golden_sql,
+                            "match": is_match,
+                            "error": None,
+                        }
+                    )
                 else:
                     metrics["errors"] += 1
-                    results.append({
-                        "query": query,
-                        "golden_sql": golden_sql,
-                        "match": False,
-                        "error": node_result.get("final_answer", "Unknown error")
-                    })
+                    results.append(
+                        {
+                            "query": query,
+                            "golden_sql": golden_sql,
+                            "match": False,
+                            "error": node_result.get("final_answer", "Unknown error"),
+                        }
+                    )
 
             except Exception as e:
                 logger.error(f"Failed to evaluate query '{query}': {e}")
                 metrics["errors"] += 1
-                results.append({
-                    "query": query,
-                    "golden_sql": golden_sql,
-                    "match": False,
-                    "error": str(e)
-                })
+                results.append(
+                    {
+                        "query": query,
+                        "golden_sql": golden_sql,
+                        "match": False,
+                        "error": str(e),
+                    }
+                )
 
         # Calculate accuracy
-        metrics["accuracy"] = metrics["execution_match"] / metrics["total"] if metrics["total"] > 0 else 0
+        metrics["accuracy"] = (
+            metrics["execution_match"] / metrics["total"] if metrics["total"] > 0 else 0
+        )
 
         final_output = {
             "timestamp": datetime.now().isoformat(),
             "metrics": metrics,
-            "details": results
+            "details": results,
         }
 
         os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
@@ -124,29 +131,33 @@ class SQLBenchmarkRunner:
             logger.error(f"SQL execution failed: {e}")
             return []
 
-    def _compare_results(self, gen: List[Dict[str, Any]], golden: List[Dict[str, Any]]) -> bool:
+    def _compare_results(
+        self, gen: List[Dict[str, Any]], golden: List[Dict[str, Any]]
+    ) -> bool:
         if len(gen) != len(golden):
             return False
-        
+
         # Compare as DataFrames for easier handling of column order and types
         df_gen = pd.DataFrame(gen)
         df_golden = pd.DataFrame(golden)
-        
+
         if df_gen.empty and df_golden.empty:
             return True
-            
-        # Basic check: do they have the same shape?
-        if df_gen.shape != df_golden.shape:
+
+        try:
+            # Reorder columns to match if necessary
+            df_gen = df_gen[df_golden.columns]
+            pd.testing.assert_frame_equal(
+                df_gen, df_golden, check_dtype=False, check_exact=False
+            )
+            return True
+        except (AssertionError, KeyError):
             return False
-            
-        # For simplicity in this benchmark, we just check if the values are roughly the same
-        # across the first row/column if it's a scalar result
-        return True # Placeholder for more complex comparison logic
 
 
 if __name__ == "__main__":
     runner = SQLBenchmarkRunner(
         dataset_path="tests/benchmarks/data/sql_golden.json",
-        output_path="tests/benchmarks/results/sql_results.json"
+        output_path="tests/benchmarks/results/sql_results.json",
     )
     asyncio.run(runner.run())
