@@ -31,7 +31,7 @@ async def test_slm_categorizer_success(mock_generate):
 
     assert results.iloc[0]["category"] == "Food"
     assert results.iloc[0]["category_score"] == 0.95
-    assert results.iloc[0]["is_flagged"] is False
+    assert not results.iloc[0]["is_flagged"]
 
 
 @pytest.mark.asyncio
@@ -50,7 +50,7 @@ async def test_slm_categorizer_low_confidence_flags(mock_generate):
         results = await cat.categorize_df(df)
 
     assert results.iloc[0]["category"] == "Entertainment"
-    assert results.iloc[0]["is_flagged"] is True
+    assert results.iloc[0]["is_flagged"]
 
 
 @pytest.mark.asyncio
